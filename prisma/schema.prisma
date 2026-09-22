@@ -1,0 +1,188 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id            String        @id @default(cuid())
+  email         String        @unique
+  name          String
+  role          String
+  passwordHash  String
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  sessions      AuthSession[]
+  casosGestor   CasoOncologico[] @relation("CasoGestor")
+  hitos         HitoCaso[]       @relation("HitoActor")
+  notas         NotaCaso[]       @relation("NotaAutor")
+  notificaciones Notificacion[]
+}
+
+model AuthSession {
+  id         String   @id @default(cuid())
+  tokenHash  String   @unique
+  userId     String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Paciente {
+  id              String   @id @default(cuid())
+  rut             String   @unique
+  nombre          String
+  fechaNacimiento DateTime?
+  sexo            String?
+  telefono        String?
+  origenOvalle    Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  casos           CasoOncologico[]
+}
+
+// Un mismo paciente puede tener varios casos activos en paralelo (ej. dos patologías
+// oncológicas distintas al mismo tiempo) — no se asume un único caso activo por paciente.
+model CasoOncologico {
+  id                String    @id @default(cuid())
+  pacienteId        String
+  patologiaSospecha String
+  origenIngreso     String?
+  fase              String    @default("sospecha")
+  hito              String    @default("ingreso_ic_ges")
+  estado            String    @default("activo")
+  motivoCierre      String?
+  fechaCierre       DateTime?
+  gestorUserId      String?
+  viaTratamiento    String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  paciente       Paciente             @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
+  gestor         User?                @relation("CasoGestor", fields: [gestorUserId], references: [id], onDelete: SetNull)
+  hitos          HitoCaso[]
+  plazos         PlazoGes[]
+  comites        ComitePresentacion[]
+  derivaciones   Derivacion[]
+  notas          NotaCaso[]
+  notificaciones Notificacion[]
+
+  @@index([fase, estado])
+  @@index([gestorUserId])
+}
+
+model HitoCaso {
+  id          String   @id @default(cuid())
+  casoId      String
+  fase        String
+  hito        String
+  fecha       DateTime @default(now())
+  actorUserId String?
+  comentario  String?
+  createdAt   DateTime @default(now())
+
+  caso  CasoOncologico @relation(fields: [casoId], references: [id], onDelete: Cascade)
+  actor User?          @relation("HitoActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([casoId, createdAt])
+}
+
+// Notas de texto libre de cualquier actor (gestor oncológico, enfermera de policlínico,
+// admisión, admin) sobre el caso — a diferencia de HitoCaso, no avanza fase/hito ni abre/cierra
+// plazos: es solo un registro de observaciones/coordinación entre los distintos roles que
+// participan del caso.
+model NotaCaso {
+  id          String   @id @default(cuid())
+  casoId      String
+  autorUserId String?
+  texto       String
+  createdAt   DateTime @default(now())
+
+  caso  CasoOncologico @relation(fields: [casoId], references: [id], onDelete: Cascade)
+  autor User?          @relation("NotaAutor", fields: [autorUserId], references: [id], onDelete: SetNull)
+
+  @@index([casoId, createdAt])
+}
+
+// Un plazo GES por tipo (confirmacion_diagnostica | etapificacion | inicio_tratamiento |
+// seguimiento) por caso. fechaLimite = fechaInicio + diasPlazo (diasPlazo copiado desde
+// PlazoConfig al momento de crear el plazo, para no cambiar retroactivamente casos ya en curso
+// si el admin ajusta el default después).
+model PlazoGes {
+  id                String    @id @default(cuid())
+  casoId            String
+  tipo              String
+  fechaInicio       DateTime
+  diasPlazo         Int
+  fechaLimite       DateTime
+  fechaCumplimiento DateTime?
+  estado            String    @default("pendiente")
+  alerta15dEnviada  Boolean   @default(false)
+  alerta5dEnviada   Boolean   @default(false)
+  alerta0dEnviada   Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  caso CasoOncologico @relation(fields: [casoId], references: [id], onDelete: Cascade)
+
+  @@index([casoId])
+  @@index([estado, fechaLimite])
+}
+
+// Días por defecto por tipo de plazo GES, editables por admin. Los valores seed son
+// referenciales ("ajustar según normativa vigente de la patología"), no un dato legal real.
+model PlazoConfig {
+  tipo             String @id
+  label            String
+  diasPlazoDefault Int
+  updatedAt        DateTime @updatedAt
+}
+
+model ComitePresentacion {
+  id            String   @id @default(cuid())
+  casoId        String
+  fecha         DateTime
+  decision      String?
+  observaciones String?
+  createdAt     DateTime @default(now())
+
+  caso CasoOncologico @relation(fields: [casoId], references: [id], onDelete: Cascade)
+
+  @@index([casoId])
+}
+
+model Derivacion {
+  id            String   @id @default(cuid())
+  casoId        String
+  tipo          String
+  destino       String?
+  fecha         DateTime @default(now())
+  estado        String   @default("pendiente")
+  observaciones String?
+  createdAt     DateTime @default(now())
+
+  caso CasoOncologico @relation(fields: [casoId], references: [id], onDelete: Cascade)
+
+  @@index([casoId])
+}
+
+model Notificacion {
+  id              String   @id @default(cuid())
+  casoId          String?
+  destinationRole String?
+  userId          String?
+  text            String
+  read            Boolean  @default(false)
+  createdAt       DateTime @default(now())
+
+  caso CasoOncologico? @relation(fields: [casoId], references: [id], onDelete: Cascade)
+  user User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([destinationRole, read])
+  @@index([userId, read])
+}
