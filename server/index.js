@@ -29,7 +29,14 @@ import {
   serializePlazo,
 } from './lib/casos.js';
 
-const prisma = new PrismaClient();
+// timeout/maxWait por defecto (5s/2s) se quedan cortos contra Neon por la latencia de red —
+// mismo ajuste que agendas-repo.
+const prisma = new PrismaClient({
+  transactionOptions: {
+    maxWait: 10000,
+    timeout: 20000,
+  },
+});
 
 process.on('unhandledRejection', (reason) => {
   console.error('Unhandled promise rejection:', reason);
@@ -138,7 +145,7 @@ app.get('/api/health', async (_req, res) => {
     prisma.paciente.count(),
     prisma.casoOncologico.count(),
   ]);
-  res.json({ ok: true, database: 'sqlite', pacientes, casos, timestamp: new Date().toISOString() });
+  res.json({ ok: true, database: 'postgresql', pacientes, casos, timestamp: new Date().toISOString() });
 });
 
 app.get('/api/bootstrap', async (_req, res) => {

@@ -2,7 +2,12 @@ import { PrismaClient } from '@prisma/client';
 import { hashPassword } from '../server/lib/auth.js';
 import { PLAZO_CONFIG_DEFAULT, TIPO_PLAZO_LABELS, aplicarHito } from '../server/lib/casos.js';
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  transactionOptions: {
+    maxWait: 10000,
+    timeout: 20000,
+  },
+});
 
 const USERS = [
   { email: 'admin@hospital.local', name: 'Administradora DDI', role: 'admin' },
