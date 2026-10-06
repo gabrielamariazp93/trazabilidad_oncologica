@@ -13,6 +13,12 @@ export default function App() {
   const [bootstrap, setBootstrap] = useState(null);
   const [casoSeleccionadoId, setCasoSeleccionadoId] = useState(null);
   const [modulo, setModulo] = useState('casos');
+  const [quimioPacienteObjetivo, setQuimioPacienteObjetivo] = useState(null);
+
+  function handleHabilitarQuimio(paciente) {
+    setQuimioPacienteObjetivo(paciente);
+    setModulo('quimio');
+  }
 
   const cargarSesion = useCallback(async () => {
     setLoading(true);
@@ -116,13 +122,19 @@ export default function App() {
 
       <main className="max-w-7xl mx-auto px-4 py-6">
         {modulo === 'quimio' ? (
-          <QuimioApp user={user} bootstrap={bootstrap} />
+          <QuimioApp
+            user={user}
+            bootstrap={bootstrap}
+            pacienteObjetivo={quimioPacienteObjetivo}
+            onConsumirPacienteObjetivo={() => setQuimioPacienteObjetivo(null)}
+          />
         ) : casoSeleccionadoId ? (
           <CasoDetailView
             casoId={casoSeleccionadoId}
             user={user}
             bootstrap={bootstrap}
             onVolver={() => setCasoSeleccionadoId(null)}
+            onHabilitarQuimio={handleHabilitarQuimio}
           />
         ) : (
           <DashboardView user={user} bootstrap={bootstrap} onAbrirCaso={setCasoSeleccionadoId} />

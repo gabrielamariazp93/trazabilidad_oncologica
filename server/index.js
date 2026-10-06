@@ -29,7 +29,19 @@ import {
   serializePlazo,
 } from './lib/casos.js';
 import { createQuimioRouter } from './routes/quimio.js';
-import { ACCIONES_CICLO, ESTADO_CICLO_LABELS, ESTADO_RECETA_LABELS, ESTADOS_RECETA, TURNOS } from './lib/quimio.js';
+import {
+  ACCIONES_CICLO,
+  CATEGORIA_FARMACO_LABELS,
+  CATEGORIAS_FARMACO,
+  ESTADO_CICLO_LABELS,
+  ESTADO_RECETA_LABELS,
+  ESTADOS_RECETA,
+  INTENCION_LABELS,
+  INTENCIONES,
+  RIESGO_EMETICO_LABELS,
+  RIESGOS_EMETICOS,
+  TURNOS,
+} from './lib/quimio.js';
 
 // timeout/maxWait por defecto (5s/2s) se quedan cortos contra Neon por la latencia de red —
 // mismo ajuste que agendas-repo.
@@ -165,6 +177,9 @@ app.get('/api/bootstrap', async (_req, res) => {
       estadosCiclo: Object.keys(ESTADO_CICLO_LABELS).map((id) => ({ id, label: ESTADO_CICLO_LABELS[id] })),
       acciones: ACCIONES_CICLO,
       turnos: TURNOS,
+      categoriasFarmaco: CATEGORIAS_FARMACO.map((id) => ({ id, label: CATEGORIA_FARMACO_LABELS[id] })),
+      intenciones: INTENCIONES.map((id) => ({ id, label: INTENCION_LABELS[id] })),
+      riesgosEmeticos: RIESGOS_EMETICOS.map((id) => ({ id, label: RIESGO_EMETICO_LABELS[id] })),
     },
   });
 });

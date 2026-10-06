@@ -1,18 +1,20 @@
-import React, { useState } from 'react';
-import { FileText, Armchair, FlaskConical, Syringe, BarChart3 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { FileText, Armchair, FlaskConical, Syringe, BarChart3, LayoutDashboard } from 'lucide-react';
 import RecetasList from './RecetasList.jsx';
 import SillonesGrilla from './SillonesGrilla.jsx';
 import ColaPreparacion from './ColaPreparacion.jsx';
 import ColaAdministracion from './ColaAdministracion.jsx';
 import EstadisticasQuimio from './EstadisticasQuimio.jsx';
+import TableroPaciente from './TableroPaciente.jsx';
 
 const DEFAULT_TAB_BY_ROLE = {
   farmacia: 'preparacion',
-  enfermera_quimio: 'administracion',
+  enfermera_quimio: 'tablero',
   oncologo: 'recetas',
 };
 
 const TABS = [
+  { id: 'tablero', label: 'Tablero', icon: LayoutDashboard },
   { id: 'recetas', label: 'Recetas', icon: FileText },
   { id: 'sillones', label: 'Sillones', icon: Armchair },
   { id: 'preparacion', label: 'Preparación', icon: FlaskConical },
@@ -20,8 +22,16 @@ const TABS = [
   { id: 'estadisticas', label: 'Estadísticas', icon: BarChart3 },
 ];
 
-export default function QuimioApp({ user, bootstrap }) {
+export default function QuimioApp({ user, bootstrap, pacienteObjetivo, onConsumirPacienteObjetivo }) {
   const [tab, setTab] = useState(DEFAULT_TAB_BY_ROLE[user.role] ?? 'recetas');
+  const [pacienteTablero, setPacienteTablero] = useState(null);
+
+  useEffect(() => {
+    if (pacienteObjetivo) {
+      setPacienteTablero(pacienteObjetivo);
+      setTab('tablero');
+    }
+  }, [pacienteObjetivo]);
 
   return (
     <div>
@@ -44,6 +54,16 @@ export default function QuimioApp({ user, bootstrap }) {
         })}
       </div>
 
+      {tab === 'tablero' && (
+        <TableroPaciente
+          bootstrap={bootstrap}
+          pacienteInicial={pacienteTablero}
+          onConsumido={() => {
+            setPacienteTablero(null);
+            onConsumirPacienteObjetivo?.();
+          }}
+        />
+      )}
       {tab === 'recetas' && <RecetasList user={user} bootstrap={bootstrap} />}
       {tab === 'sillones' && <SillonesGrilla user={user} bootstrap={bootstrap} />}
       {tab === 'preparacion' && <ColaPreparacion user={user} bootstrap={bootstrap} />}

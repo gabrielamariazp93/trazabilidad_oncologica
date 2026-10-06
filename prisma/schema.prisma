@@ -218,9 +218,17 @@ model RecetaQuimio {
   medicoUserId            String?
   protocolo               String
   indicacion              String?
+  diagnostico             String?
+  intencion               String?
+  riesgoEmetico           String?
   numeroCiclosTotal       Int
   intervaloDias           Int
+  pesoKg                  Float?
+  tallaCm                 Float?
   superficieCorporal      Float?
+  otrasIndicaciones       String?
+  neupogenIndicado        Boolean   @default(false)
+  neupogenDias            String?
   estado                  String    @default("borrador")
   farmaciaUserId          String?
   fechaValidacion         DateTime?
@@ -238,13 +246,17 @@ model RecetaQuimio {
   @@index([estado])
 }
 
+// categoria: premedicacion (ej. Dexametasona 12h antes) | quimioterapia (las drogas citotóxicas
+// propiamente tal) | rescate (indicaciones PRN post-sesión, ej. "Ondansetron si hay vómitos").
 model DetalleRecetaFarmaco {
   id                  String @id @default(cuid())
   recetaId            String
+  categoria           String @default("quimioterapia")
   farmaco             String
   dosis               String
   unidad              String
   via                 String
+  frecuencia          String?
   duracionInfusionMin Int?
   orden               Int    @default(0)
 

@@ -3,6 +3,7 @@ import {
   ACCIONES_CICLO,
   TURNOS,
   aplicarTransicionCiclo,
+  calcularSuperficieCorporal,
   construirGrilla,
   rolPuedeAccion,
   serializeCiclo,
@@ -90,9 +91,26 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
     res.json({ recetas: recetas.map(serializeReceta) });
   });
 
+  function mapFarmacoInput(f, idx) {
+    return {
+      categoria: f.categoria ?? 'quimioterapia',
+      farmaco: f.farmaco,
+      dosis: String(f.dosis ?? ''),
+      unidad: f.unidad ?? '',
+      via: f.via ?? '',
+      frecuencia: f.frecuencia ?? null,
+      duracionInfusionMin: f.duracionInfusionMin ? Number(f.duracionInfusionMin) : null,
+      orden: idx,
+    };
+  }
+
   router.post('/quimio/recetas', async (req, res) => {
     if (!requireRoles(req, res, RECETA_EDITOR_ROLES)) return;
-    const { pacienteId, protocolo, indicacion, numeroCiclosTotal, intervaloDias, superficieCorporal, farmacos } = req.body ?? {};
+    const {
+      pacienteId, protocolo, indicacion, diagnostico, intencion, riesgoEmetico,
+      numeroCiclosTotal, intervaloDias, pesoKg, tallaCm, superficieCorporal,
+      otrasIndicaciones, neupogenIndicado, neupogenDias, farmacos,
+    } = req.body ?? {};
     if (!pacienteId || !protocolo || !numeroCiclosTotal || !intervaloDias) {
       res.status(400).json({ error: 'pacienteId, protocolo, numeroCiclosTotal e intervaloDias son obligatorios.' });
       return;
@@ -103,26 +121,27 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
       return;
     }
 
+    const sc = superficieCorporal ? Number(superficieCorporal) : calcularSuperficieCorporal(pesoKg ? Number(pesoKg) : null, tallaCm ? Number(tallaCm) : null);
+
     const receta = await prisma.recetaQuimio.create({
       data: {
         pacienteId,
         medicoUserId: req.authUser.id,
         protocolo,
         indicacion: indicacion ?? null,
+        diagnostico: diagnostico ?? null,
+        intencion: intencion ?? null,
+        riesgoEmetico: riesgoEmetico ?? null,
         numeroCiclosTotal: Number(numeroCiclosTotal),
         intervaloDias: Number(intervaloDias),
-        superficieCorporal: superficieCorporal ? Number(superficieCorporal) : null,
+        pesoKg: pesoKg ? Number(pesoKg) : null,
+        tallaCm: tallaCm ? Number(tallaCm) : null,
+        superficieCorporal: sc,
+        otrasIndicaciones: otrasIndicaciones ?? null,
+        neupogenIndicado: !!neupogenIndicado,
+        neupogenDias: neupogenDias ?? null,
         farmacos: {
-          create: Array.isArray(farmacos)
-            ? farmacos.map((f, idx) => ({
-                farmaco: f.farmaco,
-                dosis: String(f.dosis ?? ''),
-                unidad: f.unidad ?? '',
-                via: f.via ?? '',
-                duracionInfusionMin: f.duracionInfusionMin ? Number(f.duracionInfusionMin) : null,
-                orden: idx,
-              }))
-            : [],
+          create: Array.isArray(farmacos) ? farmacos.map(mapFarmacoInput) : [],
         },
       },
       include: RECETA_INCLUDE,
@@ -146,28 +165,36 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
       return;
     }
 
-    const { protocolo, indicacion, numeroCiclosTotal, intervaloDias, superficieCorporal, farmacos } = req.body ?? {};
+    const {
+      protocolo, indicacion, diagnostico, intencion, riesgoEmetico,
+      numeroCiclosTotal, intervaloDias, pesoKg, tallaCm, superficieCorporal,
+      otrasIndicaciones, neupogenIndicado, neupogenDias, farmacos,
+    } = req.body ?? {};
     const data = {};
     if (protocolo !== undefined) data.protocolo = protocolo;
     if (indicacion !== undefined) data.indicacion = indicacion;
+    if (diagnostico !== undefined) data.diagnostico = diagnostico;
+    if (intencion !== undefined) data.intencion = intencion;
+    if (riesgoEmetico !== undefined) data.riesgoEmetico = riesgoEmetico;
     if (numeroCiclosTotal !== undefined) data.numeroCiclosTotal = Number(numeroCiclosTotal);
     if (intervaloDias !== undefined) data.intervaloDias = Number(intervaloDias);
-    if (superficieCorporal !== undefined) data.superficieCorporal = superficieCorporal ? Number(superficieCorporal) : null;
+    if (pesoKg !== undefined) data.pesoKg = pesoKg ? Number(pesoKg) : null;
+    if (tallaCm !== undefined) data.tallaCm = tallaCm ? Number(tallaCm) : null;
+    if (superficieCorporal !== undefined) {
+      data.superficieCorporal = superficieCorporal
+        ? Number(superficieCorporal)
+        : calcularSuperficieCorporal(data.pesoKg ?? receta.pesoKg, data.tallaCm ?? receta.tallaCm);
+    }
+    if (otrasIndicaciones !== undefined) data.otrasIndicaciones = otrasIndicaciones;
+    if (neupogenIndicado !== undefined) data.neupogenIndicado = !!neupogenIndicado;
+    if (neupogenDias !== undefined) data.neupogenDias = neupogenDias;
 
     await prisma.$transaction(async (tx) => {
       await tx.recetaQuimio.update({ where: { id: receta.id }, data });
       if (Array.isArray(farmacos)) {
         await tx.detalleRecetaFarmaco.deleteMany({ where: { recetaId: receta.id } });
         await tx.detalleRecetaFarmaco.createMany({
-          data: farmacos.map((f, idx) => ({
-            recetaId: receta.id,
-            farmaco: f.farmaco,
-            dosis: String(f.dosis ?? ''),
-            unidad: f.unidad ?? '',
-            via: f.via ?? '',
-            duracionInfusionMin: f.duracionInfusionMin ? Number(f.duracionInfusionMin) : null,
-            orden: idx,
-          })),
+          data: farmacos.map((f, idx) => ({ recetaId: receta.id, ...mapFarmacoInput(f, idx) })),
         });
       }
     });

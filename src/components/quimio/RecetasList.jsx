@@ -113,6 +113,7 @@ export default function RecetasList({ user, bootstrap }) {
 
       {mostrarForm && (
         <RecetaForm
+          bootstrap={bootstrap}
           onClose={() => setMostrarForm(false)}
           onCreada={(receta) => {
             setMostrarForm(false);

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { ArrowLeft, Users, Stethoscope, PlusCircle, Lock, Unlock } from 'lucide-react';
+import { ArrowLeft, Users, Stethoscope, PlusCircle, Lock, Unlock, Pill } from 'lucide-react';
 import {
   fetchCaso,
   registrarHito,
@@ -18,7 +18,9 @@ const EDITOR_ROLES = ['admin', 'gestor_oncologico', 'enfermera_policlinico'];
 // pueden avanzar hitos — el único rol sin acceso de escritura es "lectura".
 const NOTA_ROLES = EDITOR_ROLES.concat('admision');
 
-export default function CasoDetailView({ casoId, user, bootstrap, onVolver }) {
+const HABILITAR_QUIMIO_ROLES = ['enfermera_quimio', 'oncologo', 'gestor_oncologico', 'admin'];
+
+export default function CasoDetailView({ casoId, user, bootstrap, onVolver, onHabilitarQuimio }) {
   const [caso, setCaso] = useState(null);
   const [error, setError] = useState(null);
   const [cargando, setCargando] = useState(true);
@@ -37,6 +39,7 @@ export default function CasoDetailView({ casoId, user, bootstrap, onVolver }) {
   const [motivoCierre, setMotivoCierre] = useState('');
 
   const puedeEditar = EDITOR_ROLES.includes(user.role);
+  const puedeHabilitarQuimio = HABILITAR_QUIMIO_ROLES.includes(user.role);
   const puedeAnotar = NOTA_ROLES.includes(user.role);
 
   const cargar = useCallback(async () => {
@@ -215,6 +218,22 @@ export default function CasoDetailView({ casoId, user, bootstrap, onVolver }) {
           </div>
         </div>
       </div>
+
+      {caso.viaTratamiento === 'quimioterapia' && puedeHabilitarQuimio && (
+        <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-5 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-purple-800 text-sm">
+            <Pill className="w-4 h-4" />
+            Este caso tiene quimioterapia como vía de tratamiento.
+          </div>
+          <button
+            type="button"
+            onClick={() => onHabilitarQuimio?.({ id: caso.paciente.id, nombre: caso.paciente.nombre, rut: caso.paciente.rut })}
+            className="text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white rounded-md px-3 py-1.5"
+          >
+            Habilitar quimioterapia para este paciente
+          </button>
+        </div>
+      )}
 
       <div className="grid lg:grid-cols-3 gap-5">
         <div className="lg:col-span-2 space-y-5">

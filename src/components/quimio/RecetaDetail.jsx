@@ -73,12 +73,21 @@ export default function RecetaDetail({ receta, user, onVolver, onCambio }) {
               </span>
             </div>
             <div className="text-sm text-slate-500 mt-1">RUT {receta.paciente?.rut} · {receta.protocolo}</div>
+            {receta.diagnostico && <div className="text-sm text-slate-600 mt-1">{receta.diagnostico}{receta.intencionLabel ? ` · ${receta.intencionLabel}` : ''}</div>}
             {receta.indicacion && <div className="text-sm text-slate-600 mt-1">{receta.indicacion}</div>}
             <div className="text-xs text-slate-400 mt-1">
               {receta.numeroCiclosTotal} ciclos · cada {receta.intervaloDias} días
+              {receta.pesoKg && receta.tallaCm ? ` · ${receta.pesoKg} kg, ${receta.tallaCm} cm` : ''}
               {receta.superficieCorporal ? ` · SC ${receta.superficieCorporal} m²` : ''}
+              {receta.riesgoEmeticoLabel ? ` · Riesgo emético ${receta.riesgoEmeticoLabel.toLowerCase()}` : ''}
               {receta.medico ? ` · Prescrito por ${receta.medico.name}` : ''}
             </div>
+            {(receta.otrasIndicaciones || receta.neupogenIndicado) && (
+              <div className="text-xs text-slate-500 mt-2 bg-slate-50 rounded-md px-2.5 py-1.5">
+                {receta.otrasIndicaciones && <div>{receta.otrasIndicaciones}</div>}
+                {receta.neupogenIndicado && <div>Neupogen indicado{receta.neupogenDias ? ` · ${receta.neupogenDias}` : ''}</div>}
+              </div>
+            )}
           </div>
         </div>
 
@@ -129,24 +138,27 @@ export default function RecetaDetail({ receta, user, onVolver, onCambio }) {
       <div className="grid md:grid-cols-2 gap-5">
         <section className="bg-white border border-slate-200 rounded-lg p-5">
           <h2 className="text-sm font-semibold text-slate-700 mb-3">Fármacos</h2>
-          <table className="w-full text-sm">
-            <thead className="text-xs text-slate-400 uppercase">
-              <tr>
-                <th className="text-left pb-1.5">Fármaco</th>
-                <th className="text-left pb-1.5">Dosis</th>
-                <th className="text-left pb-1.5">Vía</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {receta.farmacos?.map((f) => (
-                <tr key={f.id}>
-                  <td className="py-1.5 text-slate-700">{f.farmaco}</td>
-                  <td className="py-1.5 text-slate-600">{f.dosis} {f.unidad}</td>
-                  <td className="py-1.5 text-slate-600">{f.via}{f.duracionInfusionMin ? ` · ${f.duracionInfusionMin} min` : ''}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {['premedicacion', 'quimioterapia', 'rescate'].map((categoria) => {
+            const items = receta.farmacos?.filter((f) => f.categoria === categoria) ?? [];
+            if (!items.length) return null;
+            return (
+              <div key={categoria} className="mb-3 last:mb-0">
+                <div className="text-xs font-medium text-slate-500 mb-1">{items[0].categoriaLabel}</div>
+                <table className="w-full text-sm">
+                  <tbody className="divide-y divide-slate-50">
+                    {items.map((f) => (
+                      <tr key={f.id}>
+                        <td className="py-1.5 text-slate-700 pr-2">{f.farmaco}</td>
+                        <td className="py-1.5 text-slate-600 pr-2">{f.dosis} {f.unidad}</td>
+                        <td className="py-1.5 text-slate-600 pr-2">{f.via}{f.duracionInfusionMin ? ` · ${f.duracionInfusionMin} min` : ''}</td>
+                        <td className="py-1.5 text-slate-400">{f.frecuencia}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            );
+          })}
         </section>
 
         <section className="bg-white border border-slate-200 rounded-lg p-5">
@@ -161,7 +173,7 @@ export default function RecetaDetail({ receta, user, onVolver, onCambio }) {
             ))}
           </div>
           {receta.estado === 'validada' && (
-            <div className="text-xs text-slate-400 mt-3">Para agendar un nuevo ciclo, ve a la pestaña "Sillones".</div>
+            <div className="text-xs text-slate-400 mt-3">Para agendar una sesión, ve al Tablero del paciente.</div>
           )}
         </section>
       </div>

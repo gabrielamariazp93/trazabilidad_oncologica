@@ -22,3 +22,12 @@ export function formatFechaHora(value) {
   if (!value) return '—';
   return new Date(value).toLocaleString('es-CL');
 }
+
+// Fórmula de Mosteller — misma que server/lib/quimio.js calcularSuperficieCorporal, para
+// previsualizar la SC en el formulario mientras se escribe peso/talla.
+export function calcularSC(pesoKg, tallaCm) {
+  const peso = Number(pesoKg);
+  const talla = Number(tallaCm);
+  if (!peso || !talla) return null;
+  return Math.round(Math.sqrt((peso * talla) / 3600) * 100) / 100;
+}

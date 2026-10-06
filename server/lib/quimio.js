@@ -29,6 +29,39 @@ export const ESTADO_CICLO_LABELS = {
   cancelado: 'Cancelado',
 };
 
+export const CATEGORIAS_FARMACO = ['premedicacion', 'quimioterapia', 'rescate'];
+
+export const CATEGORIA_FARMACO_LABELS = {
+  premedicacion: 'Premedicación',
+  quimioterapia: 'Quimioterapia',
+  rescate: 'Rescate / PRN',
+};
+
+export const INTENCIONES = ['curativa', 'neoadyuvante', 'adyuvante', 'paliativa'];
+
+export const INTENCION_LABELS = {
+  curativa: 'Curativa',
+  neoadyuvante: 'Neoadyuvante',
+  adyuvante: 'Adyuvante',
+  paliativa: 'Paliativa',
+};
+
+export const RIESGOS_EMETICOS = ['minimo', 'bajo', 'moderado', 'alto'];
+
+export const RIESGO_EMETICO_LABELS = {
+  minimo: 'Mínimo',
+  bajo: 'Bajo',
+  moderado: 'Moderado',
+  alto: 'Alto',
+};
+
+// Fórmula de Mosteller — la misma que usan la mayoría de los protocolos de quimio para calcular
+// superficie corporal a partir de peso/talla.
+export function calcularSuperficieCorporal(pesoKg, tallaCm) {
+  if (!pesoKg || !tallaCm) return null;
+  return Math.round(Math.sqrt((pesoKg * tallaCm) / 3600) * 100) / 100;
+}
+
 export const TURNOS = ['Mañana', 'Tarde'];
 
 // Ventana horaria aproximada por turno (la agenda no trae hora exacta, igual que
@@ -104,10 +137,13 @@ export async function aplicarTransicionCiclo(tx, { ciclo, accion, actorUserId, c
 export function serializeDetalleFarmaco(d) {
   return {
     id: d.id,
+    categoria: d.categoria,
+    categoriaLabel: CATEGORIA_FARMACO_LABELS[d.categoria] ?? d.categoria,
     farmaco: d.farmaco,
     dosis: d.dosis,
     unidad: d.unidad,
     via: d.via,
+    frecuencia: d.frecuencia,
     duracionInfusionMin: d.duracionInfusionMin,
     orden: d.orden,
   };
@@ -121,9 +157,19 @@ export function serializeReceta(receta) {
     medico: receta.medico ? { id: receta.medico.id, name: receta.medico.name } : null,
     protocolo: receta.protocolo,
     indicacion: receta.indicacion,
+    diagnostico: receta.diagnostico,
+    intencion: receta.intencion,
+    intencionLabel: receta.intencion ? (INTENCION_LABELS[receta.intencion] ?? receta.intencion) : null,
+    riesgoEmetico: receta.riesgoEmetico,
+    riesgoEmeticoLabel: receta.riesgoEmetico ? (RIESGO_EMETICO_LABELS[receta.riesgoEmetico] ?? receta.riesgoEmetico) : null,
     numeroCiclosTotal: receta.numeroCiclosTotal,
     intervaloDias: receta.intervaloDias,
+    pesoKg: receta.pesoKg,
+    tallaCm: receta.tallaCm,
     superficieCorporal: receta.superficieCorporal,
+    otrasIndicaciones: receta.otrasIndicaciones,
+    neupogenIndicado: receta.neupogenIndicado,
+    neupogenDias: receta.neupogenDias,
     estado: receta.estado,
     estadoLabel: ESTADO_RECETA_LABELS[receta.estado] ?? receta.estado,
     farmaceutico: receta.farmaceutico ? { id: receta.farmaceutico.id, name: receta.farmaceutico.name } : null,
