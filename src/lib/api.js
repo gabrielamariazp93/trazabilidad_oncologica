@@ -135,6 +135,18 @@ export async function marcarNotificacionLeida(id) {
 
 // --- Quimioterapia ------------------------------------------------------------
 
+export async function fetchEsquemasQuimio(q) {
+  return request(`/quimio/esquemas${buildQuery({ q })}`);
+}
+
+export async function fetchEsquemaQuimio(id) {
+  return request(`/quimio/esquemas/${id}`);
+}
+
+export async function fetchDisponibilidadQuimio(fecha, duracionMin) {
+  return request(`/quimio/disponibilidad${buildQuery({ fecha, duracionMin })}`);
+}
+
 export async function fetchSillones() {
   return request('/sillones');
 }

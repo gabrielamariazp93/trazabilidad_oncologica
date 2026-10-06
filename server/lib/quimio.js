@@ -2,6 +2,15 @@
 // administración -> estadística. Independiente de CasoOncologico (comparte solo Paciente).
 // Mismo patrón arquitectónico que casos.js: entidad + historial de transiciones de estado.
 
+// El servidor puede correr en cualquier timezone local (ej. America/Santiago, UTC-3) pero las
+// fechas de DiaHabilQuimio se siembran como medianoche UTC exacta ("2027-01-04" -> UTC
+// midnight). Truncar con setHours() opera en hora LOCAL y desfasa el día — por eso todo el
+// módulo normaliza fechas-calendario con esta función en vez de setHours(0,0,0,0).
+export function truncarFechaUTC(fecha) {
+  const d = new Date(fecha);
+  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+}
+
 export const ESTADOS_RECETA = ['borrador', 'validada', 'rechazada', 'anulada'];
 
 export const ESTADO_RECETA_LABELS = {
@@ -62,14 +71,64 @@ export function calcularSuperficieCorporal(pesoKg, tallaCm) {
   return Math.round(Math.sqrt((pesoKg * tallaCm) / 3600) * 100) / 100;
 }
 
-export const TURNOS = ['Mañana', 'Tarde'];
+// Calendario real: ver DiaHabilQuimio (importado de prisma/data/calendario_2027.json). Fuera de
+// ese rango de fechas se usa este fallback genérico para no romper.
+const FALLBACK_HORA_INICIO = '08:15';
+const FALLBACK_HORA_FIN = '16:45';
+export const PASO_BLOQUE_MIN = 30;
 
-// Ventana horaria aproximada por turno (la agenda no trae hora exacta, igual que
-// VENTANA_JORNADA en agendas-repo) — se usa solo para estimar minutos disponibles en la grilla.
-export const VENTANA_TURNO = {
-  Mañana: { inicioMin: 8 * 60, finMin: 13 * 60 },
-  Tarde: { inicioMin: 14 * 60, finMin: 18 * 60 },
-};
+// Resuelve la config hábil/horario de un día: usa la fila real de DiaHabilQuimio si existe
+// (el caller la busca y la pasa acá — esta función queda pura/testeable), si no, cae al
+// fallback (lunes-viernes hábil, fin de semana no hábil).
+export function resolverConfigDia(diaHabilRow, fecha) {
+  if (diaHabilRow) {
+    return { habil: diaHabilRow.habil, feriado: diaHabilRow.feriado, horaInicio: diaHabilRow.horaInicio, horaFin: diaHabilRow.horaFin };
+  }
+  const diaSemana = new Date(fecha).getUTCDay();
+  const habil = diaSemana >= 1 && diaSemana <= 5;
+  return { habil, feriado: false, horaInicio: habil ? FALLBACK_HORA_INICIO : null, horaFin: habil ? FALLBACK_HORA_FIN : null };
+}
+
+function minutosDesdeHora(hora) {
+  const [h, m] = hora.split(':').map(Number);
+  return h * 60 + m;
+}
+
+function horaDesdeMinutos(min) {
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+}
+
+export function sumarMinutos(hora, minutos) {
+  return horaDesdeMinutos(minutosDesdeHora(hora) + minutos);
+}
+
+export function seSuperponen(horaInicioA, horaTerminoA, horaInicioB, horaTerminoB) {
+  const aIni = minutosDesdeHora(horaInicioA);
+  const aFin = minutosDesdeHora(horaTerminoA);
+  const bIni = minutosDesdeHora(horaInicioB);
+  const bFin = minutosDesdeHora(horaTerminoB);
+  return aIni < bFin && aFin > bIni;
+}
+
+// Horarios de inicio posibles (pasos de 30 min) dentro de la ventana hábil del día donde cabe
+// una reserva de duracionMin consecutivos sin chocar con los ciclos ya agendados en ese sillón
+// ese día. ciclosDelSillon: [{horaInicio, horaTermino}].
+export function calcularBloquesLibres(configDia, ciclosDelSillon, duracionMin) {
+  if (!configDia.habil || !configDia.horaInicio || !configDia.horaFin) return [];
+  const inicioMin = minutosDesdeHora(configDia.horaInicio);
+  const finMin = minutosDesdeHora(configDia.horaFin);
+  const ocupados = ciclosDelSillon.map((c) => [minutosDesdeHora(c.horaInicio), minutosDesdeHora(c.horaTermino)]);
+
+  const libres = [];
+  for (let inicio = inicioMin; inicio + duracionMin <= finMin; inicio += PASO_BLOQUE_MIN) {
+    const fin = inicio + duracionMin;
+    const choca = ocupados.some(([oi, of_]) => inicio < of_ && fin > oi);
+    if (!choca) libres.push(horaDesdeMinutos(inicio));
+  }
+  return libres;
+}
 
 // Catálogo de transiciones válidas de CicloQuimio. `roles` son los roles (además de admin, que
 // siempre puede) habilitados para ejecutar la acción — la validación de rol la hace el router
@@ -144,8 +203,31 @@ export function serializeDetalleFarmaco(d) {
     unidad: d.unidad,
     via: d.via,
     frecuencia: d.frecuencia,
+    nSesion: d.nSesion,
     duracionInfusionMin: d.duracionInfusionMin,
     orden: d.orden,
+  };
+}
+
+export function serializeLineaEsquema(l) {
+  return {
+    id: l.id,
+    droga: l.droga,
+    nSesion: l.nSesion,
+    nCicloCalculado: l.nCicloCalculado,
+    freqEntreSesiones: l.freqEntreSesiones,
+    freqEntreCiclos: l.freqEntreCiclos,
+    horasSillon: l.horasSillon,
+    orden: l.orden,
+  };
+}
+
+export function serializeEsquema(esquema) {
+  return {
+    id: esquema.id,
+    nombre: esquema.nombre,
+    activo: esquema.activo,
+    lineas: esquema.lineas ? esquema.lineas.map(serializeLineaEsquema) : undefined,
   };
 }
 
@@ -155,6 +237,8 @@ export function serializeReceta(receta) {
     pacienteId: receta.pacienteId,
     paciente: receta.paciente ? { id: receta.paciente.id, rut: receta.paciente.rut, nombre: receta.paciente.nombre } : null,
     medico: receta.medico ? { id: receta.medico.id, name: receta.medico.name } : null,
+    esquemaId: receta.esquemaId,
+    esquema: receta.esquema ? { id: receta.esquema.id, nombre: receta.esquema.nombre } : null,
     protocolo: receta.protocolo,
     indicacion: receta.indicacion,
     diagnostico: receta.diagnostico,
@@ -191,7 +275,8 @@ export function serializeCiclo(ciclo) {
       : undefined,
     numeroCiclo: ciclo.numeroCiclo,
     fechaProgramada: ciclo.fechaProgramada,
-    turno: ciclo.turno,
+    horaInicio: ciclo.horaInicio,
+    horaTermino: ciclo.horaTermino,
     sillonId: ciclo.sillonId,
     sillon: ciclo.sillon ? { id: ciclo.sillon.id, nombre: ciclo.sillon.nombre } : null,
     duracionEstimadaMin: ciclo.duracionEstimadaMin,
@@ -224,40 +309,34 @@ export function serializeSillon(sillon) {
   return { id: sillon.id, nombre: sillon.nombre, activo: sillon.activo };
 }
 
-// Arma la grilla sillón × turno × día (rango [desde, hasta] inclusive) a partir de ciclos reales
-// ya agendados — a diferencia de PabellonAllocation en agendas-repo (plantilla semanal sin
-// fechas), acá cada celda corresponde a una fecha calendario real.
+// Arma la grilla sillón × día (rango [desde, hasta] inclusive) a partir de ciclos reales ya
+// agendados — a diferencia de PabellonAllocation en agendas-repo (plantilla semanal sin
+// fechas), acá cada celda corresponde a una fecha calendario real, con horario exacto (sin
+// turno) igual que en PROGRAMACION del Excel de referencia.
 export function construirGrilla(ciclos, sillones, desde, hasta) {
   const dias = [];
-  const cursor = new Date(desde);
-  cursor.setHours(0, 0, 0, 0);
-  const fin = new Date(hasta);
-  fin.setHours(0, 0, 0, 0);
+  const cursor = truncarFechaUTC(desde);
+  const fin = truncarFechaUTC(hasta);
   while (cursor <= fin) {
     dias.push(new Date(cursor).toISOString().slice(0, 10));
-    cursor.setDate(cursor.getDate() + 1);
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
   }
 
   const celdas = {};
   dias.forEach((dia) => {
     celdas[dia] = {};
-    TURNOS.forEach((turno) => {
-      celdas[dia][turno] = {};
-      sillones.forEach((sillon) => {
-        const ventana = VENTANA_TURNO[turno];
-        celdas[dia][turno][sillon.id] = { minutosDisponibles: ventana.finMin - ventana.inicioMin, minutosOcupados: 0, ciclos: [] };
-      });
+    sillones.forEach((sillon) => {
+      celdas[dia][sillon.id] = { ciclos: [] };
     });
   });
 
   ciclos.forEach((ciclo) => {
     if (!ciclo.sillonId) return;
     const diaKey = new Date(ciclo.fechaProgramada).toISOString().slice(0, 10);
-    const celda = celdas[diaKey]?.[ciclo.turno]?.[ciclo.sillonId];
+    const celda = celdas[diaKey]?.[ciclo.sillonId];
     if (!celda) return;
-    celda.minutosOcupados += ciclo.duracionEstimadaMin;
     celda.ciclos.push(serializeCiclo(ciclo));
   });
 
-  return { dias, turnos: TURNOS, sillones: sillones.map(serializeSillon), celdas };
+  return { dias, sillones: sillones.map(serializeSillon), celdas };
 }

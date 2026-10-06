@@ -74,7 +74,7 @@ export default function ColaAdministracion({ user }) {
               <div>
                 <div className="font-medium text-slate-800">{ciclo.receta?.paciente?.nombre} — ciclo {ciclo.numeroCiclo}</div>
                 <div className="text-xs text-slate-500">
-                  {ciclo.receta?.protocolo} · {formatFecha(ciclo.fechaProgramada)} ({ciclo.turno}){ciclo.sillon ? ` · ${ciclo.sillon.nombre}` : ''}
+                  {ciclo.receta?.protocolo} · {formatFecha(ciclo.fechaProgramada)} {ciclo.horaInicio}–{ciclo.horaTermino}{ciclo.sillon ? ` · ${ciclo.sillon.nombre}` : ''}
                 </div>
                 {ciclo.fechaInicioReal && <div className="text-xs text-slate-400">Inicio real: {formatFechaHora(ciclo.fechaInicioReal)}</div>}
                 <span className={`inline-block mt-1 text-[11px] font-medium px-1.5 py-0.5 rounded-full ${ciclo.estado === 'en_administracion' ? 'bg-blue-100 text-blue-700' : 'bg-indigo-100 text-indigo-700'}`}>

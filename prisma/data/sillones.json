@@ -1,0 +1,82 @@
+[
+ {
+  "nombre": "Sillón 1",
+  "activo": true,
+  "capacidad": 1
+ },
+ {
+  "nombre": "Sillón 2",
+  "activo": true,
+  "capacidad": 1
+ },
+ {
+  "nombre": "Sillón 3",
+  "activo": true,
+  "capacidad": 1
+ },
+ {
+  "nombre": "Sillón 4",
+  "activo": true,
+  "capacidad": 1
+ },
+ {
+  "nombre": "Sillón 5",
+  "activo": true,
+  "capacidad": 1
+ },
+ {
+  "nombre": "Sillón 6",
+  "activo": true,
+  "capacidad": 1
+ },
+ {
+  "nombre": "Sillón 7",
+  "activo": true,
+  "capacidad": 1
+ },
+ {
+  "nombre": "Sillón 8",
+  "activo": true,
+  "capacidad": 1
+ },
+ {
+  "nombre": "Sillón 9",
+  "activo": true,
+  "capacidad": 1
+ },
+ {
+  "nombre": "Sillón 10",
+  "activo": true,
+  "capacidad": 1
+ },
+ {
+  "nombre": "Sillón 11",
+  "activo": true,
+  "capacidad": 1
+ },
+ {
+  "nombre": "Sillón 12",
+  "activo": true,
+  "capacidad": 1
+ },
+ {
+  "nombre": "Sillón 13",
+  "activo": true,
+  "capacidad": 1
+ },
+ {
+  "nombre": "Sillón 14",
+  "activo": true,
+  "capacidad": 1
+ },
+ {
+  "nombre": "Sillón 15",
+  "activo": true,
+  "capacidad": 1
+ },
+ {
+  "nombre": "Sillón 16",
+  "activo": true,
+  "capacidad": 1
+ }
+]

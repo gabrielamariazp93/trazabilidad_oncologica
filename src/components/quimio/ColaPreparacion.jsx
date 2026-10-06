@@ -66,7 +66,7 @@ export default function ColaPreparacion({ user }) {
           <div key={ciclo.id} className="bg-white border border-slate-200 rounded-lg p-4 flex flex-wrap items-center justify-between gap-3">
             <div>
               <div className="font-medium text-slate-800">{ciclo.receta?.paciente?.nombre} — ciclo {ciclo.numeroCiclo}</div>
-              <div className="text-xs text-slate-500">{ciclo.receta?.protocolo} · {formatFecha(ciclo.fechaProgramada)} ({ciclo.turno}){ciclo.sillon ? ` · ${ciclo.sillon.nombre}` : ''}</div>
+              <div className="text-xs text-slate-500">{ciclo.receta?.protocolo} · {formatFecha(ciclo.fechaProgramada)} {ciclo.horaInicio}–{ciclo.horaTermino}{ciclo.sillon ? ` · ${ciclo.sillon.nombre}` : ''}</div>
               <span className={`inline-block mt-1 text-[11px] font-medium px-1.5 py-0.5 rounded-full ${ciclo.estado === 'en_preparacion' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-700'}`}>
                 {ciclo.estadoLabel}
               </span>

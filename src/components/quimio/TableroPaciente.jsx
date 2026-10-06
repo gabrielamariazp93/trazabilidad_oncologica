@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { Search, CalendarPlus, Armchair } from 'lucide-react';
-import { buscarPacientes, fetchRecetas, fetchGrillaQuimio, crearCiclo } from '../../lib/api.js';
+import { Search, CalendarPlus } from 'lucide-react';
+import { buscarPacientes, fetchRecetas, crearCiclo } from '../../lib/api.js';
 import { formatFecha } from '../../lib/ui.js';
+import SelectorDisponibilidad from './SelectorDisponibilidad.jsx';
 
 const CICLO_ESTADO_STYLES = {
   programado: 'bg-slate-100 text-slate-700',
@@ -29,9 +30,7 @@ export default function TableroPaciente({ bootstrap, pacienteInicial, onConsumid
   const [cargandoRecetas, setCargandoRecetas] = useState(false);
 
   const [fecha, setFecha] = useState(new Date().toISOString().slice(0, 10));
-  const [grilla, setGrilla] = useState(null);
-  const [turnoSeleccionado, setTurnoSeleccionado] = useState(null);
-  const [sillonSeleccionado, setSillonSeleccionado] = useState(null);
+  const [seleccion, setSeleccion] = useState(null);
   const [numeroCiclo, setNumeroCiclo] = useState(1);
   const [error, setError] = useState(null);
   const [guardando, setGuardando] = useState(false);
@@ -82,22 +81,13 @@ export default function TableroPaciente({ bootstrap, pacienteInicial, onConsumid
     if (receta) setNumeroCiclo((receta.ciclos?.length ?? 0) + 1);
   }, [receta]);
 
-  const cargarGrilla = useCallback(async () => {
-    try {
-      const data = await fetchGrillaQuimio(fecha, fecha);
-      setGrilla(data);
-      setTurnoSeleccionado(null);
-      setSillonSeleccionado(null);
-    } catch (err) {
-      setError(err.message || 'No se pudo cargar la disponibilidad de sillones.');
-    }
-  }, [fecha]);
-
-  useEffect(() => {
-    cargarGrilla();
-  }, [cargarGrilla]);
-
   const minutosNecesarios = useMemo(() => duracionSugerida(receta), [receta]);
+
+  // Si cambia la fecha o la duración necesaria, la selección de sillón+hora anterior deja de
+  // ser válida — se limpia para forzar a elegir de nuevo contra la disponibilidad actual.
+  useEffect(() => {
+    setSeleccion(null);
+  }, [fecha, minutosNecesarios]);
 
   async function handleAgendar(event) {
     event.preventDefault();
@@ -107,8 +97,8 @@ export default function TableroPaciente({ bootstrap, pacienteInicial, onConsumid
       setError('Selecciona una receta validada.');
       return;
     }
-    if (!turnoSeleccionado || !sillonSeleccionado) {
-      setError('Elige un turno y un sillón con cupo disponible.');
+    if (!seleccion) {
+      setError('Elige un sillón y horario con cupo disponible.');
       return;
     }
     setGuardando(true);
@@ -117,12 +107,13 @@ export default function TableroPaciente({ bootstrap, pacienteInicial, onConsumid
         recetaId: receta.id,
         numeroCiclo: Number(numeroCiclo),
         fechaProgramada: fecha,
-        turno: turnoSeleccionado,
-        sillonId: sillonSeleccionado,
+        horaInicio: seleccion.horaInicio,
+        sillonId: seleccion.sillonId,
         duracionEstimadaMin: minutosNecesarios,
       });
-      setExito(`Sesión agendada: ciclo ${numeroCiclo}, ${fecha} (${turnoSeleccionado}).`);
-      await Promise.all([cargarRecetas(), cargarGrilla()]);
+      setExito(`Sesión agendada: ciclo ${numeroCiclo}, ${fecha} ${seleccion.horaInicio}.`);
+      setSeleccion(null);
+      await cargarRecetas();
     } catch (err) {
       setError(err.message || 'No se pudo agendar la sesión.');
     } finally {
@@ -203,7 +194,7 @@ export default function TableroPaciente({ bootstrap, pacienteInicial, onConsumid
                       <div className="text-[11px] font-medium text-slate-400 uppercase">{items[0].categoriaLabel}</div>
                       {items.map((f) => (
                         <div key={f.id} className="text-sm text-slate-600">
-                          {f.farmaco} {f.dosis} {f.unidad} · {f.via}{f.frecuencia ? ` · ${f.frecuencia}` : ''}
+                          {f.farmaco} {f.dosis} {f.unidad} · {f.via}{f.frecuencia ? ` · ${f.frecuencia}` : ''}{f.nSesion ? ` · ${f.nSesion}` : ''}
                         </div>
                       ))}
                     </div>
@@ -217,7 +208,7 @@ export default function TableroPaciente({ bootstrap, pacienteInicial, onConsumid
                   <div className="space-y-1.5">
                     {receta.ciclos?.map((c) => (
                       <div key={c.id} className="flex items-center justify-between text-sm">
-                        <span className="text-slate-600">Ciclo {c.numeroCiclo} — {formatFecha(c.fechaProgramada)} ({c.turno}){c.sillon ? ` · ${c.sillon.nombre}` : ''}</span>
+                        <span className="text-slate-600">Ciclo {c.numeroCiclo} — {formatFecha(c.fechaProgramada)} {c.horaInicio}–{c.horaTermino}{c.sillon ? ` · ${c.sillon.nombre}` : ''}</span>
                         <span className={`text-[11px] font-medium px-1.5 py-0.5 rounded-full ${CICLO_ESTADO_STYLES[c.estado] ?? 'bg-slate-100 text-slate-700'}`}>{c.estadoLabel}</span>
                       </div>
                     ))}
@@ -248,57 +239,14 @@ export default function TableroPaciente({ bootstrap, pacienteInicial, onConsumid
 
                 <div className="text-xs text-slate-400">Duración estimada: {minutosNecesarios} min</div>
 
-                <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1.5 flex items-center gap-1">
-                    <Armchair className="w-3.5 h-3.5" /> Cupos disponibles el {formatFecha(fecha)}
-                  </label>
-                  {!grilla && <div className="text-sm text-slate-400">Cargando disponibilidad…</div>}
-                  {grilla && (
-                    <div className="space-y-2">
-                      {grilla.turnos.map((turno) => (
-                        <div key={turno}>
-                          <div className="text-xs font-medium text-slate-600 mb-1">{turno}</div>
-                          <div className="flex flex-wrap gap-1.5">
-                            {grilla.sillones.map((sillon) => {
-                              const celda = grilla.celdas[fecha]?.[turno]?.[sillon.id];
-                              const libres = celda ? celda.minutosDisponibles - celda.minutosOcupados : 0;
-                              const tieneCupo = libres >= minutosNecesarios;
-                              const seleccionado = turnoSeleccionado === turno && sillonSeleccionado === sillon.id;
-                              return (
-                                <button
-                                  type="button"
-                                  key={sillon.id}
-                                  disabled={!tieneCupo}
-                                  onClick={() => {
-                                    setTurnoSeleccionado(turno);
-                                    setSillonSeleccionado(sillon.id);
-                                  }}
-                                  className={`text-xs rounded-md px-2.5 py-1.5 border ${
-                                    seleccionado
-                                      ? 'bg-blue-600 text-white border-blue-600'
-                                      : tieneCupo
-                                        ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-                                        : 'border-slate-200 bg-slate-50 text-slate-300 cursor-not-allowed'
-                                  }`}
-                                >
-                                  {sillon.nombre}
-                                  <span className="block text-[10px] opacity-80">{tieneCupo ? `${libres} min libres` : 'sin cupo'}</span>
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <SelectorDisponibilidad fecha={fecha} duracionMin={minutosNecesarios} value={seleccion} onChange={setSeleccion} />
 
                 {error && <div className="text-sm text-red-600">{error}</div>}
                 {exito && <div className="text-sm text-emerald-600">{exito}</div>}
 
                 <button
                   type="submit"
-                  disabled={guardando || !turnoSeleccionado}
+                  disabled={guardando || !seleccion}
                   className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium rounded-md px-3 py-2"
                 >
                   Agendar sesión

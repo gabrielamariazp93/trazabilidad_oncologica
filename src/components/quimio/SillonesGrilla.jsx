@@ -20,7 +20,7 @@ function toISODate(date) {
 
 const AGENDA_ROLES = ['enfermera_quimio', 'admin'];
 
-export default function SillonesGrilla({ user, bootstrap }) {
+export default function SillonesGrilla({ user }) {
   const [semanaBase, setSemanaBase] = useState(() => inicioSemana(new Date()));
   const [grilla, setGrilla] = useState(null);
   const [cargando, setCargando] = useState(true);
@@ -77,58 +77,52 @@ export default function SillonesGrilla({ user, bootstrap }) {
       {cargando && <div className="text-sm text-slate-400">Cargando grilla…</div>}
 
       {!cargando && grilla && (
-        <div className="space-y-6">
-          {grilla.turnos.map((turno) => (
-            <div key={turno} className="bg-white border border-slate-200 rounded-lg overflow-hidden">
-              <div className="bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700">{turno}</div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="text-xs text-slate-400 uppercase">
-                      <th className="text-left px-3 py-2 w-28">Sillón</th>
-                      {grilla.dias.map((dia) => (
-                        <th key={dia} className="text-left px-3 py-2 min-w-[140px]">
-                          {DIAS_LABEL[new Date(dia).getDay()]} {dia.slice(8, 10)}/{dia.slice(5, 7)}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-50">
-                    {grilla.sillones.map((sillon) => (
-                      <tr key={sillon.id}>
-                        <td className="px-3 py-2 font-medium text-slate-700 align-top">{sillon.nombre}</td>
-                        {grilla.dias.map((dia) => {
-                          const celda = grilla.celdas[dia]?.[turno]?.[sillon.id];
-                          return (
-                            <td key={dia} className="px-3 py-2 align-top">
-                              {celda?.ciclos.length ? (
-                                <div className="space-y-1">
-                                  {celda.ciclos.map((c) => (
-                                    <div key={c.id} className="text-xs bg-blue-50 text-blue-700 rounded px-1.5 py-1">
-                                      {c.receta.paciente.nombre} · ciclo {c.numeroCiclo}
-                                      <div className="text-[10px] text-blue-500">{c.estadoLabel}</div>
-                                    </div>
-                                  ))}
+        <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-xs text-slate-400 uppercase">
+                  <th className="text-left px-3 py-2 w-28 sticky left-0 bg-white">Sillón</th>
+                  {grilla.dias.map((dia) => (
+                    <th key={dia} className="text-left px-3 py-2 min-w-[140px]">
+                      {DIAS_LABEL[new Date(dia).getDay()]} {dia.slice(8, 10)}/{dia.slice(5, 7)}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {grilla.sillones.map((sillon) => (
+                  <tr key={sillon.id}>
+                    <td className="px-3 py-2 font-medium text-slate-700 align-top sticky left-0 bg-white">{sillon.nombre}</td>
+                    {grilla.dias.map((dia) => {
+                      const celda = grilla.celdas[dia]?.[sillon.id];
+                      return (
+                        <td key={dia} className="px-3 py-2 align-top">
+                          {celda?.ciclos.length ? (
+                            <div className="space-y-1">
+                              {celda.ciclos.map((c) => (
+                                <div key={c.id} className="text-xs bg-blue-50 text-blue-700 rounded px-1.5 py-1">
+                                  {c.horaInicio} · {c.receta.paciente.nombre} · ciclo {c.numeroCiclo}
+                                  <div className="text-[10px] text-blue-500">{c.estadoLabel}</div>
                                 </div>
-                              ) : (
-                                <span className="text-xs text-slate-300">—</span>
-                              )}
-                            </td>
-                          );
-                        })}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          ))}
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-xs text-slate-300">—</span>
+                          )}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
       {mostrarForm && (
         <AgendarCicloForm
-          bootstrap={bootstrap}
           fechaInicial={fechaPreseleccionada}
           onClose={() => setMostrarForm(false)}
           onCreado={() => {

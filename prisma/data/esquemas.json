@@ -1,0 +1,1422 @@
+{
+ "AC-21": [
+  {
+   "droga": "doxorrubicina",
+   "nSesion": "D1",
+   "nCicloCalculado": 4,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 1.5
+  },
+  {
+   "droga": "ciclofosfamida",
+   "nSesion": "D1",
+   "nCicloCalculado": 4,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 2
+  }
+ ],
+ "AC-15": [
+  {
+   "droga": "doxorrubicina",
+   "nSesion": "D1",
+   "nCicloCalculado": 4,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 1.5
+  },
+  {
+   "droga": "ciclofosfamida",
+   "nSesion": "D1",
+   "nCicloCalculado": 4,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 2
+  }
+ ],
+ "FOLFOX 6": [
+  {
+   "droga": "oxaliplatino",
+   "nSesion": "D1",
+   "nCicloCalculado": 10,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 3
+  },
+  {
+   "droga": "leucovorina",
+   "nSesion": "D1",
+   "nCicloCalculado": 10,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 1
+  },
+  {
+   "droga": "5-fluoracilo",
+   "nSesion": "D1",
+   "nCicloCalculado": 10,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 1.5
+  },
+  {
+   "droga": "5-fu infusor",
+   "nSesion": "D1",
+   "nCicloCalculado": 10,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 1
+  }
+ ],
+ "FOLFOX 4 D1": [
+  {
+   "droga": "oxaliplatino",
+   "nSesion": "D1",
+   "nCicloCalculado": 10,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 3
+  },
+  {
+   "droga": "leucovorina",
+   "nSesion": "D1",
+   "nCicloCalculado": 10,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 1
+  },
+  {
+   "droga": "5-fluoracilo",
+   "nSesion": "D1",
+   "nCicloCalculado": 10,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 1.5
+  },
+  {
+   "droga": "5-fu infusor",
+   "nSesion": "D1",
+   "nCicloCalculado": 10,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 1
+  }
+ ],
+ "FOLFOX 4 D2": [
+  {
+   "droga": "leucovorina",
+   "nSesion": "D2",
+   "nCicloCalculado": 10,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 3
+  },
+  {
+   "droga": "5-fluoracilo",
+   "nSesion": "D2",
+   "nCicloCalculado": 10,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 1.5
+  },
+  {
+   "droga": "5-fu infusor",
+   "nSesion": "D2",
+   "nCicloCalculado": 10,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 1
+  }
+ ],
+ "FOLFIRI": [
+  {
+   "droga": "Irinotecan",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 3
+  },
+  {
+   "droga": "leucovorina",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 1
+  },
+  {
+   "droga": "5 fluoracilo",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 1.5
+  },
+  {
+   "droga": "5 FU infusor ",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 1
+  }
+ ],
+ "FOLFIRINOX": [
+  {
+   "droga": "Irinotecan",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 3
+  },
+  {
+   "droga": "leucovorina",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 1
+  },
+  {
+   "droga": "oxaliplatino",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 3
+  },
+  {
+   "droga": "5 fluoracilo",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 1.5
+  },
+  {
+   "droga": "5 FU infusor ",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 1
+  }
+ ],
+ "FLOT": [
+  {
+   "droga": "docetaxel",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 2
+  },
+  {
+   "droga": "oxaliplatino",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 3
+  },
+  {
+   "droga": "leucovorina",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 1
+  },
+  {
+   "droga": "5 FU infusor ",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 1
+  }
+ ],
+ "EP HASTA 100 MG": [
+  {
+   "droga": "etoposido",
+   "nSesion": "D1,D2,D3,D4,D5",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 4
+  },
+  {
+   "droga": "cisplatino",
+   "nSesion": "D1,D2,D3,D4,D5",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 1.5
+  }
+ ],
+ "EP SOBRE 100 MG": [
+  {
+   "droga": "etoposido",
+   "nSesion": "D1,D2,D3,D4,D5",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 5
+  },
+  {
+   "droga": "cisplatino",
+   "nSesion": "D1,D2,D3,D4,D5",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 1.5
+  }
+ ],
+ "R-CHOEP D1 C1": [
+  {
+   "droga": "rituximab",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 6.5
+  }
+ ],
+ "R-CHOEP D1 C2 O MAS": [
+  {
+   "droga": "rituximab",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 5.5
+  }
+ ],
+ "R-CHOEP D2": [
+  {
+   "droga": "doxorrubicina",
+   "nSesion": "D2",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 1.5
+  },
+  {
+   "droga": "ciclofosfamida",
+   "nSesion": "D2",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 2
+  },
+  {
+   "droga": "etoposido",
+   "nSesion": "D2",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 2
+  },
+  {
+   "droga": "vincristina",
+   "nSesion": "D2",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 1.5
+  }
+ ],
+ "R-CHOEP D3": [
+  {
+   "droga": "etoposido",
+   "nSesion": "D3",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 2
+  }
+ ],
+ "R-CHOEP D4": [
+  {
+   "droga": "etoposido",
+   "nSesion": "D4",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 2
+  }
+ ],
+ "R-CHOP D1 C1": [
+  {
+   "droga": "rituximab",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 6.5
+  }
+ ],
+ "R-CHOP D1 C2 O MAS": [
+  {
+   "droga": "rituximab",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 5.5
+  }
+ ],
+ "R-CHOP": [
+  {
+   "droga": "doxorrubicina",
+   "nSesion": "D2",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 1.5
+  },
+  {
+   "droga": "ciclofosfamida",
+   "nSesion": "D2",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 2
+  },
+  {
+   "droga": "vincristina",
+   "nSesion": "D2",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 1.5
+  }
+ ],
+ "CHOP": [
+  {
+   "droga": "doxorrubicina",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 1.5
+  },
+  {
+   "droga": "ciclofosfamida",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 2
+  },
+  {
+   "droga": "vincristina",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 1.5
+  }
+ ],
+ "TAXOL-CRB 200 MG": [
+  {
+   "droga": "paclitaxel",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 3
+  },
+  {
+   "droga": "carboplatino",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 2
+  }
+ ],
+ "TAXOL-CRB 300 MG": [
+  {
+   "droga": "paclitaxel",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 4
+  },
+  {
+   "droga": "carboplatino",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 2
+  }
+ ],
+ "TAXOL-CRB 100 MG PS": [
+  {
+   "droga": "paclitaxel",
+   "nSesion": "D1,D8,D15",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 2
+  },
+  {
+   "droga": "carboplatino",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 2
+  }
+ ],
+ "TAXOL-CRB 100 MG": [
+  {
+   "droga": "paclitaxel",
+   "nSesion": "D1,D8,D15",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 2
+  },
+  {
+   "droga": "carboplatino",
+   "nSesion": "D1,D8,D15",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 2
+  }
+ ],
+ "XELOX": [
+  {
+   "droga": "capecitabina",
+   "nSesion": "D2-D16",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 1
+  },
+  {
+   "droga": "oxaliplatino",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 3
+  }
+ ],
+ "XELODA": [
+  {
+   "droga": "capecitabina",
+   "nSesion": "D2-D16",
+   "nCicloCalculado": 4,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 1
+  }
+ ],
+ "TCH": [
+  {
+   "droga": "docetaxel",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 2
+  },
+  {
+   "droga": "carboplatino",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 2
+  },
+  {
+   "droga": "trastuzumab",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 2
+  }
+ ],
+ "BEP": [
+  {
+   "droga": "bleomicina",
+   "nSesion": "D2, D9, D16",
+   "nCicloCalculado": 4,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 1
+  },
+  {
+   "droga": "etoposido",
+   "nSesion": "D1,D2,D3,D4,D5",
+   "nCicloCalculado": 4,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 1.5
+  },
+  {
+   "droga": "cisplatino",
+   "nSesion": "D1,D2,D3,D4,D5",
+   "nCicloCalculado": 4,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 4
+  }
+ ],
+ "ABVD": [
+  {
+   "droga": "doxorrubicina",
+   "nSesion": "D1,D15",
+   "nCicloCalculado": 10,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 1.5
+  },
+  {
+   "droga": "vinblastina",
+   "nSesion": "D1,D15",
+   "nCicloCalculado": 10,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 1.5
+  },
+  {
+   "droga": "dacarbazina",
+   "nSesion": "D1,D15",
+   "nCicloCalculado": 10,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 2.5
+  },
+  {
+   "droga": "bleomicina",
+   "nSesion": "D1,D15",
+   "nCicloCalculado": 10,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 1.5
+  }
+ ],
+ "GMC-CDDP D1": [
+  {
+   "droga": "gemcitabina",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 1.5
+  },
+  {
+   "droga": "cisplatino",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 4
+  }
+ ],
+ "GMC-CDDP D1,D8": [
+  {
+   "droga": "gemcitabina",
+   "nSesion": "D1,D8",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 1.5
+  },
+  {
+   "droga": "cisplatino",
+   "nSesion": "D1,D8",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 4
+  }
+ ],
+ "ALIMTA-CDDP": [
+  {
+   "droga": "cisplatino",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 4
+  },
+  {
+   "droga": "pemetrexed",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 2
+  }
+ ],
+ "R-BENDAMUSTINA C1": [
+  {
+   "droga": "rituximab",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 6.5
+  }
+ ],
+ "R-BENDAMUSTINA C2 O MAS": [
+  {
+   "droga": "rituximab",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 4.5
+  }
+ ],
+ "R-BENDAMUSTINA": [
+  {
+   "droga": "bendamustina",
+   "nSesion": "D1,D2",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 3
+  }
+ ],
+ "XELIRI": [
+  {
+   "droga": "capecitabina",
+   "nSesion": "D2-D16",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 1
+  },
+  {
+   "droga": "Irinotecan",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 2.5
+  }
+ ],
+ "PLT": [
+  {
+   "droga": "paclitaxel",
+   "nSesion": "D1,D8,D15",
+   "nCicloCalculado": 4,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 2
+  }
+ ],
+ "PLT 300 MG": [
+  {
+   "droga": "paclitaxel",
+   "nSesion": "D1",
+   "nCicloCalculado": 4,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 4
+  }
+ ],
+ "TRASTUZUMAB": [
+  {
+   "droga": "trastuzumab",
+   "nSesion": "D1",
+   "nCicloCalculado": 18,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 2
+  },
+  {
+   "droga": "trastuzumab",
+   "nSesion": "D1",
+   "nCicloCalculado": "PERMANENTE",
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 2
+  }
+ ],
+ "ATO-ATRA": [
+  {
+   "droga": "trioxido de arsenico",
+   "nSesion": "D1-D5,D8-D12, D15-D19, D21-D25",
+   "nCicloCalculado": 4,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 35,
+   "horasSillon": 4
+  },
+  {
+   "droga": "atra",
+   "nSesion": "D1",
+   "nCicloCalculado": 4,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 35,
+   "horasSillon": 1
+  }
+ ],
+ "ARAC": [
+  {
+   "droga": "citarabina",
+   "nSesion": "D1,D2,D3",
+   "nCicloCalculado": 4,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 2
+  }
+ ],
+ "AVD": [
+  {
+   "droga": "doxorrubicina",
+   "nSesion": "D1,D15",
+   "nCicloCalculado": 4,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 1.5
+  },
+  {
+   "droga": "vinblastina",
+   "nSesion": "D1,D15",
+   "nCicloCalculado": 4,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 1.5
+  },
+  {
+   "droga": "dacarbazina",
+   "nSesion": "D1,D15",
+   "nCicloCalculado": 4,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 2.5
+  }
+ ],
+ "BORTEZOMIB": [
+  {
+   "droga": "bortezomib",
+   "nSesion": "D1,D8,D15,D22",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 2
+  },
+  {
+   "droga": "bortezomib",
+   "nSesion": "D1,D4,D9,D11",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 2
+  },
+  {
+   "droga": "bortezomib",
+   "nSesion": "D1,D15",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 2
+  }
+ ],
+ "CDDP-CAPECITABNA": [
+  {
+   "droga": "cisplatino",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 5
+  },
+  {
+   "droga": "capecitabina",
+   "nSesion": "D2-D16",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 1
+  }
+ ],
+ "PLT-CDDP": [
+  {
+   "droga": "cisplatino",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 5
+  },
+  {
+   "droga": "paclitaxel",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 3
+  }
+ ],
+ "COP": [
+  {
+   "droga": "CICLOFOFAMIDA",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 2
+  },
+  {
+   "droga": "VINCRISTINA",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 1.5
+  },
+  {
+   "droga": "PREDNISONA",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 1
+  }
+ ],
+ "DECAPEPTYL": [
+  {
+   "droga": "Triptorelina",
+   "nSesion": "D1",
+   "nCicloCalculado": "PERMANENTE",
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 90,
+   "horasSillon": 2
+  }
+ ],
+ "ZOMETA": [
+  {
+   "droga": "acido zoledronico",
+   "nSesion": "D1",
+   "nCicloCalculado": "PERMANENTE",
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 1
+  },
+  {
+   "droga": "acido zoledronico",
+   "nSesion": "D1",
+   "nCicloCalculado": "PERMANENTE",
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 90,
+   "horasSillon": 1
+  }
+ ],
+ "SANDOSTATIN": [
+  {
+   "droga": "sandostatin",
+   "nSesion": "D1",
+   "nCicloCalculado": "PERMANENTE",
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 1
+  }
+ ],
+ "FULVESTRAN": [
+  {
+   "droga": "fulvestran",
+   "nSesion": "D1, D15, D28",
+   "nCicloCalculado": 4,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 2
+  }
+ ],
+ "PEMBROLIZUMAB": [
+  {
+   "droga": "pembrolizumab",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 42,
+   "horasSillon": 2
+  }
+ ],
+ "CETUXIMAB": [
+  {
+   "droga": "cetuximab",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 5
+  }
+ ],
+ "DARATUMUMAB": [
+  {
+   "droga": "daratumumab",
+   "nSesion": "D1, D8, D15, D21",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 6
+  }
+ ],
+ "EMTANSINA": [
+  {
+   "droga": "emtansina",
+   "nSesion": "D1",
+   "nCicloCalculado": 4,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 3.5
+  }
+ ],
+ "NIVOLUMAB": [
+  {
+   "droga": "nivolumab",
+   "nSesion": "D1",
+   "nCicloCalculado": 4,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 3
+  }
+ ],
+ "TOCILIZUMAB": [
+  {
+   "droga": "tocilizumab",
+   "nSesion": "D1",
+   "nCicloCalculado": 4,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 4
+  }
+ ],
+ "INFLIXIMAB": [
+  {
+   "droga": "infliximab",
+   "nSesion": "D1",
+   "nCicloCalculado": 4,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 6
+  }
+ ],
+ "ADR-LIPOSOMAL": [
+  {
+   "droga": "adr-liposomal",
+   "nSesion": "D1",
+   "nCicloCalculado": 4,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 3
+  }
+ ],
+ "INTRATECAL": [
+  {
+   "droga": "intratecal",
+   "nSesion": "D1",
+   "nCicloCalculado": 4,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 2
+  },
+  {
+   "droga": "intratecal",
+   "nSesion": "D1",
+   "nCicloCalculado": 4,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 1
+  }
+ ],
+ "CITARABINA ": [
+  {
+   "droga": "citarabina ",
+   "nSesion": "D1, D2, D3, D4, D5",
+   "nCicloCalculado": 4,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 7,
+   "horasSillon": 2
+  }
+ ],
+ "AZACITIDINA SC": [
+  {
+   "droga": "azacitidina",
+   "nSesion": "D1, D2, D3, D4, D5",
+   "nCicloCalculado": 4,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 2
+  }
+ ],
+ "AZACITIDINA EV 5 DIAS": [
+  {
+   "droga": "azacitidina",
+   "nSesion": "D1, D2, D3, D4, D5",
+   "nCicloCalculado": 4,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 2.5
+  }
+ ],
+ "AZACITIDINA EV 7 DIAS": [
+  {
+   "droga": "azacitidina",
+   "nSesion": "D1, D2, D3, D4, D5, D8, D9",
+   "nCicloCalculado": 4,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 2.5
+  }
+ ],
+ "FLUDARABINA ": [
+  {
+   "droga": "fludarabina ",
+   "nSesion": "D1, D2, D3",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 3
+  }
+ ],
+ "VENOFER 100MG": [
+  {
+   "droga": "venofer",
+   "nSesion": "D1, D3, D5, D7, D9",
+   "nCicloCalculado": 1,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 90,
+   "horasSillon": 2
+  }
+ ],
+ "VENOFER 200MG": [
+  {
+   "droga": "venofer",
+   "nSesion": "D1, D3, D5, D7, D9",
+   "nCicloCalculado": 1,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 90,
+   "horasSillon": 3
+  }
+ ],
+ "FERRINJET": [
+  {
+   "droga": "ferrinjet",
+   "nSesion": "D1",
+   "nCicloCalculado": 1,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 365,
+   "horasSillon": 1.5
+  }
+ ],
+ "RAVULIZUMAB C1": [
+  {
+   "droga": "ravulizumab",
+   "nSesion": "D1, D8, D15",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 7,
+   "horasSillon": 6
+  }
+ ],
+ "RAVULIZUMAB C2 O MAS": [
+  {
+   "droga": "ravulizumab",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 90,
+   "horasSillon": 5
+  }
+ ],
+ "PERTUZUMAB": [
+  {
+   "droga": "PERTUZUMAB",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 3
+  }
+ ],
+ "DOCETAXEL": [
+  {
+   "droga": "docetaxel",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 2
+  }
+ ],
+ "GRAMON D1": [
+  {
+   "droga": "leucovorina",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 2.5
+  },
+  {
+   "droga": "5 fluoracilo",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 1.5
+  },
+  {
+   "droga": "5 fluoracilo inf",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 1
+  }
+ ],
+ "GRAMON D2": [
+  {
+   "droga": "leucovorina",
+   "nSesion": "D2",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 2.5
+  },
+  {
+   "droga": "5 fluoracilo",
+   "nSesion": "D2",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 15,
+   "horasSillon": 1.5
+  }
+ ],
+ "GEMCITABINA": [
+  {
+   "droga": "gemcitabina",
+   "nSesion": "D1, D8, D15",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 1.5
+  }
+ ],
+ "CLEOPATRA": [
+  {
+   "droga": "docetaxel",
+   "nSesion": "D1",
+   "nCicloCalculado": 10,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 2
+  },
+  {
+   "droga": "pertuzumab",
+   "nSesion": "D1",
+   "nCicloCalculado": 10,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 3
+  },
+  {
+   "droga": "trastuzumab",
+   "nSesion": "D1",
+   "nCicloCalculado": 10,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 2
+  }
+ ],
+ "VINCRISTINA": [
+  {
+   "droga": "vincristina",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 1.5
+  }
+ ],
+ "R-GCVP C1": [
+  {
+   "droga": "rituximab",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 6.5
+  }
+ ],
+ "R-GCVP C2 O MAS": [
+  {
+   "droga": "rituximab",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 5.5
+  }
+ ],
+ "R-GCVP": [
+  {
+   "droga": "ciclofosfamida",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 2
+  },
+  {
+   "droga": "vincristina",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 1.5
+  },
+  {
+   "droga": "gemcitabina",
+   "nSesion": "D1, D8",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 1.5
+  }
+ ],
+ "PEMETREXED/CISPLATINO": [
+  {
+   "droga": "pemetrexed",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 1.5
+  },
+  {
+   "droga": "cisplatino",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 5
+  }
+ ],
+ "R-FC C1": [
+  {
+   "droga": "rituximab",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 5.5
+  }
+ ],
+ "R-FC C2 O MAS": [
+  {
+   "droga": "rituximab",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 4.5
+  }
+ ],
+ "R-FC": [
+  {
+   "droga": "fludarabina ",
+   "nSesion": "D1,D2,D3",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 2
+  },
+  {
+   "droga": "ciclofosfamida",
+   "nSesion": "D1,D2,D3",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 2
+  }
+ ],
+ "GMC/DOCETAXEL": [
+  {
+   "droga": "gemcitabina",
+   "nSesion": "D1,D8,D15",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 1.5
+  },
+  {
+   "droga": "docetaxel",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 2
+  }
+ ],
+ "DOCETAXEL/CRB": [
+  {
+   "droga": "docetaxel",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 2
+  },
+  {
+   "droga": "carboplatino",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 2
+  }
+ ],
+ "METOTREXATO": [
+  {
+   "droga": "metotrexato",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 21,
+   "horasSillon": 1
+  }
+ ],
+ "TIP 1-3": [
+  {
+   "droga": "paclitaxel",
+   "nSesion": "D1",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 5
+  },
+  {
+   "droga": "etoposido",
+   "nSesion": "D1,D2,D3",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 2
+  },
+  {
+   "droga": "ifosfamida",
+   "nSesion": "D1,D2,D3",
+   "nCicloCalculado": 6,
+   "freqEntreSesiones": 2,
+   "freqEntreCiclos": 28,
+   "horasSillon": 2
+  }
+ ]
+}

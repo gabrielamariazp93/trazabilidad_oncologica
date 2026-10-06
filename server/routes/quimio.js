@@ -1,14 +1,20 @@
 import express from 'express';
 import {
   ACCIONES_CICLO,
-  TURNOS,
+  PASO_BLOQUE_MIN,
   aplicarTransicionCiclo,
+  calcularBloquesLibres,
   calcularSuperficieCorporal,
   construirGrilla,
+  resolverConfigDia,
   rolPuedeAccion,
+  seSuperponen,
   serializeCiclo,
+  serializeEsquema,
   serializeReceta,
   serializeSillon,
+  sumarMinutos,
+  truncarFechaUTC,
 } from '../lib/quimio.js';
 
 const RECETA_EDITOR_ROLES = ['oncologo', 'admin'];
@@ -19,6 +25,7 @@ const RECETA_INCLUDE = {
   paciente: true,
   medico: true,
   farmaceutico: true,
+  esquema: true,
   farmacos: { orderBy: { orden: 'asc' } },
   ciclos: { orderBy: { numeroCiclo: 'asc' }, include: { sillon: true } },
 };
@@ -51,6 +58,35 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
     }
     return ciclo;
   }
+
+  async function obtenerConfigDia(fecha) {
+    const fechaKey = truncarFechaUTC(fecha);
+    const diaHabilRow = await prisma.diaHabilQuimio.findUnique({ where: { fecha: fechaKey } });
+    return resolverConfigDia(diaHabilRow, fechaKey);
+  }
+
+  // --- Esquemas (catálogo) ------------------------------------------------------------
+
+  router.get('/quimio/esquemas', async (req, res) => {
+    if (!requireAuth(req, res)) return;
+    const q = typeof req.query.q === 'string' ? req.query.q.trim() : '';
+    const where = { activo: true, ...(q ? { nombre: { contains: q, mode: 'insensitive' } } : {}) };
+    const esquemas = await prisma.esquemaQuimio.findMany({ where, orderBy: { nombre: 'asc' } });
+    res.json({ esquemas: esquemas.map(serializeEsquema) });
+  });
+
+  router.get('/quimio/esquemas/:id', async (req, res) => {
+    if (!requireAuth(req, res)) return;
+    const esquema = await prisma.esquemaQuimio.findUnique({
+      where: { id: req.params.id },
+      include: { lineas: { orderBy: { orden: 'asc' } } },
+    });
+    if (!esquema) {
+      res.status(404).json({ error: 'Esquema no encontrado.' });
+      return;
+    }
+    res.json({ esquema: serializeEsquema(esquema) });
+  });
 
   // --- Sillones ------------------------------------------------------------
 
@@ -99,6 +135,7 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
       unidad: f.unidad ?? '',
       via: f.via ?? '',
       frecuencia: f.frecuencia ?? null,
+      nSesion: f.nSesion ?? null,
       duracionInfusionMin: f.duracionInfusionMin ? Number(f.duracionInfusionMin) : null,
       orden: idx,
     };
@@ -107,7 +144,7 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
   router.post('/quimio/recetas', async (req, res) => {
     if (!requireRoles(req, res, RECETA_EDITOR_ROLES)) return;
     const {
-      pacienteId, protocolo, indicacion, diagnostico, intencion, riesgoEmetico,
+      pacienteId, esquemaId, protocolo, indicacion, diagnostico, intencion, riesgoEmetico,
       numeroCiclosTotal, intervaloDias, pesoKg, tallaCm, superficieCorporal,
       otrasIndicaciones, neupogenIndicado, neupogenDias, farmacos,
     } = req.body ?? {};
@@ -127,6 +164,7 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
       data: {
         pacienteId,
         medicoUserId: req.authUser.id,
+        esquemaId: esquemaId || null,
         protocolo,
         indicacion: indicacion ?? null,
         diagnostico: diagnostico ?? null,
@@ -166,11 +204,12 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
     }
 
     const {
-      protocolo, indicacion, diagnostico, intencion, riesgoEmetico,
+      esquemaId, protocolo, indicacion, diagnostico, intencion, riesgoEmetico,
       numeroCiclosTotal, intervaloDias, pesoKg, tallaCm, superficieCorporal,
       otrasIndicaciones, neupogenIndicado, neupogenDias, farmacos,
     } = req.body ?? {};
     const data = {};
+    if (esquemaId !== undefined) data.esquemaId = esquemaId || null;
     if (protocolo !== undefined) data.protocolo = protocolo;
     if (indicacion !== undefined) data.indicacion = indicacion;
     if (diagnostico !== undefined) data.diagnostico = diagnostico;
@@ -271,15 +310,40 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
     res.json({ ciclos: ciclos.map(serializeCiclo) });
   });
 
+  // Valida que [horaInicio, horaInicio+duracionMin) quepa dentro del horario hábil del día y no
+  // choque con otro ciclo ya agendado en ese sillón (cancelado no cuenta como ocupado — libera
+  // el bloque). Devuelve { ok:true, horaTermino } o { ok:false, error }.
+  async function validarHorario({ fecha, horaInicio, duracionMin, sillonId, excluirCicloId }) {
+    const configDia = await obtenerConfigDia(fecha);
+    if (!configDia.habil) {
+      return { ok: false, error: configDia.feriado ? 'Ese día es feriado.' : 'Ese día no es hábil.' };
+    }
+    const horaTermino = sumarMinutos(horaInicio, duracionMin);
+    if (horaInicio < configDia.horaInicio || horaTermino > configDia.horaFin) {
+      return { ok: false, error: `Fuera del horario hábil (${configDia.horaInicio}-${configDia.horaFin}).` };
+    }
+    if (sillonId) {
+      const fechaInicioDia = truncarFechaUTC(fecha);
+      const fechaFinDia = new Date(fechaInicioDia.getTime() + 86400000);
+      const ciclosDelDia = await prisma.cicloQuimio.findMany({
+        where: {
+          sillonId,
+          fechaProgramada: { gte: fechaInicioDia, lt: fechaFinDia },
+          estado: { notIn: ['cancelado'] },
+          ...(excluirCicloId ? { id: { not: excluirCicloId } } : {}),
+        },
+      });
+      const choca = ciclosDelDia.some((c) => seSuperponen(horaInicio, horaTermino, c.horaInicio, c.horaTermino));
+      if (choca) return { ok: false, error: 'Ese sillón ya tiene una sesión agendada que se superpone con ese horario.' };
+    }
+    return { ok: true, horaTermino };
+  }
+
   router.post('/quimio/ciclos', async (req, res) => {
     if (!requireRoles(req, res, AGENDA_ROLES)) return;
-    const { recetaId, numeroCiclo, fechaProgramada, turno, sillonId, duracionEstimadaMin } = req.body ?? {};
-    if (!recetaId || !numeroCiclo || !fechaProgramada || !turno) {
-      res.status(400).json({ error: 'recetaId, numeroCiclo, fechaProgramada y turno son obligatorios.' });
-      return;
-    }
-    if (!TURNOS.includes(turno)) {
-      res.status(400).json({ error: `turno debe ser uno de: ${TURNOS.join(', ')}.` });
+    const { recetaId, numeroCiclo, fechaProgramada, horaInicio, sillonId, duracionEstimadaMin } = req.body ?? {};
+    if (!recetaId || !numeroCiclo || !fechaProgramada || !horaInicio) {
+      res.status(400).json({ error: 'recetaId, numeroCiclo, fechaProgramada y horaInicio son obligatorios.' });
       return;
     }
     const receta = await prisma.recetaQuimio.findUnique({ where: { id: recetaId } });
@@ -292,14 +356,23 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
       return;
     }
 
+    const duracionMin = duracionEstimadaMin ? Number(duracionEstimadaMin) : 180;
+    const fecha = new Date(fechaProgramada);
+    const validacion = await validarHorario({ fecha, horaInicio, duracionMin, sillonId });
+    if (!validacion.ok) {
+      res.status(400).json({ error: validacion.error });
+      return;
+    }
+
     const ciclo = await prisma.cicloQuimio.create({
       data: {
         recetaId,
         numeroCiclo: Number(numeroCiclo),
-        fechaProgramada: new Date(fechaProgramada),
-        turno,
+        fechaProgramada: fecha,
+        horaInicio,
+        horaTermino: validacion.horaTermino,
         sillonId: sillonId ?? null,
-        duracionEstimadaMin: duracionEstimadaMin ? Number(duracionEstimadaMin) : 180,
+        duracionEstimadaMin: duracionMin,
       },
       include: CICLO_INCLUDE,
     });
@@ -324,22 +397,75 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
       res.status(400).json({ error: 'Solo se puede reagendar un ciclo en estado programado.' });
       return;
     }
-    const { fechaProgramada, turno, sillonId, duracionEstimadaMin } = req.body ?? {};
-    if (turno !== undefined && !TURNOS.includes(turno)) {
-      res.status(400).json({ error: `turno debe ser uno de: ${TURNOS.join(', ')}.` });
+    const { fechaProgramada, horaInicio, sillonId, duracionEstimadaMin } = req.body ?? {};
+
+    const fecha = fechaProgramada !== undefined ? new Date(fechaProgramada) : ciclo.fechaProgramada;
+    const horaInicioFinal = horaInicio !== undefined ? horaInicio : ciclo.horaInicio;
+    const duracionMin = duracionEstimadaMin !== undefined ? Number(duracionEstimadaMin) : ciclo.duracionEstimadaMin;
+    const sillonIdFinal = sillonId !== undefined ? (sillonId || null) : ciclo.sillonId;
+
+    const validacion = await validarHorario({ fecha, horaInicio: horaInicioFinal, duracionMin, sillonId: sillonIdFinal, excluirCicloId: ciclo.id });
+    if (!validacion.ok) {
+      res.status(400).json({ error: validacion.error });
       return;
     }
-    const data = {};
-    if (fechaProgramada !== undefined) data.fechaProgramada = new Date(fechaProgramada);
-    if (turno !== undefined) data.turno = turno;
-    if (sillonId !== undefined) data.sillonId = sillonId || null;
-    if (duracionEstimadaMin !== undefined) data.duracionEstimadaMin = Number(duracionEstimadaMin);
 
-    await prisma.cicloQuimio.update({ where: { id: ciclo.id }, data });
+    await prisma.cicloQuimio.update({
+      where: { id: ciclo.id },
+      data: {
+        fechaProgramada: fecha,
+        horaInicio: horaInicioFinal,
+        horaTermino: validacion.horaTermino,
+        sillonId: sillonIdFinal,
+        duracionEstimadaMin: duracionMin,
+      },
+    });
     await prisma.historialCiclo.create({ data: { cicloId: ciclo.id, estado: 'programado', actorUserId: req.authUser.id, comentario: 'Ciclo reagendado.' } });
     const actualizado = await loadCicloOr404(ciclo.id, res);
     if (!actualizado) return;
     res.json({ ciclo: serializeCiclo(actualizado) });
+  });
+
+  // --- Disponibilidad (bloques de 30 min por sillón para un día) ------------------------------
+
+  router.get('/quimio/disponibilidad', async (req, res) => {
+    if (!requireAuth(req, res)) return;
+    if (!req.query.fecha) {
+      res.status(400).json({ error: 'fecha es obligatoria.' });
+      return;
+    }
+    const fecha = new Date(req.query.fecha);
+    const duracionMin = req.query.duracionMin ? Number(req.query.duracionMin) : 180;
+    const configDia = await obtenerConfigDia(fecha);
+
+    const fechaInicioDia = truncarFechaUTC(fecha);
+    const fechaFinDia = new Date(fechaInicioDia.getTime() + 86400000);
+
+    const [sillones, ciclosDelDia] = await Promise.all([
+      prisma.sillon.findMany({ where: { activo: true }, orderBy: { nombre: 'asc' } }),
+      prisma.cicloQuimio.findMany({
+        where: { fechaProgramada: { gte: fechaInicioDia, lt: fechaFinDia }, estado: { notIn: ['cancelado'] } },
+      }),
+    ]);
+
+    const sillonesConBloques = sillones.map((sillon) => {
+      const ciclosDelSillon = ciclosDelDia.filter((c) => c.sillonId === sillon.id);
+      return {
+        id: sillon.id,
+        nombre: sillon.nombre,
+        bloques: calcularBloquesLibres(configDia, ciclosDelSillon, duracionMin),
+      };
+    });
+
+    res.json({
+      fecha: req.query.fecha,
+      habil: configDia.habil,
+      feriado: configDia.feriado,
+      horaInicio: configDia.horaInicio,
+      horaFin: configDia.horaFin,
+      pasoBloqueMin: PASO_BLOQUE_MIN,
+      sillones: sillonesConBloques,
+    });
   });
 
   router.post('/quimio/ciclos/:id/transicion', async (req, res) => {

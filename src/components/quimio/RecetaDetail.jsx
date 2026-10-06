@@ -167,7 +167,7 @@ export default function RecetaDetail({ receta, user, onVolver, onCambio }) {
           <div className="space-y-2">
             {receta.ciclos?.map((c) => (
               <div key={c.id} className="flex items-center justify-between text-sm border-b border-slate-50 pb-1.5">
-                <span className="text-slate-700">Ciclo {c.numeroCiclo} — {formatFecha(c.fechaProgramada)} ({c.turno}){c.sillon ? ` · ${c.sillon.nombre}` : ''}</span>
+                <span className="text-slate-700">Ciclo {c.numeroCiclo} — {formatFecha(c.fechaProgramada)} {c.horaInicio}–{c.horaTermino}{c.sillon ? ` · ${c.sillon.nombre}` : ''}</span>
                 <span className={`text-[11px] font-medium px-1.5 py-0.5 rounded-full ${CICLO_ESTADO_STYLES[c.estado] ?? 'bg-slate-100 text-slate-700'}`}>{c.estadoLabel}</span>
               </div>
             ))}

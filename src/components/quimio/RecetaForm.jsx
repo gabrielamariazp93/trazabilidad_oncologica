@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { X, Plus, Trash2 } from 'lucide-react';
-import { buscarPacientes, crearPaciente, crearReceta } from '../../lib/api.js';
+import { X, Plus, Trash2, FlaskConical } from 'lucide-react';
+import { buscarPacientes, crearPaciente, crearReceta, fetchEsquemasQuimio, fetchEsquemaQuimio } from '../../lib/api.js';
 import { calcularSC } from '../../lib/ui.js';
 
 function farmacoVacio(categoria) {
@@ -13,6 +13,10 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
   const [pacienteSeleccionado, setPacienteSeleccionado] = useState(pacienteInicial ?? null);
   const [nuevoPaciente, setNuevoPaciente] = useState({ rut: '', nombre: '' });
 
+  const [esquemaId, setEsquemaId] = useState(null);
+  const [esquemaNombre, setEsquemaNombre] = useState('');
+  const [busquedaEsquema, setBusquedaEsquema] = useState('');
+  const [resultadosEsquema, setResultadosEsquema] = useState([]);
   const [protocolo, setProtocolo] = useState('');
   const [diagnostico, setDiagnostico] = useState('');
   const [indicacion, setIndicacion] = useState('');
@@ -54,6 +58,58 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
     return () => clearTimeout(debounceRef.current);
   }, [rutBusqueda, pacienteSeleccionado]);
 
+  const debounceEsquemaRef = useRef(null);
+  useEffect(() => {
+    if (debounceEsquemaRef.current) clearTimeout(debounceEsquemaRef.current);
+    if (!busquedaEsquema.trim() || esquemaId) {
+      setResultadosEsquema([]);
+      return;
+    }
+    debounceEsquemaRef.current = setTimeout(async () => {
+      try {
+        const data = await fetchEsquemasQuimio(busquedaEsquema.trim());
+        setResultadosEsquema(data.esquemas);
+      } catch {
+        setResultadosEsquema([]);
+      }
+    }, 250);
+    return () => clearTimeout(debounceEsquemaRef.current);
+  }, [busquedaEsquema, esquemaId]);
+
+  async function seleccionarEsquema(esquemaBasico) {
+    setEsquemaId(esquemaBasico.id);
+    setEsquemaNombre(esquemaBasico.nombre);
+    setBusquedaEsquema(esquemaBasico.nombre);
+    setResultadosEsquema([]);
+    setProtocolo(esquemaBasico.nombre);
+
+    const { esquema } = await fetchEsquemaQuimio(esquemaBasico.id);
+    if (!esquema.lineas?.length) return;
+
+    const primeraNumerica = esquema.lineas.find((l) => /^\d+$/.test(String(l.nCicloCalculado)));
+    if (primeraNumerica) setNumeroCiclosTotal(Number(primeraNumerica.nCicloCalculado));
+    setIntervaloDias(esquema.lineas[0].freqEntreCiclos || 21);
+
+    setQuimioterapia(
+      esquema.lineas.map((l) => ({
+        categoria: 'quimioterapia',
+        farmaco: l.droga,
+        dosis: '',
+        unidad: 'mg/m2',
+        via: 'EV',
+        frecuencia: '',
+        nSesion: l.nSesion,
+        duracionInfusionMin: l.horasSillon ? Math.round(l.horasSillon * 60) : '',
+      }))
+    );
+  }
+
+  function quitarEsquema() {
+    setEsquemaId(null);
+    setEsquemaNombre('');
+    setBusquedaEsquema('');
+  }
+
   function makeSetters(lista, setLista, categoria) {
     return {
       lista,
@@ -91,6 +147,7 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
 
       const data = await crearReceta({
         pacienteId: paciente.id,
+        esquemaId,
         protocolo: protocolo.trim(),
         diagnostico: diagnostico.trim() || null,
         indicacion: indicacion.trim() || null,
@@ -146,13 +203,20 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
             <div key={idx}>
               <FilaFarmaco f={f} idx={idx} onChange={seccion.actualizar} onQuitar={seccion.quitar} placeholderUnidad={mostrarDuracion ? 'mg/m2' : 'mg'} />
               {mostrarDuracion && (
-                <input
-                  type="number"
-                  value={f.duracionInfusionMin}
-                  onChange={(e) => seccion.actualizar(idx, 'duracionInfusionMin', e.target.value)}
-                  placeholder="Duración infusión (min)"
-                  className="mt-1 w-48 border border-slate-300 rounded-md px-2 py-1 text-xs"
-                />
+                <div className="flex items-center gap-2 mt-1">
+                  <input
+                    type="number"
+                    value={f.duracionInfusionMin}
+                    onChange={(e) => seccion.actualizar(idx, 'duracionInfusionMin', e.target.value)}
+                    placeholder="Duración infusión (min)"
+                    className="w-48 border border-slate-300 rounded-md px-2 py-1 text-xs"
+                  />
+                  {f.nSesion && (
+                    <span className="text-[11px] text-indigo-600 bg-indigo-50 rounded px-1.5 py-0.5" title="Día(s) del ciclo según el esquema">
+                      {f.nSesion}
+                    </span>
+                  )}
+                </div>
               )}
             </div>
           ))}
@@ -213,6 +277,45 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
               </div>
             </div>
           )}
+
+          <div>
+            <label className="flex items-center gap-1.5 text-xs font-medium text-slate-500 mb-1">
+              <FlaskConical className="w-3.5 h-3.5" /> Buscar esquema del catálogo
+            </label>
+            <div className="relative">
+              <input
+                value={busquedaEsquema}
+                onChange={(e) => {
+                  setBusquedaEsquema(e.target.value);
+                  if (esquemaId) quitarEsquema();
+                }}
+                placeholder="Ej. AC-21, FOLFOX 6, TAXOL-CRB…"
+                className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm"
+              />
+              {esquemaId && (
+                <button type="button" onClick={quitarEsquema} className="absolute right-2 top-2 text-slate-400 hover:text-slate-600">
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+            {resultadosEsquema.length > 0 && (
+              <div className="mt-1 border border-slate-200 rounded-md divide-y divide-slate-100 max-h-40 overflow-y-auto">
+                {resultadosEsquema.map((e) => (
+                  <button type="button" key={e.id} onClick={() => seleccionarEsquema(e)} className="w-full text-left px-3 py-1.5 text-sm hover:bg-slate-50">
+                    {e.nombre}
+                  </button>
+                ))}
+              </div>
+            )}
+            {esquemaId && (
+              <div className="text-xs text-emerald-600 mt-1">
+                Esquema "{esquemaNombre}" cargado — fármacos y ciclos precargados abajo, puedes seguir editando.
+              </div>
+            )}
+            {!esquemaId && (
+              <div className="text-xs text-slate-400 mt-1">Opcional — si el protocolo no está en el catálogo, complétalo manualmente abajo.</div>
+            )}
+          </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="col-span-2">

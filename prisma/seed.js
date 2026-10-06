@@ -1,6 +1,15 @@
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { PrismaClient } from '@prisma/client';
 import { hashPassword } from '../server/lib/auth.js';
 import { PLAZO_CONFIG_DEFAULT, TIPO_PLAZO_LABELS, aplicarHito } from '../server/lib/casos.js';
+import { sumarMinutos } from '../server/lib/quimio.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+function leerJsonData(nombre) {
+  return JSON.parse(fs.readFileSync(path.join(__dirname, 'data', nombre), 'utf-8'));
+}
 
 const prisma = new PrismaClient({
   transactionOptions: {
@@ -140,15 +149,52 @@ async function main() {
     await avanzar(tx, caso, 'en_controles', enfermera.id, haceDias(10), 'Primer control de seguimiento realizado.', plazoConfigByTipo);
   });
 
-  // --- Quimioterapia: sillones + 1 receta validada con ciclos en 3 estados distintos ---
+  // --- Quimioterapia: esquemas + calendario real + 16 sillones + 1 receta con 3 ciclos ---
   const oncologo = usersByRole.oncologo;
   const farmacia = usersByRole.farmacia;
   const enfermeraQuimio = usersByRole.enfermera_quimio;
 
-  const nombresSillones = ['Sillón 1', 'Sillón 2', 'Sillón 3', 'Sillón 4'];
+  // Catálogo de esquemas (86 protocolos reales, extraídos de la base de trabajo en Excel de la
+  // usuaria — prisma/data/esquemas.json). Idempotente: upsert por nombre de esquema.
+  const esquemasData = leerJsonData('esquemas.json');
+  const esquemasPorNombre = {};
+  for (const [nombre, lineas] of Object.entries(esquemasData)) {
+    const esquema = await prisma.esquemaQuimio.upsert({
+      where: { nombre },
+      update: {},
+      create: { nombre },
+    });
+    await prisma.esquemaFarmacoLinea.deleteMany({ where: { esquemaId: esquema.id } });
+    await prisma.esquemaFarmacoLinea.createMany({
+      data: lineas.map((l, idx) => ({
+        esquemaId: esquema.id,
+        droga: l.droga,
+        nSesion: String(l.nSesion ?? ''),
+        nCicloCalculado: String(l.nCicloCalculado ?? 1),
+        freqEntreSesiones: l.freqEntreSesiones ?? 0,
+        freqEntreCiclos: l.freqEntreCiclos ?? 0,
+        horasSillon: l.horasSillon ?? 0,
+        orden: idx,
+      })),
+    });
+    esquemasPorNombre[nombre] = esquema;
+  }
+
+  // Calendario real 2027 (365 días, hábil/feriado/horario exactos — prisma/data/calendario_2027.json).
+  const calendarioData = leerJsonData('calendario_2027.json');
+  for (const dia of calendarioData) {
+    await prisma.diaHabilQuimio.upsert({
+      where: { fecha: new Date(dia.fecha) },
+      update: { habil: dia.habil, feriado: dia.feriado, horaInicio: dia.horaInicio, horaFin: dia.horaFin },
+      create: { fecha: new Date(dia.fecha), habil: dia.habil, feriado: dia.feriado, horaInicio: dia.horaInicio, horaFin: dia.horaFin },
+    });
+  }
+
+  // 16 sillones reales (prisma/data/sillones.json).
+  const sillonesData = leerJsonData('sillones.json');
   const sillones = [];
-  for (const nombre of nombresSillones) {
-    const sillon = await prisma.sillon.upsert({ where: { nombre }, update: {}, create: { nombre } });
+  for (const s of sillonesData) {
+    const sillon = await prisma.sillon.upsert({ where: { nombre: s.nombre }, update: { activo: s.activo }, create: { nombre: s.nombre, activo: s.activo } });
     sillones.push(sillon);
   }
 
@@ -156,11 +202,13 @@ async function main() {
   // su CasoOncologico) para que la demo cuente una historia coherente entre ambos módulos,
   // aunque el módulo de quimio es independiente y no depende de que exista ese caso.
   await prisma.recetaQuimio.deleteMany({ where: { paciente: { rut: '333333333' } } });
+  const esquemaAC21 = esquemasPorNombre['AC-21'];
   const receta = await prisma.recetaQuimio.create({
     data: {
       pacienteId: pacienteC.id,
       medicoUserId: oncologo.id,
-      protocolo: 'AC (Doxorrubicina + Ciclofosfamida)',
+      esquemaId: esquemaAC21?.id ?? null,
+      protocolo: 'AC-21',
       indicacion: 'Quimioterapia neoadyuvante, cáncer de mama.',
       diagnostico: 'Cáncer de mama',
       intencion: 'neoadyuvante',
@@ -181,21 +229,22 @@ async function main() {
           { categoria: 'premedicacion', farmaco: 'Dexametasona', dosis: '8', unidad: 'mg', via: 'VO', frecuencia: 'cada 12 h, desde día -1 hasta día 2', orden: 0 },
           { categoria: 'premedicacion', farmaco: 'Clorfenamina', dosis: '10', unidad: 'mg', via: 'EV', frecuencia: '30 min antes de la quimioterapia', orden: 1 },
           { categoria: 'premedicacion', farmaco: 'Ondansetron', dosis: '8', unidad: 'mg', via: 'EV', frecuencia: '30 min antes de la quimioterapia (máx. 32 mg/día)', orden: 2 },
-          { categoria: 'quimioterapia', farmaco: 'Doxorrubicina', dosis: '60', unidad: 'mg/m2', via: 'EV', duracionInfusionMin: 15, orden: 3 },
-          { categoria: 'quimioterapia', farmaco: 'Ciclofosfamida', dosis: '600', unidad: 'mg/m2', via: 'EV', duracionInfusionMin: 30, orden: 4 },
+          { categoria: 'quimioterapia', farmaco: 'Doxorrubicina', dosis: '60', unidad: 'mg/m2', via: 'EV', nSesion: 'D1', duracionInfusionMin: 15, orden: 3 },
+          { categoria: 'quimioterapia', farmaco: 'Ciclofosfamida', dosis: '600', unidad: 'mg/m2', via: 'EV', nSesion: 'D1', duracionInfusionMin: 30, orden: 4 },
           { categoria: 'rescate', farmaco: 'Metoclopramida', dosis: '10', unidad: 'mg', via: 'VO', frecuencia: 'en caso de náuseas', orden: 5 },
         ],
       },
     },
   });
 
-  // Ciclo 1: administrado (hace 13 días)
+  // Ciclo 1: administrado (hace 13 días), horario exacto en vez de turno.
   const ciclo1 = await prisma.cicloQuimio.create({
     data: {
       recetaId: receta.id,
       numeroCiclo: 1,
       fechaProgramada: haceDias(13),
-      turno: 'Mañana',
+      horaInicio: '09:00',
+      horaTermino: sumarMinutos('09:00', 180),
       sillonId: sillones[0].id,
       duracionEstimadaMin: 180,
       estado: 'administrado',
@@ -217,13 +266,14 @@ async function main() {
     ],
   });
 
-  // Ciclo 2: en preparación (hoy, turno tarde) — farmacia ya está preparando los fármacos
+  // Ciclo 2: en preparación (hoy por la tarde) — farmacia ya está preparando los fármacos.
   const ciclo2 = await prisma.cicloQuimio.create({
     data: {
       recetaId: receta.id,
       numeroCiclo: 2,
       fechaProgramada: new Date(),
-      turno: 'Tarde',
+      horaInicio: '14:30',
+      horaTermino: sumarMinutos('14:30', 180),
       sillonId: sillones[1].id,
       duracionEstimadaMin: 180,
       estado: 'en_preparacion',
@@ -237,13 +287,14 @@ async function main() {
     ],
   });
 
-  // Ciclo 3: programado a futuro, sin sillón asignado todavía
+  // Ciclo 3: programado a futuro, sin sillón asignado todavía.
   const ciclo3 = await prisma.cicloQuimio.create({
     data: {
       recetaId: receta.id,
       numeroCiclo: 3,
       fechaProgramada: new Date(Date.now() + 8 * DIA_MS),
-      turno: 'Mañana',
+      horaInicio: '09:30',
+      horaTermino: sumarMinutos('09:30', 180),
       duracionEstimadaMin: 180,
       estado: 'programado',
     },
@@ -252,7 +303,11 @@ async function main() {
     data: { cicloId: ciclo3.id, estado: 'programado', actorUserId: enfermeraQuimio.id, comentario: 'Ciclo agendado.' },
   });
 
-  console.log(`Seed listo: ${USERS.length} usuarios demo, 4 casos de ejemplo (flujo Cirugía Mama), 1 receta de quimio con 3 ciclos.`);
+  console.log(
+    `Seed listo: ${USERS.length} usuarios demo, 4 casos de ejemplo (flujo Cirugía Mama), ` +
+    `${Object.keys(esquemasPorNombre).length} esquemas de quimio, ${calendarioData.length} días de calendario, ` +
+    `${sillones.length} sillones, 1 receta de quimio con 3 ciclos.`
+  );
 }
 
 main()

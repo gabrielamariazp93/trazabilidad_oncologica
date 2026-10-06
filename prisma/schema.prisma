@@ -201,6 +201,50 @@ model Notificacion {
 // CasoOncologico (comparte solo Paciente).
 // ------------------------------------------------------------------
 
+// Catálogo real de esquemas (importado de la base de trabajo en Excel de la usuaria — ver
+// prisma/data/esquemas.json). Cada línea es un fármaco del esquema con su propio patrón de
+// días (nSesion), ciclos y horas de sillón.
+model EsquemaQuimio {
+  id     String  @id @default(cuid())
+  nombre String  @unique
+  activo Boolean @default(true)
+
+  lineas  EsquemaFarmacoLinea[]
+  recetas RecetaQuimio[]
+}
+
+model EsquemaFarmacoLinea {
+  id                String @id @default(cuid())
+  esquemaId         String
+  droga             String
+  // "D1" | "D1,D8,D15" | "D2-D16" tal cual viene del Excel — por ahora es solo texto de
+  // referencia para la enfermera, no se usa para auto-generar fechas (ver plan).
+  nSesion           String
+  // Texto, no Int: casi siempre un número ("4", "18"), pero algunos tratamientos de
+  // mantención (trastuzumab, zometa, decapeptyl, sandostatin) vienen como "PERMANENTE" en el
+  // Excel real — se guarda tal cual.
+  nCicloCalculado   String
+  freqEntreSesiones Int
+  freqEntreCiclos   Int
+  horasSillon       Float
+  orden             Int    @default(0)
+
+  esquema EsquemaQuimio @relation(fields: [esquemaId], references: [id], onDelete: Cascade)
+
+  @@index([esquemaId])
+}
+
+// Calendario real (2027 importado del Excel — prisma/data/calendario_2027.json). Fuera de ese
+// rango de fechas, obtenerConfigDia() en server/lib/quimio.js usa un fallback genérico
+// (lunes-viernes hábil 08:15-16:45, fin de semana no hábil) para no romper.
+model DiaHabilQuimio {
+  fecha      DateTime @id
+  habil      Boolean
+  feriado    Boolean  @default(false)
+  horaInicio String?
+  horaFin    String?
+}
+
 model Sillon {
   id        String   @id @default(cuid())
   nombre    String   @unique
@@ -216,6 +260,7 @@ model RecetaQuimio {
   id                      String    @id @default(cuid())
   pacienteId              String
   medicoUserId            String?
+  esquemaId               String?
   protocolo               String
   indicacion              String?
   diagnostico             String?
@@ -236,9 +281,10 @@ model RecetaQuimio {
   createdAt               DateTime  @default(now())
   updatedAt               DateTime  @updatedAt
 
-  paciente     Paciente @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
-  medico       User?    @relation("RecetaMedico", fields: [medicoUserId], references: [id], onDelete: SetNull)
-  farmaceutico User?    @relation("RecetaFarmaceutico", fields: [farmaciaUserId], references: [id], onDelete: SetNull)
+  paciente     Paciente       @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
+  medico       User?          @relation("RecetaMedico", fields: [medicoUserId], references: [id], onDelete: SetNull)
+  farmaceutico User?          @relation("RecetaFarmaceutico", fields: [farmaciaUserId], references: [id], onDelete: SetNull)
+  esquema      EsquemaQuimio? @relation(fields: [esquemaId], references: [id], onDelete: SetNull)
   farmacos     DetalleRecetaFarmaco[]
   ciclos       CicloQuimio[]
 
@@ -257,6 +303,9 @@ model DetalleRecetaFarmaco {
   unidad              String
   via                 String
   frecuencia          String?
+  // Copiado de EsquemaFarmacoLinea.nSesion al elegir un esquema del catálogo — "D1,D8,D15",
+  // etc. Texto de referencia, no se usa para calcular fechas automáticamente.
+  nSesion             String?
   duracionInfusionMin Int?
   orden               Int    @default(0)
 
@@ -274,7 +323,10 @@ model CicloQuimio {
   recetaId              String
   numeroCiclo           Int
   fechaProgramada       DateTime
-  turno                 String
+  // "HH:MM" — horario exacto, no turno (coincide con cómo la usuaria agenda sillones en su
+  // planilla real: bloques de 30 min dentro del horario hábil del día).
+  horaInicio            String
+  horaTermino           String
   sillonId              String?
   duracionEstimadaMin   Int       @default(180)
   estado                String    @default("programado")
@@ -296,7 +348,7 @@ model CicloQuimio {
   historial       HistorialCiclo[]
   notificaciones  Notificacion[]
 
-  @@index([fechaProgramada, turno, sillonId])
+  @@index([fechaProgramada, sillonId])
   @@index([estado])
   @@index([recetaId])
 }

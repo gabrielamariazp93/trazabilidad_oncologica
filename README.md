@@ -57,14 +57,23 @@ vigente de cada patología.
 ## Módulo de Quimioterapia
 
 Independiente del módulo de casos (comparte solo `Paciente`). Flujo: el médico oncólogo elabora
-la **receta** (protocolo + fármacos + dosis) → farmacia la **valida o rechaza** → enfermería
-**agenda el ciclo** en un sillón/turno/fecha real → farmacia marca la **preparación** →
-enfermería registra la **administración** → las estadísticas se arman agregando los ciclos
-administrados (`server/lib/quimio.js`, router en `server/routes/quimio.js`).
+la **receta** (opcionalmente desde el catálogo de **86 esquemas** reales, o protocolo libre) →
+farmacia la **valida o rechaza** → enfermería **agenda la sesión** eligiendo un sillón/horario
+realmente disponible (bloques de 30 min, contra el **calendario real 2027** importado — días
+hábiles, feriados, horario variable por día) → farmacia marca la **preparación** → enfermería
+registra la **administración** → las estadísticas se arman agregando los ciclos administrados
+(`server/lib/quimio.js`, router en `server/routes/quimio.js`).
 
 Separación de funciones real: quien prescribe (oncólogo) no puede validar su propia receta, y
 quien prepara (farmacia) no administra — cada transición de estado de un ciclo está restringida
 por rol (ver `ACCIONES_CICLO` en `server/lib/quimio.js`).
+
+Datos de referencia importados de la base de trabajo en Excel de la usuaria
+(`prisma/data/esquemas.json`, `calendario_2027.json`, `sillones.json`): 86 esquemas de
+quimioterapia con sus fármacos/ciclos/frecuencias, el calendario hábil 2027 completo, y los 16
+sillones reales. El cálculo de cupos (`calcularBloquesLibres` en `server/lib/quimio.js`) replica
+el comportamiento de la planilla "CUPOS_QMT" original pero calculando disponibilidad al vuelo en
+vez de pre-generar una fila por bloque.
 
 ## Deploy en Render
 

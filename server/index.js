@@ -40,7 +40,6 @@ import {
   INTENCIONES,
   RIESGO_EMETICO_LABELS,
   RIESGOS_EMETICOS,
-  TURNOS,
 } from './lib/quimio.js';
 
 // timeout/maxWait por defecto (5s/2s) se quedan cortos contra Neon por la latencia de red —
@@ -176,7 +175,6 @@ app.get('/api/bootstrap', async (_req, res) => {
       estadosReceta: ESTADOS_RECETA.map((id) => ({ id, label: ESTADO_RECETA_LABELS[id] })),
       estadosCiclo: Object.keys(ESTADO_CICLO_LABELS).map((id) => ({ id, label: ESTADO_CICLO_LABELS[id] })),
       acciones: ACCIONES_CICLO,
-      turnos: TURNOS,
       categoriasFarmaco: CATEGORIAS_FARMACO.map((id) => ({ id, label: CATEGORIA_FARMACO_LABELS[id] })),
       intenciones: INTENCIONES.map((id) => ({ id, label: INTENCION_LABELS[id] })),
       riesgosEmeticos: RIESGOS_EMETICOS.map((id) => ({ id, label: RIESGO_EMETICO_LABELS[id] })),
