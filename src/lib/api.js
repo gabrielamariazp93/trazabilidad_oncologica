@@ -147,6 +147,10 @@ export async function fetchDisponibilidadQuimio(fecha, duracionMin) {
   return request(`/quimio/disponibilidad${buildQuery({ fecha, duracionMin })}`);
 }
 
+export async function fetchCalendarioQuimio(desde, hasta) {
+  return request(`/quimio/calendario${buildQuery({ desde, hasta })}`);
+}
+
 export async function fetchSillones() {
   return request('/sillones');
 }

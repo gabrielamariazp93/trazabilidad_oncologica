@@ -29,7 +29,6 @@ export default function TableroPaciente({ bootstrap, pacienteInicial, onConsumid
   const [recetaId, setRecetaId] = useState('');
   const [cargandoRecetas, setCargandoRecetas] = useState(false);
 
-  const [fecha, setFecha] = useState(new Date().toISOString().slice(0, 10));
   const [seleccion, setSeleccion] = useState(null);
   const [numeroCiclo, setNumeroCiclo] = useState(1);
   const [error, setError] = useState(null);
@@ -83,11 +82,11 @@ export default function TableroPaciente({ bootstrap, pacienteInicial, onConsumid
 
   const minutosNecesarios = useMemo(() => duracionSugerida(receta), [receta]);
 
-  // Si cambia la fecha o la duración necesaria, la selección de sillón+hora anterior deja de
-  // ser válida — se limpia para forzar a elegir de nuevo contra la disponibilidad actual.
+  // Si cambia la receta (y por lo tanto la duración necesaria), la selección de sillón+hora
+  // anterior deja de ser válida — se limpia para forzar a elegir de nuevo.
   useEffect(() => {
     setSeleccion(null);
-  }, [fecha, minutosNecesarios]);
+  }, [recetaId, minutosNecesarios]);
 
   async function handleAgendar(event) {
     event.preventDefault();
@@ -106,12 +105,12 @@ export default function TableroPaciente({ bootstrap, pacienteInicial, onConsumid
       await crearCiclo({
         recetaId: receta.id,
         numeroCiclo: Number(numeroCiclo),
-        fechaProgramada: fecha,
+        fechaProgramada: seleccion.fecha,
         horaInicio: seleccion.horaInicio,
         sillonId: seleccion.sillonId,
         duracionEstimadaMin: minutosNecesarios,
       });
-      setExito(`Sesión agendada: ciclo ${numeroCiclo}, ${fecha} ${seleccion.horaInicio}.`);
+      setExito(`Sesión agendada: ciclo ${numeroCiclo}, ${seleccion.fecha} ${seleccion.horaInicio}.`);
       setSeleccion(null);
       await cargarRecetas();
     } catch (err) {
@@ -168,7 +167,7 @@ export default function TableroPaciente({ bootstrap, pacienteInicial, onConsumid
       )}
 
       {!!recetas.length && (
-        <div className="grid lg:grid-cols-2 gap-5">
+        <div className="grid lg:grid-cols-[320px_1fr] gap-5">
           <div className="space-y-5">
             {recetas.length > 1 && (
               <select value={recetaId} onChange={(e) => setRecetaId(e.target.value)} className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm">
@@ -226,20 +225,15 @@ export default function TableroPaciente({ bootstrap, pacienteInicial, onConsumid
               <div className="text-sm text-slate-400">Selecciona una receta para agendar una sesión.</div>
             ) : (
               <form onSubmit={handleAgendar} className="space-y-3">
-                <div className="grid grid-cols-2 gap-2">
+                <div className="flex items-center gap-3">
                   <div>
                     <label className="block text-xs font-medium text-slate-500 mb-1">N° de ciclo</label>
-                    <input type="number" min="1" value={numeroCiclo} onChange={(e) => setNumeroCiclo(e.target.value)} className="w-full border border-slate-300 rounded-md px-3 py-1.5 text-sm" />
+                    <input type="number" min="1" value={numeroCiclo} onChange={(e) => setNumeroCiclo(e.target.value)} className="w-24 border border-slate-300 rounded-md px-3 py-1.5 text-sm" />
                   </div>
-                  <div>
-                    <label className="block text-xs font-medium text-slate-500 mb-1">Fecha</label>
-                    <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className="w-full border border-slate-300 rounded-md px-3 py-1.5 text-sm" />
-                  </div>
+                  <div className="text-xs text-slate-400">Duración estimada: {minutosNecesarios} min</div>
                 </div>
 
-                <div className="text-xs text-slate-400">Duración estimada: {minutosNecesarios} min</div>
-
-                <SelectorDisponibilidad fecha={fecha} duracionMin={minutosNecesarios} value={seleccion} onChange={setSeleccion} />
+                <SelectorDisponibilidad duracionMin={minutosNecesarios} value={seleccion} onChange={setSeleccion} />
 
                 {error && <div className="text-sm text-red-600">{error}</div>}
                 {exito && <div className="text-sm text-emerald-600">{exito}</div>}

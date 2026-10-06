@@ -130,6 +130,44 @@ export function calcularBloquesLibres(configDia, ciclosDelSillon, duracionMin) {
   return libres;
 }
 
+// Todos los bloques de 30 min del día (toda la jornada hábil, no solo los que alcanzan para una
+// duración específica) — es la base de la grilla tipo "agenda" (sillones en columnas, horario en
+// filas) que pide la usuaria.
+export function listarBloquesDia(configDia) {
+  if (!configDia.habil || !configDia.horaInicio || !configDia.horaFin) return [];
+  const inicioMin = minutosDesdeHora(configDia.horaInicio);
+  const finMin = minutosDesdeHora(configDia.horaFin);
+  const bloques = [];
+  for (let m = inicioMin; m < finMin; m += PASO_BLOQUE_MIN) bloques.push(horaDesdeMinutos(m));
+  return bloques;
+}
+
+// Arma la agenda del día para UN sillón: cada bloque de 30 min marcado como ocupado (con el
+// ciclo que lo cubre) o libre, y si además alcanza para una reserva de duracionMin consecutivos
+// (bloques libres pero "no alcanza" quedan visibles, solo no son seleccionables).
+export function construirAgendaDia(configDia, ciclosDelSillon, duracionMin) {
+  const bloques = listarBloquesDia(configDia);
+  const validos = new Set(calcularBloquesLibres(configDia, ciclosDelSillon, duracionMin));
+  return bloques.map((hora) => {
+    const finBloque = sumarMinutos(hora, PASO_BLOQUE_MIN);
+    const ciclo = ciclosDelSillon.find((c) => seSuperponen(hora, finBloque, c.horaInicio, c.horaTermino));
+    return {
+      hora,
+      ocupado: !!ciclo,
+      valido: !ciclo && validos.has(hora),
+      ciclo: ciclo
+        ? {
+            id: ciclo.id,
+            numeroCiclo: ciclo.numeroCiclo,
+            estado: ciclo.estado,
+            estadoLabel: ESTADO_CICLO_LABELS[ciclo.estado] ?? ciclo.estado,
+            pacienteNombre: ciclo.pacienteNombre ?? null,
+          }
+        : null,
+    };
+  });
+}
+
 // Catálogo de transiciones válidas de CicloQuimio. `roles` son los roles (además de admin, que
 // siempre puede) habilitados para ejecutar la acción — la validación de rol la hace el router
 // leyendo esta misma tabla, así la autorización vive junto a la máquina de estados.

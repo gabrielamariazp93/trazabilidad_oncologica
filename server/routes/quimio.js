@@ -5,6 +5,7 @@ import {
   aplicarTransicionCiclo,
   calcularBloquesLibres,
   calcularSuperficieCorporal,
+  construirAgendaDia,
   construirGrilla,
   resolverConfigDia,
   rolPuedeAccion,
@@ -445,15 +446,18 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
       prisma.sillon.findMany({ where: { activo: true }, orderBy: { nombre: 'asc' } }),
       prisma.cicloQuimio.findMany({
         where: { fechaProgramada: { gte: fechaInicioDia, lt: fechaFinDia }, estado: { notIn: ['cancelado'] } },
+        include: { receta: { include: { paciente: true } } },
       }),
     ]);
 
-    const sillonesConBloques = sillones.map((sillon) => {
-      const ciclosDelSillon = ciclosDelDia.filter((c) => c.sillonId === sillon.id);
+    const sillonesConAgenda = sillones.map((sillon) => {
+      const ciclosDelSillon = ciclosDelDia
+        .filter((c) => c.sillonId === sillon.id)
+        .map((c) => ({ ...c, pacienteNombre: c.receta?.paciente?.nombre ?? null }));
       return {
         id: sillon.id,
         nombre: sillon.nombre,
-        bloques: calcularBloquesLibres(configDia, ciclosDelSillon, duracionMin),
+        bloques: construirAgendaDia(configDia, ciclosDelSillon, duracionMin),
       };
     });
 
@@ -464,8 +468,34 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
       horaInicio: configDia.horaInicio,
       horaFin: configDia.horaFin,
       pasoBloqueMin: PASO_BLOQUE_MIN,
-      sillones: sillonesConBloques,
+      sillones: sillonesConAgenda,
     });
+  });
+
+  // --- Calendario (hábil/feriado/horario por día, para pintar el calendario mensual) -----------
+
+  router.get('/quimio/calendario', async (req, res) => {
+    if (!requireAuth(req, res)) return;
+    if (!req.query.desde || !req.query.hasta) {
+      res.status(400).json({ error: 'desde y hasta son obligatorios.' });
+      return;
+    }
+    const desde = truncarFechaUTC(req.query.desde);
+    const hasta = truncarFechaUTC(req.query.hasta);
+
+    const filas = await prisma.diaHabilQuimio.findMany({ where: { fecha: { gte: desde, lte: hasta } } });
+    const porFecha = new Map(filas.map((f) => [f.fecha.toISOString().slice(0, 10), f]));
+
+    const dias = [];
+    const cursor = new Date(desde);
+    while (cursor <= hasta) {
+      const key = cursor.toISOString().slice(0, 10);
+      const config = resolverConfigDia(porFecha.get(key) ?? null, cursor);
+      dias.push({ fecha: key, ...config });
+      cursor.setUTCDate(cursor.getUTCDate() + 1);
+    }
+
+    res.json({ dias });
   });
 
   router.post('/quimio/ciclos/:id/transicion', async (req, res) => {
