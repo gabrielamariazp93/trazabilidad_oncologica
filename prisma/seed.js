@@ -15,6 +15,9 @@ const USERS = [
   { email: 'enfermera@hospital.local', name: 'Javiera Muñoz (Enfermera Policlínico)', role: 'enfermera_policlinico' },
   { email: 'admision@hospital.local', name: 'Equipo Admisión', role: 'admision' },
   { email: 'ges@hospital.local', name: 'Camila Soto (Encargada GES)', role: 'ges' },
+  { email: 'oncologo@hospital.local', name: 'Dr. Felipe Rojas (Oncólogo)', role: 'oncologo' },
+  { email: 'farmacia@hospital.local', name: 'Daniela Pizarro (Farmacia)', role: 'farmacia' },
+  { email: 'enfermera.quimio@hospital.local', name: 'Cristina Vera (Enfermera Quimioterapia)', role: 'enfermera_quimio' },
   { email: 'lectura@hospital.local', name: 'Subdirección (solo lectura)', role: 'lectura' },
 ];
 
@@ -137,7 +140,107 @@ async function main() {
     await avanzar(tx, caso, 'en_controles', enfermera.id, haceDias(10), 'Primer control de seguimiento realizado.', plazoConfigByTipo);
   });
 
-  console.log(`Seed listo: ${USERS.length} usuarios demo, 4 casos de ejemplo (flujo Cirugía Mama).`);
+  // --- Quimioterapia: sillones + 1 receta validada con ciclos en 3 estados distintos ---
+  const oncologo = usersByRole.oncologo;
+  const farmacia = usersByRole.farmacia;
+  const enfermeraQuimio = usersByRole.enfermera_quimio;
+
+  const nombresSillones = ['Sillón 1', 'Sillón 2', 'Sillón 3', 'Sillón 4'];
+  const sillones = [];
+  for (const nombre of nombresSillones) {
+    const sillon = await prisma.sillon.upsert({ where: { nombre }, update: {}, create: { nombre } });
+    sillones.push(sillon);
+  }
+
+  // Reusa a Carmen Rivas (pacienteC, ya en fase Tratamiento con viaTratamiento=quimioterapia en
+  // su CasoOncologico) para que la demo cuente una historia coherente entre ambos módulos,
+  // aunque el módulo de quimio es independiente y no depende de que exista ese caso.
+  await prisma.recetaQuimio.deleteMany({ where: { paciente: { rut: '333333333' } } });
+  const receta = await prisma.recetaQuimio.create({
+    data: {
+      pacienteId: pacienteC.id,
+      medicoUserId: oncologo.id,
+      protocolo: 'AC (Doxorrubicina + Ciclofosfamida)',
+      indicacion: 'Quimioterapia neoadyuvante, cáncer de mama.',
+      numeroCiclosTotal: 4,
+      intervaloDias: 21,
+      superficieCorporal: 1.68,
+      estado: 'validada',
+      farmaciaUserId: farmacia.id,
+      fechaValidacion: haceDias(34),
+      farmacos: {
+        create: [
+          { farmaco: 'Doxorrubicina', dosis: '60', unidad: 'mg/m2', via: 'EV', duracionInfusionMin: 15, orden: 0 },
+          { farmaco: 'Ciclofosfamida', dosis: '600', unidad: 'mg/m2', via: 'EV', duracionInfusionMin: 30, orden: 1 },
+        ],
+      },
+    },
+  });
+
+  // Ciclo 1: administrado (hace 13 días)
+  const ciclo1 = await prisma.cicloQuimio.create({
+    data: {
+      recetaId: receta.id,
+      numeroCiclo: 1,
+      fechaProgramada: haceDias(13),
+      turno: 'Mañana',
+      sillonId: sillones[0].id,
+      duracionEstimadaMin: 180,
+      estado: 'administrado',
+      preparadoPorUserId: farmacia.id,
+      fechaPreparacion: haceDias(13),
+      administradoPorUserId: enfermeraQuimio.id,
+      fechaInicioReal: haceDias(13),
+      fechaTerminoReal: haceDias(13),
+      observaciones: 'Tolerancia adecuada, sin reacciones adversas.',
+    },
+  });
+  await prisma.historialCiclo.createMany({
+    data: [
+      { cicloId: ciclo1.id, estado: 'programado', fecha: haceDias(20), actorUserId: enfermeraQuimio.id, comentario: 'Ciclo agendado.' },
+      { cicloId: ciclo1.id, estado: 'en_preparacion', fecha: haceDias(13), actorUserId: farmacia.id },
+      { cicloId: ciclo1.id, estado: 'listo_para_administrar', fecha: haceDias(13), actorUserId: farmacia.id },
+      { cicloId: ciclo1.id, estado: 'en_administracion', fecha: haceDias(13), actorUserId: enfermeraQuimio.id },
+      { cicloId: ciclo1.id, estado: 'administrado', fecha: haceDias(13), actorUserId: enfermeraQuimio.id, comentario: 'Tolerancia adecuada, sin reacciones adversas.' },
+    ],
+  });
+
+  // Ciclo 2: en preparación (hoy, turno tarde) — farmacia ya está preparando los fármacos
+  const ciclo2 = await prisma.cicloQuimio.create({
+    data: {
+      recetaId: receta.id,
+      numeroCiclo: 2,
+      fechaProgramada: new Date(),
+      turno: 'Tarde',
+      sillonId: sillones[1].id,
+      duracionEstimadaMin: 180,
+      estado: 'en_preparacion',
+      preparadoPorUserId: farmacia.id,
+    },
+  });
+  await prisma.historialCiclo.createMany({
+    data: [
+      { cicloId: ciclo2.id, estado: 'programado', fecha: haceDias(5), actorUserId: enfermeraQuimio.id, comentario: 'Ciclo agendado.' },
+      { cicloId: ciclo2.id, estado: 'en_preparacion', actorUserId: farmacia.id },
+    ],
+  });
+
+  // Ciclo 3: programado a futuro, sin sillón asignado todavía
+  const ciclo3 = await prisma.cicloQuimio.create({
+    data: {
+      recetaId: receta.id,
+      numeroCiclo: 3,
+      fechaProgramada: new Date(Date.now() + 8 * DIA_MS),
+      turno: 'Mañana',
+      duracionEstimadaMin: 180,
+      estado: 'programado',
+    },
+  });
+  await prisma.historialCiclo.create({
+    data: { cicloId: ciclo3.id, estado: 'programado', actorUserId: enfermeraQuimio.id, comentario: 'Ciclo agendado.' },
+  });
+
+  console.log(`Seed listo: ${USERS.length} usuarios demo, 4 casos de ejemplo (flujo Cirugía Mama), 1 receta de quimio con 3 ciclos.`);
 }
 
 main()

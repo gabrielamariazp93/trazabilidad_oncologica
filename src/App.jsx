@@ -1,16 +1,18 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Activity } from 'lucide-react';
+import { Activity, Pill } from 'lucide-react';
 import { fetchMe, fetchBootstrap, getAuthToken, logout as apiLogout } from './lib/api.js';
 import LoginView from './components/LoginView.jsx';
 import DashboardView from './components/DashboardView.jsx';
 import CasoDetailView from './components/CasoDetailView.jsx';
 import NotificacionesPanel from './components/NotificacionesPanel.jsx';
+import QuimioApp from './components/quimio/QuimioApp.jsx';
 
 export default function App() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [bootstrap, setBootstrap] = useState(null);
   const [casoSeleccionadoId, setCasoSeleccionadoId] = useState(null);
+  const [modulo, setModulo] = useState('casos');
 
   const cargarSesion = useCallback(async () => {
     setLoading(true);
@@ -67,11 +69,34 @@ export default function App() {
           <button
             type="button"
             className="flex items-center gap-2 text-slate-800 font-semibold"
-            onClick={() => setCasoSeleccionadoId(null)}
+            onClick={() => {
+              setModulo('casos');
+              setCasoSeleccionadoId(null);
+            }}
           >
             <Activity className="w-5 h-5 text-blue-600" />
             Trazabilidad Oncológica
           </button>
+
+          <nav className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
+            <button
+              type="button"
+              onClick={() => setModulo('casos')}
+              className={`text-sm font-medium rounded-md px-3 py-1.5 flex items-center gap-1.5 ${modulo === 'casos' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              <Activity className="w-4 h-4" />
+              Casos Oncológicos
+            </button>
+            <button
+              type="button"
+              onClick={() => setModulo('quimio')}
+              className={`text-sm font-medium rounded-md px-3 py-1.5 flex items-center gap-1.5 ${modulo === 'quimio' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              <Pill className="w-4 h-4" />
+              Quimioterapia
+            </button>
+          </nav>
+
           <div className="flex items-center gap-4">
             <NotificacionesPanel onAbrirCaso={setCasoSeleccionadoId} />
             <div className="text-sm text-right">
@@ -90,7 +115,9 @@ export default function App() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-6">
-        {casoSeleccionadoId ? (
+        {modulo === 'quimio' ? (
+          <QuimioApp user={user} bootstrap={bootstrap} />
+        ) : casoSeleccionadoId ? (
           <CasoDetailView
             casoId={casoSeleccionadoId}
             user={user}

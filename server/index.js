@@ -28,6 +28,8 @@ import {
   serializeCaso,
   serializePlazo,
 } from './lib/casos.js';
+import { createQuimioRouter } from './routes/quimio.js';
+import { ACCIONES_CICLO, ESTADO_CICLO_LABELS, ESTADO_RECETA_LABELS, ESTADOS_RECETA, TURNOS } from './lib/quimio.js';
 
 // timeout/maxWait por defecto (5s/2s) se quedan cortos contra Neon por la latencia de red —
 // mismo ajuste que agendas-repo.
@@ -116,6 +118,8 @@ function requireRoles(req, res, roles) {
   return false;
 }
 
+app.use('/api', createQuimioRouter({ prisma, requireAuth, requireRoles }));
+
 async function getPlazoConfigMap() {
   const rows = await prisma.plazoConfig.findMany();
   const map = { ...PLAZO_CONFIG_DEFAULT };
@@ -156,6 +160,12 @@ app.get('/api/bootstrap', async (_req, res) => {
     motivosCierre: MOTIVOS_CIERRE,
     tiposDerivacion: TIPOS_DERIVACION,
     tiposPlazo: TIPOS_PLAZO.map((id) => ({ id, label: TIPO_PLAZO_LABELS[id] })),
+    quimio: {
+      estadosReceta: ESTADOS_RECETA.map((id) => ({ id, label: ESTADO_RECETA_LABELS[id] })),
+      estadosCiclo: Object.keys(ESTADO_CICLO_LABELS).map((id) => ({ id, label: ESTADO_CICLO_LABELS[id] })),
+      acciones: ACCIONES_CICLO,
+      turnos: TURNOS,
+    },
   });
 });
 

@@ -40,6 +40,9 @@ npm run dev:full
 - `enfermera@hospital.local` — Enfermera de Policlínico
 - `admision@hospital.local` — Admisión
 - `ges@hospital.local` — GES
+- `oncologo@hospital.local` — Médico Oncólogo
+- `farmacia@hospital.local` — Farmacia
+- `enfermera.quimio@hospital.local` — Enfermera de Quimioterapia
 - `lectura@hospital.local` — Lectura
 
 ## Modelo del proceso
@@ -50,6 +53,18 @@ etapificación, inicio de tratamiento, seguimiento) se abren y cierran automáti
 registrar ciertos hitos; los días por defecto de cada plazo son editables por un admin en
 `/api/plazos/config` — los valores seed son solo de referencia, deben ajustarse a la normativa
 vigente de cada patología.
+
+## Módulo de Quimioterapia
+
+Independiente del módulo de casos (comparte solo `Paciente`). Flujo: el médico oncólogo elabora
+la **receta** (protocolo + fármacos + dosis) → farmacia la **valida o rechaza** → enfermería
+**agenda el ciclo** en un sillón/turno/fecha real → farmacia marca la **preparación** →
+enfermería registra la **administración** → las estadísticas se arman agregando los ciclos
+administrados (`server/lib/quimio.js`, router en `server/routes/quimio.js`).
+
+Separación de funciones real: quien prescribe (oncólogo) no puede validar su propia receta, y
+quien prepara (farmacia) no administra — cada transición de estado de un ciclo está restringida
+por rol (ver `ACCIONES_CICLO` en `server/lib/quimio.js`).
 
 ## Deploy en Render
 

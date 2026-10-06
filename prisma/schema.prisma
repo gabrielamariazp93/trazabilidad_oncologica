@@ -21,6 +21,11 @@ model User {
   hitos         HitoCaso[]       @relation("HitoActor")
   notas         NotaCaso[]       @relation("NotaAutor")
   notificaciones Notificacion[]
+  recetasComoMedico      RecetaQuimio[]   @relation("RecetaMedico")
+  recetasComoFarmaceutico RecetaQuimio[]  @relation("RecetaFarmaceutico")
+  ciclosPreparados        CicloQuimio[]   @relation("CicloPreparadoPor")
+  ciclosAdministrados     CicloQuimio[]   @relation("CicloAdministradoPor")
+  historialCiclos         HistorialCiclo[] @relation("HistorialCicloActor")
 }
 
 model AuthSession {
@@ -44,6 +49,7 @@ model Paciente {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   casos           CasoOncologico[]
+  recetasQuimio   RecetaQuimio[]
 }
 
 // Un mismo paciente puede tener varios casos activos en paralelo (ej. dos patologías
@@ -174,6 +180,7 @@ model Derivacion {
 model Notificacion {
   id              String   @id @default(cuid())
   casoId          String?
+  cicloQuimioId   String?
   destinationRole String?
   userId          String?
   text            String
@@ -181,8 +188,117 @@ model Notificacion {
   createdAt       DateTime @default(now())
 
   caso CasoOncologico? @relation(fields: [casoId], references: [id], onDelete: Cascade)
+  ciclo CicloQuimio?   @relation(fields: [cicloQuimioId], references: [id], onDelete: Cascade)
   user User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([destinationRole, read])
   @@index([userId, read])
+}
+
+// ------------------------------------------------------------------
+// Módulo de Quimioterapia: receta -> validación/preparación farmacia ->
+// agenda de sillón -> administración -> estadística. Independiente de
+// CasoOncologico (comparte solo Paciente).
+// ------------------------------------------------------------------
+
+model Sillon {
+  id        String   @id @default(cuid())
+  nombre    String   @unique
+  activo    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  ciclos CicloQuimio[]
+}
+
+// borrador -> validada (farmacia) | rechazada (farmacia, con motivo) -> anulada (oncólogo/admin).
+// Solo una receta validada puede tener CicloQuimio agendados (se valida en el endpoint, no acá).
+model RecetaQuimio {
+  id                      String    @id @default(cuid())
+  pacienteId              String
+  medicoUserId            String?
+  protocolo               String
+  indicacion              String?
+  numeroCiclosTotal       Int
+  intervaloDias           Int
+  superficieCorporal      Float?
+  estado                  String    @default("borrador")
+  farmaciaUserId          String?
+  fechaValidacion         DateTime?
+  observacionesValidacion String?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  paciente     Paciente @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
+  medico       User?    @relation("RecetaMedico", fields: [medicoUserId], references: [id], onDelete: SetNull)
+  farmaceutico User?    @relation("RecetaFarmaceutico", fields: [farmaciaUserId], references: [id], onDelete: SetNull)
+  farmacos     DetalleRecetaFarmaco[]
+  ciclos       CicloQuimio[]
+
+  @@index([pacienteId])
+  @@index([estado])
+}
+
+model DetalleRecetaFarmaco {
+  id                  String @id @default(cuid())
+  recetaId            String
+  farmaco             String
+  dosis               String
+  unidad              String
+  via                 String
+  duracionInfusionMin Int?
+  orden               Int    @default(0)
+
+  receta RecetaQuimio @relation(fields: [recetaId], references: [id], onDelete: Cascade)
+
+  @@index([recetaId])
+}
+
+// Una fila = un ciclo del protocolo agendado en una fecha real (a diferencia de
+// PabellonAllocation en agendas-repo, que es una plantilla semanal sin fechas). Estado:
+// programado -> en_preparacion -> listo_para_administrar -> en_administracion -> administrado,
+// con suspendido/cancelado como salida desde cualquier estado no terminal.
+model CicloQuimio {
+  id                    String    @id @default(cuid())
+  recetaId              String
+  numeroCiclo           Int
+  fechaProgramada       DateTime
+  turno                 String
+  sillonId              String?
+  duracionEstimadaMin   Int       @default(180)
+  estado                String    @default("programado")
+  preparadoPorUserId    String?
+  fechaPreparacion      DateTime?
+  administradoPorUserId String?
+  fechaInicioReal       DateTime?
+  fechaTerminoReal      DateTime?
+  reaccionAdversa       Boolean   @default(false)
+  observaciones         String?
+  motivoSuspension      String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  receta          RecetaQuimio     @relation(fields: [recetaId], references: [id], onDelete: Cascade)
+  sillon          Sillon?          @relation(fields: [sillonId], references: [id], onDelete: SetNull)
+  preparadoPor    User?            @relation("CicloPreparadoPor", fields: [preparadoPorUserId], references: [id], onDelete: SetNull)
+  administradoPor User?            @relation("CicloAdministradoPor", fields: [administradoPorUserId], references: [id], onDelete: SetNull)
+  historial       HistorialCiclo[]
+  notificaciones  Notificacion[]
+
+  @@index([fechaProgramada, turno, sillonId])
+  @@index([estado])
+  @@index([recetaId])
+}
+
+model HistorialCiclo {
+  id          String   @id @default(cuid())
+  cicloId     String
+  estado      String
+  fecha       DateTime @default(now())
+  actorUserId String?
+  comentario  String?
+
+  ciclo CicloQuimio @relation(fields: [cicloId], references: [id], onDelete: Cascade)
+  actor User?       @relation("HistorialCicloActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([cicloId, fecha])
 }
