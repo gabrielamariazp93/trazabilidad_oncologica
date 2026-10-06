@@ -235,8 +235,9 @@ model EsquemaFarmacoLinea {
 }
 
 // Calendario real (2027 importado del Excel — prisma/data/calendario_2027.json). Fuera de ese
-// rango de fechas, obtenerConfigDia() en server/lib/quimio.js usa un fallback genérico
-// (lunes-viernes hábil 08:15-16:45, fin de semana no hábil) para no romper.
+// rango de fechas, resolverConfigDia() en server/lib/quimio.js usa un fallback genérico que
+// replica la regla general del Excel (lunes-jueves 08:15-16:45, viernes 08:15-15:45, 17 de
+// septiembre y 24 de diciembre 08:15-11:45 todos los años, fin de semana no hábil).
 model DiaHabilQuimio {
   fecha      DateTime @id
   habil      Boolean
@@ -248,6 +249,9 @@ model DiaHabilQuimio {
 model Sillon {
   id        String   @id @default(cuid())
   nombre    String   @unique
+  // Orden de despliegue (Sillón 1..16) — nombre es texto, así que ordenar por nombre da
+  // "Sillón 1, Sillón 10, Sillón 11..., Sillón 2" alfabético; orden guarda el número real.
+  orden     Int      @default(0)
   activo    Boolean  @default(true)
   createdAt DateTime @default(now())
 

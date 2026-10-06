@@ -71,22 +71,40 @@ export function calcularSuperficieCorporal(pesoKg, tallaCm) {
   return Math.round(Math.sqrt((pesoKg * tallaCm) / 3600) * 100) / 100;
 }
 
-// Calendario real: ver DiaHabilQuimio (importado de prisma/data/calendario_2027.json). Fuera de
-// ese rango de fechas se usa este fallback genérico para no romper.
+// Calendario real: ver DiaHabilQuimio (importado de prisma/data/calendario_2027.json) — tiene
+// prioridad siempre que exista una fila para la fecha. Fuera de ese rango (otros años) se usa
+// este fallback, que replica la regla general del Excel "Base QMT" en vez de un horario fijo:
+// lunes-jueves hasta 16:45, viernes hasta 15:45, y dos fechas especiales que se repiten todos
+// los años (17 de septiembre, 24 de diciembre) hasta 11:45.
 const FALLBACK_HORA_INICIO = '08:15';
 const FALLBACK_HORA_FIN = '16:45';
+const FALLBACK_HORA_FIN_VIERNES = '15:45';
+const FALLBACK_HORA_FIN_ESPECIAL = '11:45';
 export const PASO_BLOQUE_MIN = 30;
+
+function esFechaEspecialMediaJornada(fecha) {
+  const d = new Date(fecha);
+  const mes = d.getUTCMonth() + 1;
+  const dia = d.getUTCDate();
+  return (mes === 9 && dia === 17) || (mes === 12 && dia === 24);
+}
 
 // Resuelve la config hábil/horario de un día: usa la fila real de DiaHabilQuimio si existe
 // (el caller la busca y la pasa acá — esta función queda pura/testeable), si no, cae al
-// fallback (lunes-viernes hábil, fin de semana no hábil).
+// fallback descrito arriba.
 export function resolverConfigDia(diaHabilRow, fecha) {
   if (diaHabilRow) {
     return { habil: diaHabilRow.habil, feriado: diaHabilRow.feriado, horaInicio: diaHabilRow.horaInicio, horaFin: diaHabilRow.horaFin };
   }
-  const diaSemana = new Date(fecha).getUTCDay();
+  const diaSemana = new Date(fecha).getUTCDay(); // 0=domingo..6=sábado
   const habil = diaSemana >= 1 && diaSemana <= 5;
-  return { habil, feriado: false, horaInicio: habil ? FALLBACK_HORA_INICIO : null, horaFin: habil ? FALLBACK_HORA_FIN : null };
+  if (!habil) return { habil: false, feriado: false, horaInicio: null, horaFin: null };
+
+  if (esFechaEspecialMediaJornada(fecha)) {
+    return { habil: true, feriado: false, horaInicio: FALLBACK_HORA_INICIO, horaFin: FALLBACK_HORA_FIN_ESPECIAL };
+  }
+  const esViernes = diaSemana === 5;
+  return { habil: true, feriado: false, horaInicio: FALLBACK_HORA_INICIO, horaFin: esViernes ? FALLBACK_HORA_FIN_VIERNES : FALLBACK_HORA_FIN };
 }
 
 function minutosDesdeHora(hora) {

@@ -190,11 +190,17 @@ async function main() {
     });
   }
 
-  // 16 sillones reales (prisma/data/sillones.json).
+  // 16 sillones reales (prisma/data/sillones.json). orden se extrae del número en el nombre
+  // ("Sillón 10" -> 10) para que la grilla los muestre 1..16 y no alfabético (1,10,11..,2,3..).
   const sillonesData = leerJsonData('sillones.json');
   const sillones = [];
   for (const s of sillonesData) {
-    const sillon = await prisma.sillon.upsert({ where: { nombre: s.nombre }, update: { activo: s.activo }, create: { nombre: s.nombre, activo: s.activo } });
+    const numero = Number(String(s.nombre).match(/\d+/)?.[0] ?? 0);
+    const sillon = await prisma.sillon.upsert({
+      where: { nombre: s.nombre },
+      update: { activo: s.activo, orden: numero },
+      create: { nombre: s.nombre, activo: s.activo, orden: numero },
+    });
     sillones.push(sillon);
   }
 
@@ -243,8 +249,8 @@ async function main() {
       recetaId: receta.id,
       numeroCiclo: 1,
       fechaProgramada: haceDias(13),
-      horaInicio: '09:00',
-      horaTermino: sumarMinutos('09:00', 180),
+      horaInicio: '09:15',
+      horaTermino: sumarMinutos('09:15', 180),
       sillonId: sillones[0].id,
       duracionEstimadaMin: 180,
       estado: 'administrado',
@@ -272,8 +278,8 @@ async function main() {
       recetaId: receta.id,
       numeroCiclo: 2,
       fechaProgramada: new Date(),
-      horaInicio: '14:30',
-      horaTermino: sumarMinutos('14:30', 180),
+      horaInicio: '14:15',
+      horaTermino: sumarMinutos('14:15', 180),
       sillonId: sillones[1].id,
       duracionEstimadaMin: 180,
       estado: 'en_preparacion',
@@ -293,8 +299,8 @@ async function main() {
       recetaId: receta.id,
       numeroCiclo: 3,
       fechaProgramada: new Date(Date.now() + 8 * DIA_MS),
-      horaInicio: '09:30',
-      horaTermino: sumarMinutos('09:30', 180),
+      horaInicio: '09:45',
+      horaTermino: sumarMinutos('09:45', 180),
       duracionEstimadaMin: 180,
       estado: 'programado',
     },

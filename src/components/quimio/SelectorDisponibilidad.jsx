@@ -2,15 +2,16 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { fetchDisponibilidadQuimio } from '../../lib/api.js';
 import { formatFecha } from '../../lib/ui.js';
 import CalendarioMensual from './CalendarioMensual.jsx';
+import AgendaDiaGrid from './AgendaDiaGrid.jsx';
 
 function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
 
 // Selector completo de sesión: calendario mensual (tipo Google Calendar, solo días hábiles
-// seleccionables) + agenda del día elegido (sillones en columnas, bloques de 30 min en filas).
-// `value`/`onChange` manejan { fecha, sillonId, horaInicio }. Usado por TableroPaciente y
-// AgendarCicloForm para no duplicar esta lógica dos veces.
+// seleccionables) + agenda del día elegido (AgendaDiaGrid, modo "reservar": solo bloques que
+// alcanzan para duracionMin son clickeables). `value`/`onChange` manejan
+// { fecha, sillonId, horaInicio }. Usado por TableroPaciente y AgendarCicloForm.
 export default function SelectorDisponibilidad({ fechaInicial, duracionMin, value, onChange }) {
   const [fechaElegida, setFechaElegida] = useState(value?.fecha ?? fechaInicial ?? todayISO());
   const [disponibilidad, setDisponibilidad] = useState(null);
@@ -40,10 +41,6 @@ export default function SelectorDisponibilidad({ fechaInicial, duracionMin, valu
     onChange(null);
   }
 
-  function handleSeleccionarBloque(sillonId, hora) {
-    onChange({ fecha: fechaElegida, sillonId, horaInicio: hora });
-  }
-
   return (
     <div className="grid md:grid-cols-[220px_1fr] gap-4">
       <div className="border border-slate-200 rounded-lg p-3">
@@ -63,55 +60,12 @@ export default function SelectorDisponibilidad({ fechaInicial, duracionMin, valu
         )}
 
         {!cargando && disponibilidad?.habil && (
-          <div className="overflow-x-auto border border-slate-200 rounded-lg">
-            <table className="text-xs border-collapse">
-              <thead>
-                <tr>
-                  <th className="sticky left-0 bg-slate-50 px-2 py-1.5 text-left text-slate-400 font-medium border-b border-slate-200 min-w-[52px]">Hora</th>
-                  {disponibilidad.sillones.map((s) => (
-                    <th key={s.id} className="px-1.5 py-1.5 text-slate-500 font-medium border-b border-l border-slate-100 whitespace-nowrap">
-                      {s.nombre.replace('Sillón ', 'S')}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {disponibilidad.sillones[0]?.bloques.map((_, filaIdx) => {
-                  const hora = disponibilidad.sillones[0].bloques[filaIdx].hora;
-                  return (
-                    <tr key={hora}>
-                      <td className="sticky left-0 bg-white px-2 py-1 text-slate-500 border-b border-slate-50 whitespace-nowrap">{hora}</td>
-                      {disponibilidad.sillones.map((sillon) => {
-                        const bloque = sillon.bloques[filaIdx];
-                        const seleccionado = value?.sillonId === sillon.id && value?.horaInicio === bloque.hora;
-                        let clase = 'bg-slate-50 text-slate-300';
-                        let clickeable = false;
-                        if (bloque.ocupado) {
-                          clase = 'bg-orange-100 text-orange-700';
-                        } else if (bloque.valido) {
-                          clase = seleccionado ? 'bg-blue-600 text-white' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100';
-                          clickeable = true;
-                        }
-                        return (
-                          <td key={sillon.id} className="p-0 border-b border-l border-slate-50">
-                            <button
-                              type="button"
-                              disabled={!clickeable}
-                              onClick={() => handleSeleccionarBloque(sillon.id, bloque.hora)}
-                              title={bloque.ciclo ? `${bloque.ciclo.pacienteNombre ?? 'Ocupado'} · ${bloque.ciclo.estadoLabel}` : undefined}
-                              className={`w-8 h-6 flex items-center justify-center ${clase} ${clickeable ? 'cursor-pointer' : 'cursor-default'}`}
-                            >
-                              {bloque.ocupado ? '●' : ''}
-                            </button>
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <AgendaDiaGrid
+            disponibilidad={disponibilidad}
+            value={value}
+            onSeleccionarLibre={(sillonId, horaInicio) => onChange({ fecha: fechaElegida, sillonId, horaInicio })}
+            soloValidos
+          />
         )}
 
         <div className="flex items-center gap-3 mt-2 text-[11px] text-slate-400">

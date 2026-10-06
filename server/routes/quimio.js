@@ -93,7 +93,7 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
 
   router.get('/sillones', async (req, res) => {
     if (!requireAuth(req, res)) return;
-    const sillones = await prisma.sillon.findMany({ orderBy: { nombre: 'asc' } });
+    const sillones = await prisma.sillon.findMany({ orderBy: { orden: 'asc' } });
     res.json({ sillones: sillones.map(serializeSillon) });
   });
 
@@ -104,7 +104,8 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
       res.status(400).json({ error: 'nombre es obligatorio.' });
       return;
     }
-    const sillon = await prisma.sillon.create({ data: { nombre } });
+    const ultimo = await prisma.sillon.findFirst({ orderBy: { orden: 'desc' } });
+    const sillon = await prisma.sillon.create({ data: { nombre, orden: (ultimo?.orden ?? 0) + 1 } });
     res.status(201).json({ sillon: serializeSillon(sillon) });
   });
 
@@ -443,7 +444,7 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
     const fechaFinDia = new Date(fechaInicioDia.getTime() + 86400000);
 
     const [sillones, ciclosDelDia] = await Promise.all([
-      prisma.sillon.findMany({ where: { activo: true }, orderBy: { nombre: 'asc' } }),
+      prisma.sillon.findMany({ where: { activo: true }, orderBy: { orden: 'asc' } }),
       prisma.cicloQuimio.findMany({
         where: { fechaProgramada: { gte: fechaInicioDia, lt: fechaFinDia }, estado: { notIn: ['cancelado'] } },
         include: { receta: { include: { paciente: true } } },
@@ -535,7 +536,7 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
     const hasta = req.query.hasta ? new Date(req.query.hasta) : new Date(desde.getTime() + 6 * 86400000);
 
     const [sillones, ciclos] = await Promise.all([
-      prisma.sillon.findMany({ where: { activo: true }, orderBy: { nombre: 'asc' } }),
+      prisma.sillon.findMany({ where: { activo: true }, orderBy: { orden: 'asc' } }),
       prisma.cicloQuimio.findMany({
         where: { fechaProgramada: { gte: desde, lte: hasta }, estado: { notIn: ['cancelado'] } },
         include: CICLO_INCLUDE,

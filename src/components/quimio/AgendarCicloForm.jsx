@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Pencil } from 'lucide-react';
 import { fetchRecetas, crearCiclo } from '../../lib/api.js';
+import { formatFecha } from '../../lib/ui.js';
 import SelectorDisponibilidad from './SelectorDisponibilidad.jsx';
 
 function duracionSugerida(receta) {
@@ -10,12 +11,16 @@ function duracionSugerida(receta) {
   return minutosQuimio > 0 ? minutosQuimio + 30 : 180;
 }
 
-export default function AgendarCicloForm({ fechaInicial, onClose, onCreado }) {
+// seleccionInicial: { fecha, sillonId, horaInicio, sillonNombre? } — cuando viene de un click en
+// la grilla de SillonesGrilla, el horario ya está elegido y el formulario solo pide la receta;
+// igual se puede "Cambiar horario" si la duración real de la receta no calza ahí.
+export default function AgendarCicloForm({ fechaInicial, seleccionInicial, onClose, onCreado }) {
   const [recetas, setRecetas] = useState([]);
   const [recetaId, setRecetaId] = useState('');
   const [numeroCiclo, setNumeroCiclo] = useState(1);
   const [duracionEstimadaMin, setDuracionEstimadaMin] = useState(180);
-  const [seleccion, setSeleccion] = useState(null);
+  const [seleccion, setSeleccion] = useState(seleccionInicial ?? null);
+  const [mostrarSelector, setMostrarSelector] = useState(!seleccionInicial);
   const [error, setError] = useState(null);
   const [guardando, setGuardando] = useState(false);
 
@@ -28,7 +33,6 @@ export default function AgendarCicloForm({ fechaInicial, onClose, onCreado }) {
     if (receta) {
       setNumeroCiclo((receta.ciclos?.length ?? 0) + 1);
       setDuracionEstimadaMin(duracionSugerida(receta));
-      setSeleccion(null);
     }
   }, [recetaId, recetas]);
 
@@ -90,12 +94,23 @@ export default function AgendarCicloForm({ fechaInicial, onClose, onCreado }) {
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">Duración (min)</label>
-              <input type="number" min="15" value={duracionEstimadaMin} onChange={(e) => { setDuracionEstimadaMin(e.target.value); setSeleccion(null); }} className="w-28 border border-slate-300 rounded-md px-3 py-2 text-sm" />
+              <input type="number" min="15" value={duracionEstimadaMin} onChange={(e) => { setDuracionEstimadaMin(e.target.value); setSeleccion(null); setMostrarSelector(true); }} className="w-28 border border-slate-300 rounded-md px-3 py-2 text-sm" />
             </div>
           </div>
 
-          {recetaId && (
-            <SelectorDisponibilidad fechaInicial={fechaInicial} duracionMin={Number(duracionEstimadaMin) || 180} value={seleccion} onChange={setSeleccion} />
+          {seleccion && !mostrarSelector && (
+            <div className="flex items-center justify-between bg-blue-50 border border-blue-100 rounded-md px-3 py-2 text-sm text-blue-800">
+              <span>
+                Sesión: {formatFecha(seleccion.fecha)} · {seleccion.horaInicio} · {seleccion.sillonNombre ?? 'sillón elegido'}
+              </span>
+              <button type="button" onClick={() => setMostrarSelector(true)} className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800">
+                <Pencil className="w-3 h-3" /> Cambiar
+              </button>
+            </div>
+          )}
+
+          {recetaId && mostrarSelector && (
+            <SelectorDisponibilidad fechaInicial={seleccion?.fecha ?? fechaInicial} duracionMin={Number(duracionEstimadaMin) || 180} value={seleccion} onChange={(v) => { setSeleccion(v); if (v) setMostrarSelector(false); }} />
           )}
 
           {error && <div className="text-sm text-red-600">{error}</div>}

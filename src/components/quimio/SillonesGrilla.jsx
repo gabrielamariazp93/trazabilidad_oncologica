@@ -1,47 +1,42 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Plus, ChevronLeft, ChevronRight } from 'lucide-react';
-import { fetchGrillaQuimio } from '../../lib/api.js';
+import { Plus } from 'lucide-react';
+import { fetchDisponibilidadQuimio } from '../../lib/api.js';
+import { formatFecha } from '../../lib/ui.js';
+import CalendarioMensual from './CalendarioMensual.jsx';
+import AgendaDiaGrid from './AgendaDiaGrid.jsx';
 import AgendarCicloForm from './AgendarCicloForm.jsx';
+import DetalleCicloModal from './DetalleCicloModal.jsx';
 
-const DIAS_LABEL = { 0: 'Dom', 1: 'Lun', 2: 'Mar', 3: 'Mié', 4: 'Jue', 5: 'Vie', 6: 'Sáb' };
-
-function inicioSemana(date) {
-  const d = new Date(date);
-  const dia = d.getDay();
-  const diff = dia === 0 ? -6 : 1 - dia;
-  d.setDate(d.getDate() + diff);
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
-
-function toISODate(date) {
-  return date.toISOString().slice(0, 10);
+function todayISO() {
+  return new Date().toISOString().slice(0, 10);
 }
 
 const AGENDA_ROLES = ['enfermera_quimio', 'admin'];
 
+// Vista principal del módulo: calendario mensual (solo días hábiles seleccionables) + agenda del
+// día con los 16 sillones en columnas. Cualquier bloque libre es "clickeable" acá (modo
+// "explorar" de AgendaDiaGrid, sin duración todavía — se agenda sin filtrar por duración y el
+// backend valida el choque real contra la duración de la receta elegida al confirmar).
 export default function SillonesGrilla({ user }) {
-  const [semanaBase, setSemanaBase] = useState(() => inicioSemana(new Date()));
-  const [grilla, setGrilla] = useState(null);
+  const [fecha, setFecha] = useState(todayISO());
+  const [disponibilidad, setDisponibilidad] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
-  const [mostrarForm, setMostrarForm] = useState(false);
-  const [fechaPreseleccionada, setFechaPreseleccionada] = useState(null);
-
-  const hasta = new Date(semanaBase.getTime() + 6 * 86400000);
+  const [seleccionNueva, setSeleccionNueva] = useState(null);
+  const [cicloSeleccionado, setCicloSeleccionado] = useState(null);
 
   const cargar = useCallback(async () => {
     setCargando(true);
     setError(null);
     try {
-      const data = await fetchGrillaQuimio(toISODate(semanaBase), toISODate(hasta));
-      setGrilla(data);
+      const data = await fetchDisponibilidadQuimio(fecha, 30);
+      setDisponibilidad(data);
     } catch (err) {
-      setError(err.message || 'No se pudo cargar la grilla.');
+      setError(err.message || 'No se pudo cargar la agenda.');
     } finally {
       setCargando(false);
     }
-  }, [semanaBase]);
+  }, [fecha]);
 
   useEffect(() => {
     cargar();
@@ -49,87 +44,75 @@ export default function SillonesGrilla({ user }) {
 
   const puedeAgendar = AGENDA_ROLES.includes(user.role);
 
+  function handleSeleccionarLibre(sillonId, horaInicio) {
+    if (!puedeAgendar) return;
+    const sillon = disponibilidad.sillones.find((s) => s.id === sillonId);
+    setSeleccionNueva({ fecha, sillonId, horaInicio, sillonNombre: sillon?.nombre });
+  }
+
   return (
     <div>
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-        <div className="flex items-center gap-2">
-          <button type="button" onClick={() => setSemanaBase((d) => new Date(d.getTime() - 7 * 86400000))} className="border border-slate-200 rounded-md p-1.5 text-slate-500 hover:bg-slate-50">
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-          <div className="text-sm font-medium text-slate-700">
-            {toISODate(semanaBase)} — {toISODate(hasta)}
-          </div>
-          <button type="button" onClick={() => setSemanaBase((d) => new Date(d.getTime() + 7 * 86400000))} className="border border-slate-200 rounded-md p-1.5 text-slate-500 hover:bg-slate-50">
-            <ChevronRight className="w-4 h-4" />
-          </button>
-          <button type="button" onClick={() => setSemanaBase(inicioSemana(new Date()))} className="text-xs text-blue-600 hover:text-blue-700 ml-1">
-            Hoy
-          </button>
-        </div>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold text-slate-800">Sillones</h2>
         {puedeAgendar && (
-          <button type="button" onClick={() => { setFechaPreseleccionada(null); setMostrarForm(true); }} className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md px-3 py-2">
+          <button
+            type="button"
+            onClick={() => setSeleccionNueva({})}
+            className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md px-3 py-2"
+          >
             <Plus className="w-4 h-4" /> Agendar ciclo
           </button>
         )}
       </div>
 
-      {error && <div className="text-sm text-red-600 mb-3">{error}</div>}
-      {cargando && <div className="text-sm text-slate-400">Cargando grilla…</div>}
+      <div className="grid md:grid-cols-[220px_1fr] gap-4">
+        <div className="border border-slate-200 rounded-lg p-3 h-fit">
+          <CalendarioMensual fechaSeleccionada={fecha} onSeleccionar={setFecha} />
+        </div>
 
-      {!cargando && grilla && (
-        <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-xs text-slate-400 uppercase">
-                  <th className="text-left px-3 py-2 w-28 sticky left-0 bg-white">Sillón</th>
-                  {grilla.dias.map((dia) => (
-                    <th key={dia} className="text-left px-3 py-2 min-w-[140px]">
-                      {DIAS_LABEL[new Date(dia).getDay()]} {dia.slice(8, 10)}/{dia.slice(5, 7)}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {grilla.sillones.map((sillon) => (
-                  <tr key={sillon.id}>
-                    <td className="px-3 py-2 font-medium text-slate-700 align-top sticky left-0 bg-white">{sillon.nombre}</td>
-                    {grilla.dias.map((dia) => {
-                      const celda = grilla.celdas[dia]?.[sillon.id];
-                      return (
-                        <td key={dia} className="px-3 py-2 align-top">
-                          {celda?.ciclos.length ? (
-                            <div className="space-y-1">
-                              {celda.ciclos.map((c) => (
-                                <div key={c.id} className="text-xs bg-blue-50 text-blue-700 rounded px-1.5 py-1">
-                                  {c.horaInicio} · {c.receta.paciente.nombre} · ciclo {c.numeroCiclo}
-                                  <div className="text-[10px] text-blue-500">{c.estadoLabel}</div>
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <span className="text-xs text-slate-300">—</span>
-                          )}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <div>
+          <div className="text-sm font-medium text-slate-700 mb-2">{formatFecha(fecha)}</div>
+
+          {error && <div className="text-sm text-red-600 mb-2">{error}</div>}
+          {cargando && <div className="text-sm text-slate-400">Cargando agenda…</div>}
+
+          {!cargando && disponibilidad && !disponibilidad.habil && (
+            <div className="text-sm text-amber-600 bg-amber-50 rounded-md px-3 py-2">
+              {disponibilidad.feriado ? 'Ese día es feriado.' : 'Ese día no es hábil.'}
+            </div>
+          )}
+
+          {!cargando && disponibilidad?.habil && (
+            <AgendaDiaGrid
+              disponibilidad={disponibilidad}
+              value={null}
+              onSeleccionarLibre={handleSeleccionarLibre}
+              onSeleccionarOcupado={(_sillon, bloque) => setCicloSeleccionado(bloque.ciclo.id)}
+              soloValidos={false}
+            />
+          )}
+
+          <div className="flex items-center gap-3 mt-2 text-[11px] text-slate-400">
+            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-emerald-50 border border-emerald-200 inline-block" /> Libre — click para agendar</span>
+            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-orange-100 inline-block" /> Ocupado — click para ver detalle</span>
           </div>
         </div>
-      )}
+      </div>
 
-      {mostrarForm && (
+      {seleccionNueva && (
         <AgendarCicloForm
-          fechaInicial={fechaPreseleccionada}
-          onClose={() => setMostrarForm(false)}
+          fechaInicial={seleccionNueva.fecha}
+          seleccionInicial={seleccionNueva.sillonId ? seleccionNueva : null}
+          onClose={() => setSeleccionNueva(null)}
           onCreado={() => {
-            setMostrarForm(false);
+            setSeleccionNueva(null);
             cargar();
           }}
         />
+      )}
+
+      {cicloSeleccionado && (
+        <DetalleCicloModal cicloId={cicloSeleccionado} onClose={() => setCicloSeleccionado(null)} />
       )}
     </div>
   );
