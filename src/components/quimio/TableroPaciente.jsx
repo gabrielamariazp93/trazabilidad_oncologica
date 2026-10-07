@@ -217,7 +217,7 @@ export default function TableroPaciente({ bootstrap, pacienteInicial, onConsumid
             )}
           </div>
 
-          <section className="bg-white border border-slate-200 rounded-lg p-5">
+          <section className="bg-white border border-slate-200 rounded-lg p-5 min-w-0">
             <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-1.5">
               <CalendarPlus className="w-4 h-4" /> Registrar sesión
             </h3>

@@ -47,7 +47,7 @@ export default function SelectorDisponibilidad({ fechaInicial, duracionMin, valu
         <CalendarioMensual fechaSeleccionada={fechaElegida} onSeleccionar={handleSeleccionarFecha} />
       </div>
 
-      <div>
+      <div className="min-w-0">
         <div className="text-sm font-medium text-slate-700 mb-2">{formatFecha(fechaElegida)}</div>
 
         {error && <div className="text-sm text-red-600">{error}</div>}

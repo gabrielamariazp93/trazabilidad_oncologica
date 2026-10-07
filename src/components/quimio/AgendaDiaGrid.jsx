@@ -15,17 +15,17 @@ export default function AgendaDiaGrid({ disponibilidad, value, onSeleccionarLibr
   }
 
   return (
-    <div className="overflow-x-auto border border-slate-200 rounded-lg">
+    <div className="overflow-auto max-h-[65vh] border border-slate-200 rounded-lg min-w-0">
       <table className="text-sm border-collapse w-full">
         <thead>
           <tr>
-            <th className={`sticky left-0 z-10 bg-slate-50 text-left text-slate-400 font-medium border-b border-r border-slate-200 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.08)] ${compacto ? 'px-2 py-1 text-[10px] min-w-[52px]' : 'px-3 py-2 text-xs min-w-[64px]'}`}>
+            <th className={`sticky top-0 left-0 z-30 bg-slate-50 text-left text-slate-400 font-medium border-b border-r border-slate-200 shadow-[2px_2px_4px_-2px_rgba(0,0,0,0.08)] ${compacto ? 'px-2 py-1 text-[10px] min-w-[52px]' : 'px-3 py-2 text-xs min-w-[64px]'}`}>
               Hora
             </th>
             {disponibilidad.sillones.map((s) => (
               <th
                 key={s.id}
-                className={`text-slate-500 font-medium border-b border-l border-slate-100 whitespace-nowrap ${compacto ? 'px-1 py-1 text-[10px] min-w-[32px]' : 'px-2 py-2 text-xs min-w-[120px]'}`}
+                className={`sticky top-0 z-20 bg-slate-50 text-slate-500 font-medium border-b border-l border-slate-100 whitespace-nowrap ${compacto ? 'px-1 py-1 text-[10px] min-w-[32px]' : 'px-2 py-2 text-xs min-w-[120px]'}`}
                 title={compacto ? s.nombre : undefined}
               >
                 {compacto ? s.nombre.replace(/[^0-9]/g, '') || s.nombre : s.nombre}
