@@ -19,7 +19,7 @@ export default function AgendaDiaGrid({ disponibilidad, value, onSeleccionarLibr
       <table className="text-sm border-collapse w-full">
         <thead>
           <tr>
-            <th className={`sticky left-0 bg-slate-50 text-left text-slate-400 font-medium border-b border-slate-200 ${compacto ? 'px-2 py-1 text-[10px] min-w-[52px]' : 'px-3 py-2 text-xs min-w-[64px]'}`}>
+            <th className={`sticky left-0 z-10 bg-slate-50 text-left text-slate-400 font-medium border-b border-r border-slate-200 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.08)] ${compacto ? 'px-2 py-1 text-[10px] min-w-[52px]' : 'px-3 py-2 text-xs min-w-[64px]'}`}>
               Hora
             </th>
             {disponibilidad.sillones.map((s) => (
@@ -38,7 +38,7 @@ export default function AgendaDiaGrid({ disponibilidad, value, onSeleccionarLibr
             const hora = disponibilidad.sillones[0].bloques[filaIdx].hora;
             return (
               <tr key={hora}>
-                <td className={`sticky left-0 bg-white text-slate-500 border-b border-slate-50 whitespace-nowrap align-middle ${compacto ? 'px-2 py-0.5 text-[10px]' : 'px-3 py-1.5 text-xs align-top'}`}>
+                <td className={`sticky left-0 z-10 bg-white text-slate-500 border-b border-r border-slate-100 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.08)] whitespace-nowrap align-middle ${compacto ? 'px-2 py-0.5 text-[10px]' : 'px-3 py-1.5 text-xs align-top'}`}>
                   {hora}
                 </td>
                 {disponibilidad.sillones.map((sillon) => {
