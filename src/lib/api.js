@@ -203,8 +203,16 @@ export async function reagendarCiclo(id, payload) {
   return request(`/quimio/ciclos/${id}`, { method: 'PATCH', body: JSON.stringify(payload) });
 }
 
+export async function reprogramarCiclo(id, payload) {
+  return request(`/quimio/ciclos/${id}/reprogramar`, { method: 'POST', body: JSON.stringify(payload) });
+}
+
 export async function transicionarCiclo(id, payload) {
   return request(`/quimio/ciclos/${id}/transicion`, { method: 'POST', body: JSON.stringify(payload) });
+}
+
+export async function fetchPacientesEspera() {
+  return request('/quimio/pacientes-espera');
 }
 
 export async function fetchGrillaQuimio(desde, hasta) {

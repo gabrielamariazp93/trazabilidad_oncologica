@@ -4,7 +4,12 @@ import React from 'react';
 // SelectorDisponibilidad (modo "reservar": solo los bloques que alcanzan para la duración
 // elegida son clickeables) y SillonesGrilla (modo "explorar": cualquier bloque libre es
 // clickeable, porque todavía no se sabe qué receta/duración se va a agendar ahí).
-export default function AgendaDiaGrid({ disponibilidad, value, onSeleccionarLibre, onSeleccionarOcupado, soloValidos = true }) {
+//
+// `compacto`: celdas pequeñas tipo "cuadritos de color" (sin texto, con title como tooltip) —
+// pensado para el flujo de "Agendar ciclo" donde solo se necesita ver qué está libre. El modo
+// espacioso (default, usado en la vista principal de Sillones) muestra el nombre del paciente
+// directamente en cada celda ocupada.
+export default function AgendaDiaGrid({ disponibilidad, value, onSeleccionarLibre, onSeleccionarOcupado, soloValidos = true, compacto = false }) {
   if (!disponibilidad?.sillones?.length) {
     return <div className="text-sm text-slate-400">Sin sillones configurados.</div>;
   }
@@ -14,10 +19,16 @@ export default function AgendaDiaGrid({ disponibilidad, value, onSeleccionarLibr
       <table className="text-sm border-collapse w-full">
         <thead>
           <tr>
-            <th className="sticky left-0 bg-slate-50 px-3 py-2 text-left text-xs text-slate-400 font-medium border-b border-slate-200 min-w-[64px]">Hora</th>
+            <th className={`sticky left-0 bg-slate-50 text-left text-slate-400 font-medium border-b border-slate-200 ${compacto ? 'px-2 py-1 text-[10px] min-w-[52px]' : 'px-3 py-2 text-xs min-w-[64px]'}`}>
+              Hora
+            </th>
             {disponibilidad.sillones.map((s) => (
-              <th key={s.id} className="px-2 py-2 text-xs text-slate-500 font-medium border-b border-l border-slate-100 whitespace-nowrap min-w-[120px]">
-                {s.nombre}
+              <th
+                key={s.id}
+                className={`text-slate-500 font-medium border-b border-l border-slate-100 whitespace-nowrap ${compacto ? 'px-1 py-1 text-[10px] min-w-[32px]' : 'px-2 py-2 text-xs min-w-[120px]'}`}
+                title={compacto ? s.nombre : undefined}
+              >
+                {compacto ? s.nombre.replace(/[^0-9]/g, '') || s.nombre : s.nombre}
               </th>
             ))}
           </tr>
@@ -27,12 +38,41 @@ export default function AgendaDiaGrid({ disponibilidad, value, onSeleccionarLibr
             const hora = disponibilidad.sillones[0].bloques[filaIdx].hora;
             return (
               <tr key={hora}>
-                <td className="sticky left-0 bg-white px-3 py-1.5 text-xs text-slate-500 border-b border-slate-50 whitespace-nowrap align-top">{hora}</td>
+                <td className={`sticky left-0 bg-white text-slate-500 border-b border-slate-50 whitespace-nowrap align-middle ${compacto ? 'px-2 py-0.5 text-[10px]' : 'px-3 py-1.5 text-xs align-top'}`}>
+                  {hora}
+                </td>
                 {disponibilidad.sillones.map((sillon) => {
                   const bloque = sillon.bloques[filaIdx];
                   const seleccionado = value?.sillonId === sillon.id && value?.horaInicio === bloque.hora;
                   const puedeElegirLibre = !bloque.ocupado && (soloValidos ? bloque.valido : true);
                   const clickeable = bloque.ocupado ? !!onSeleccionarOcupado : puedeElegirLibre;
+
+                  const handleClick = () => {
+                    if (bloque.ocupado) onSeleccionarOcupado?.(sillon, bloque);
+                    else onSeleccionarLibre?.(sillon.id, bloque.hora);
+                  };
+
+                  if (compacto) {
+                    let claseCompacta = 'bg-slate-100';
+                    if (bloque.ocupado) claseCompacta = 'bg-orange-400 hover:bg-orange-500';
+                    else if (puedeElegirLibre) claseCompacta = seleccionado ? 'bg-blue-600' : 'bg-emerald-400 hover:bg-emerald-500';
+
+                    const title = bloque.ocupado
+                      ? `${bloque.ciclo.pacienteNombre ?? 'Ocupado'} · Ciclo ${bloque.ciclo.numeroCiclo} · ${bloque.ciclo.estadoLabel}`
+                      : puedeElegirLibre ? 'Disponible' : undefined;
+
+                    return (
+                      <td key={sillon.id} className="p-0.5 border-b border-l border-slate-50 text-center">
+                        <button
+                          type="button"
+                          disabled={!clickeable}
+                          onClick={handleClick}
+                          title={title}
+                          className={`block mx-auto w-4 h-4 rounded-sm ${claseCompacta} ${clickeable ? 'cursor-pointer' : 'cursor-default'}`}
+                        />
+                      </td>
+                    );
+                  }
 
                   let clase = 'bg-white text-slate-300';
                   if (bloque.ocupado) {
@@ -46,10 +86,7 @@ export default function AgendaDiaGrid({ disponibilidad, value, onSeleccionarLibr
                       <button
                         type="button"
                         disabled={!clickeable}
-                        onClick={() => {
-                          if (bloque.ocupado) onSeleccionarOcupado?.(sillon, bloque);
-                          else onSeleccionarLibre?.(sillon.id, bloque.hora);
-                        }}
+                        onClick={handleClick}
                         className={`w-full min-h-[34px] px-2 py-1 flex flex-col items-start justify-center text-left leading-tight ${clase} ${clickeable ? 'cursor-pointer' : 'cursor-default'}`}
                       >
                         {bloque.ocupado ? (

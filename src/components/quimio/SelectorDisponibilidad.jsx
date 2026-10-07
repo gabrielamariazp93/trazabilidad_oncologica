@@ -65,6 +65,7 @@ export default function SelectorDisponibilidad({ fechaInicial, duracionMin, valu
             value={value}
             onSeleccionarLibre={(sillonId, horaInicio) => onChange({ fecha: fechaElegida, sillonId, horaInicio })}
             soloValidos
+            compacto
           />
         )}
 

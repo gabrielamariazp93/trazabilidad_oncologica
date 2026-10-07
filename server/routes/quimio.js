@@ -1,6 +1,7 @@
 import express from 'express';
 import {
   ACCIONES_CICLO,
+  ESTADO_RECETA_LABELS,
   PASO_BLOQUE_MIN,
   aplicarTransicionCiclo,
   calcularBloquesLibres,
@@ -296,6 +297,42 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
     res.json({ receta: serializeReceta(actualizada) });
   });
 
+  // --- Pacientes en espera (panel al costado del calendario de Sillones) -----------------------
+  // Toda receta activa (borrador esperando validación, o validada esperando/en tratamiento),
+  // ordenada por antigüedad (createdAt asc) — la que lleva más tiempo esperando aparece primero.
+  router.get('/quimio/pacientes-espera', async (req, res) => {
+    if (!requireAuth(req, res)) return;
+    const recetas = await prisma.recetaQuimio.findMany({
+      where: { estado: { in: ['borrador', 'validada'] } },
+      include: { paciente: true, ciclos: { orderBy: { fechaProgramada: 'asc' } } },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    const hoy = truncarFechaUTC(new Date());
+    const pacientes = recetas.map((r) => {
+      const proximo = r.ciclos.find((c) =>
+        ['programado', 'en_preparacion', 'listo_para_administrar', 'en_administracion'].includes(c.estado)
+        && truncarFechaUTC(c.fechaProgramada) >= hoy
+      );
+      return {
+        recetaId: r.id,
+        pacienteId: r.pacienteId,
+        pacienteNombre: r.paciente?.nombre ?? null,
+        rut: r.paciente?.rut ?? null,
+        protocolo: r.protocolo,
+        estado: r.estado,
+        estadoLabel: ESTADO_RECETA_LABELS[r.estado] ?? r.estado,
+        ciclosCompletados: r.ciclos.filter((c) => c.estado === 'administrado').length,
+        ciclosTotal: r.numeroCiclosTotal,
+        proximaSesion: proximo ? { fecha: proximo.fechaProgramada, horaInicio: proximo.horaInicio } : null,
+        diasEnEspera: Math.floor((hoy.getTime() - truncarFechaUTC(r.createdAt).getTime()) / 86400000),
+        createdAt: r.createdAt,
+      };
+    });
+
+    res.json({ pacientes });
+  });
+
   // --- Ciclos ------------------------------------------------------------
 
   router.get('/quimio/ciclos', async (req, res) => {
@@ -427,6 +464,86 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
     const actualizado = await loadCicloOr404(ciclo.id, res);
     if (!actualizado) return;
     res.json({ ciclo: serializeCiclo(actualizado) });
+  });
+
+  // Reprogramar: igual que el PATCH anterior para un solo ciclo, pero con la opción de arrastrar
+  // el mismo desplazamiento de días a todos los ciclos "programado" restantes de la misma receta
+  // (mismo horaInicio/sillón de cada uno, solo cambia la fecha). Valida TODOS los horarios antes
+  // de aplicar nada — si uno choca, no se mueve ninguno, para no dejar la receta a medio mover.
+  router.post('/quimio/ciclos/:id/reprogramar', async (req, res) => {
+    if (!requireRoles(req, res, AGENDA_ROLES)) return;
+    const ciclo = await loadCicloOr404(req.params.id, res);
+    if (!ciclo) return;
+    if (ciclo.estado !== 'programado') {
+      res.status(400).json({ error: 'Solo se puede reprogramar un ciclo en estado programado.' });
+      return;
+    }
+    const { fechaProgramada, horaInicio, sillonId, aplicarATodos } = req.body ?? {};
+    if (!fechaProgramada || !horaInicio) {
+      res.status(400).json({ error: 'fechaProgramada y horaInicio son obligatorios.' });
+      return;
+    }
+
+    const fechaOriginal = truncarFechaUTC(ciclo.fechaProgramada);
+    const fechaNueva = truncarFechaUTC(fechaProgramada);
+    const deltaDias = Math.round((fechaNueva.getTime() - fechaOriginal.getTime()) / 86400000);
+    const sillonIdFinal = sillonId !== undefined ? (sillonId || null) : ciclo.sillonId;
+
+    const validacionPrincipal = await validarHorario({ fecha: fechaNueva, horaInicio, duracionMin: ciclo.duracionEstimadaMin, sillonId: sillonIdFinal, excluirCicloId: ciclo.id });
+    if (!validacionPrincipal.ok) {
+      res.status(400).json({ error: validacionPrincipal.error });
+      return;
+    }
+
+    const actualizaciones = [{
+      id: ciclo.id,
+      fechaProgramada: fechaNueva,
+      horaInicio,
+      horaTermino: validacionPrincipal.horaTermino,
+      sillonId: sillonIdFinal,
+    }];
+
+    if (aplicarATodos) {
+      const otros = await prisma.cicloQuimio.findMany({
+        where: {
+          recetaId: ciclo.recetaId,
+          id: { not: ciclo.id },
+          estado: 'programado',
+          fechaProgramada: { gt: ciclo.fechaProgramada },
+        },
+      });
+      for (const otro of otros) {
+        const fechaOtroNueva = new Date(truncarFechaUTC(otro.fechaProgramada).getTime() + deltaDias * 86400000);
+        const validacionOtro = await validarHorario({ fecha: fechaOtroNueva, horaInicio: otro.horaInicio, duracionMin: otro.duracionEstimadaMin, sillonId: otro.sillonId, excluirCicloId: otro.id });
+        if (!validacionOtro.ok) {
+          res.status(400).json({ error: `No se pudo reprogramar también el ciclo ${otro.numeroCiclo} (quedaría el ${fechaOtroNueva.toISOString().slice(0, 10)}): ${validacionOtro.error}` });
+          return;
+        }
+        actualizaciones.push({
+          id: otro.id,
+          fechaProgramada: fechaOtroNueva,
+          horaInicio: otro.horaInicio,
+          horaTermino: validacionOtro.horaTermino,
+          sillonId: otro.sillonId,
+        });
+      }
+    }
+
+    await prisma.$transaction(async (tx) => {
+      for (const u of actualizaciones) {
+        await tx.cicloQuimio.update({
+          where: { id: u.id },
+          data: { fechaProgramada: u.fechaProgramada, horaInicio: u.horaInicio, horaTermino: u.horaTermino, sillonId: u.sillonId },
+        });
+        await tx.historialCiclo.create({
+          data: { cicloId: u.id, estado: 'programado', actorUserId: req.authUser.id, comentario: u.id === ciclo.id ? 'Ciclo reprogramado.' : 'Ciclo reprogramado junto al resto de la receta.' },
+        });
+      }
+    });
+
+    const actualizado = await loadCicloOr404(ciclo.id, res);
+    if (!actualizado) return;
+    res.json({ ciclo: serializeCiclo(actualizado), ciclosActualizados: actualizaciones.length });
   });
 
   // --- Disponibilidad (bloques de 30 min por sillón para un día) ------------------------------

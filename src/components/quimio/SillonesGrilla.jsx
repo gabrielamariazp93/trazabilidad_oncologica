@@ -6,6 +6,7 @@ import CalendarioMensual from './CalendarioMensual.jsx';
 import AgendaDiaGrid from './AgendaDiaGrid.jsx';
 import AgendarCicloForm from './AgendarCicloForm.jsx';
 import DetalleCicloModal from './DetalleCicloModal.jsx';
+import ListaEsperaPacientes from './ListaEsperaPacientes.jsx';
 
 function todayISO() {
   return new Date().toISOString().slice(0, 10);
@@ -24,6 +25,7 @@ export default function SillonesGrilla({ user }) {
   const [error, setError] = useState(null);
   const [seleccionNueva, setSeleccionNueva] = useState(null);
   const [cicloSeleccionado, setCicloSeleccionado] = useState(null);
+  const [listaVersion, setListaVersion] = useState(0);
 
   const cargar = useCallback(async () => {
     setCargando(true);
@@ -66,8 +68,11 @@ export default function SillonesGrilla({ user }) {
       </div>
 
       <div className="grid md:grid-cols-[220px_1fr] gap-4">
-        <div className="border border-slate-200 rounded-lg p-3 h-fit">
-          <CalendarioMensual fechaSeleccionada={fecha} onSeleccionar={setFecha} />
+        <div className="space-y-4">
+          <div className="border border-slate-200 rounded-lg p-3 h-fit">
+            <CalendarioMensual fechaSeleccionada={fecha} onSeleccionar={setFecha} />
+          </div>
+          <ListaEsperaPacientes refreshKey={listaVersion} />
         </div>
 
         <div>
@@ -107,12 +112,21 @@ export default function SillonesGrilla({ user }) {
           onCreado={() => {
             setSeleccionNueva(null);
             cargar();
+            setListaVersion((v) => v + 1);
           }}
         />
       )}
 
       {cicloSeleccionado && (
-        <DetalleCicloModal cicloId={cicloSeleccionado} onClose={() => setCicloSeleccionado(null)} />
+        <DetalleCicloModal
+          cicloId={cicloSeleccionado}
+          user={user}
+          onClose={() => setCicloSeleccionado(null)}
+          onCambio={() => {
+            cargar();
+            setListaVersion((v) => v + 1);
+          }}
+        />
       )}
     </div>
   );
