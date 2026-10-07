@@ -138,6 +138,7 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
       via: f.via ?? '',
       frecuencia: f.frecuencia ?? null,
       nSesion: f.nSesion ?? null,
+      clasificacion: f.clasificacion ?? null,
       duracionInfusionMin: f.duracionInfusionMin ? Number(f.duracionInfusionMin) : null,
       orden: idx,
     };

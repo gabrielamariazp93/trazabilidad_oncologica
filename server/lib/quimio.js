@@ -260,6 +260,7 @@ export function serializeDetalleFarmaco(d) {
     via: d.via,
     frecuencia: d.frecuencia,
     nSesion: d.nSesion,
+    clasificacion: d.clasificacion,
     duracionInfusionMin: d.duracionInfusionMin,
     orden: d.orden,
   };

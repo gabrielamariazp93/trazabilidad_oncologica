@@ -193,7 +193,7 @@ export default function TableroPaciente({ bootstrap, pacienteInicial, onConsumid
                       <div className="text-[11px] font-medium text-slate-400 uppercase">{items[0].categoriaLabel}</div>
                       {items.map((f) => (
                         <div key={f.id} className="text-sm text-slate-600">
-                          {f.farmaco} {f.dosis} {f.unidad} · {f.via}{f.frecuencia ? ` · ${f.frecuencia}` : ''}{f.nSesion ? ` · ${f.nSesion}` : ''}
+                          {f.farmaco} {f.dosis} {f.unidad} · {f.via}{f.frecuencia ? ` · ${f.frecuencia}` : ''}{f.nSesion ? ` · ${f.nSesion}` : ''}{f.clasificacion ? ` · ${f.clasificacion}` : ''}
                         </div>
                       ))}
                     </div>

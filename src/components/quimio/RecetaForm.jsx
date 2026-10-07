@@ -4,7 +4,7 @@ import { buscarPacientes, crearPaciente, crearReceta, fetchEsquemasQuimio, fetch
 import { calcularSC } from '../../lib/ui.js';
 
 function farmacoVacio(categoria) {
-  return { categoria, farmaco: '', dosis: '', unidad: categoria === 'quimioterapia' ? 'mg/m2' : 'mg', via: categoria === 'quimioterapia' ? 'EV' : 'VO', frecuencia: '', duracionInfusionMin: '' };
+  return { categoria, farmaco: '', dosis: '', unidad: categoria === 'quimioterapia' ? 'mg/m2' : 'mg', via: 'EV', frecuencia: '', clasificacion: '', duracionInfusionMin: '' };
 }
 
 export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCreada }) {
@@ -99,6 +99,7 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
         via: 'EV',
         frecuencia: '',
         nSesion: l.nSesion,
+        clasificacion: '',
         duracionInfusionMin: l.horasSillon ? Math.round(l.horasSillon * 60) : '',
       }))
     );
@@ -177,7 +178,10 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
         <input value={f.farmaco} onChange={(e) => onChange(idx, 'farmaco', e.target.value)} placeholder="Fármaco" className="col-span-3 border border-slate-300 rounded-md px-2 py-1.5 text-sm" />
         <input value={f.dosis} onChange={(e) => onChange(idx, 'dosis', e.target.value)} placeholder="Dosis" className="col-span-2 border border-slate-300 rounded-md px-2 py-1.5 text-sm" />
         <input value={f.unidad} onChange={(e) => onChange(idx, 'unidad', e.target.value)} placeholder={placeholderUnidad} className="col-span-2 border border-slate-300 rounded-md px-2 py-1.5 text-sm" />
-        <input value={f.via} onChange={(e) => onChange(idx, 'via', e.target.value)} placeholder="Vía" className="col-span-1 border border-slate-300 rounded-md px-2 py-1.5 text-sm" />
+        <select value={f.via} onChange={(e) => onChange(idx, 'via', e.target.value)} className="col-span-1 border border-slate-300 rounded-md px-1 py-1.5 text-sm">
+          <option value="EV">EV</option>
+          <option value="VO">VO</option>
+        </select>
         <input value={f.frecuencia} onChange={(e) => onChange(idx, 'frecuencia', e.target.value)} placeholder="Frecuencia / condición" className="col-span-3 border border-slate-300 rounded-md px-2 py-1.5 text-sm" />
         <button type="button" onClick={() => onQuitar(idx)} className="col-span-1 text-slate-400 hover:text-red-500 flex justify-center">
           <Trash2 className="w-4 h-4" />
@@ -209,8 +213,18 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
                     value={f.duracionInfusionMin}
                     onChange={(e) => seccion.actualizar(idx, 'duracionInfusionMin', e.target.value)}
                     placeholder="Duración infusión (min)"
-                    className="w-48 border border-slate-300 rounded-md px-2 py-1 text-xs"
+                    className="w-44 border border-slate-300 rounded-md px-2 py-1 text-xs"
                   />
+                  <select
+                    value={f.clasificacion ?? ''}
+                    onChange={(e) => seccion.actualizar(idx, 'clasificacion', e.target.value)}
+                    className="border border-slate-300 rounded-md px-1.5 py-1 text-xs"
+                    title="Clasificación de compra/financiamiento"
+                  >
+                    <option value="">LRS / DAC</option>
+                    <option value="LRS">LRS</option>
+                    <option value="DAC">DAC</option>
+                  </select>
                   {f.nSesion && (
                     <span className="text-[11px] text-indigo-600 bg-indigo-50 rounded px-1.5 py-0.5" title="Día(s) del ciclo según el esquema">
                       {f.nSesion}

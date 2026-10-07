@@ -11,13 +11,13 @@ export default function AgendaDiaGrid({ disponibilidad, value, onSeleccionarLibr
 
   return (
     <div className="overflow-x-auto border border-slate-200 rounded-lg">
-      <table className="text-xs border-collapse">
+      <table className="text-sm border-collapse w-full">
         <thead>
           <tr>
-            <th className="sticky left-0 bg-slate-50 px-2 py-1.5 text-left text-slate-400 font-medium border-b border-slate-200 min-w-[52px]">Hora</th>
+            <th className="sticky left-0 bg-slate-50 px-3 py-2 text-left text-xs text-slate-400 font-medium border-b border-slate-200 min-w-[64px]">Hora</th>
             {disponibilidad.sillones.map((s) => (
-              <th key={s.id} className="px-1.5 py-1.5 text-slate-500 font-medium border-b border-l border-slate-100 whitespace-nowrap">
-                {s.nombre.replace('Sillón ', 'S')}
+              <th key={s.id} className="px-2 py-2 text-xs text-slate-500 font-medium border-b border-l border-slate-100 whitespace-nowrap min-w-[120px]">
+                {s.nombre}
               </th>
             ))}
           </tr>
@@ -27,23 +27,22 @@ export default function AgendaDiaGrid({ disponibilidad, value, onSeleccionarLibr
             const hora = disponibilidad.sillones[0].bloques[filaIdx].hora;
             return (
               <tr key={hora}>
-                <td className="sticky left-0 bg-white px-2 py-1 text-slate-500 border-b border-slate-50 whitespace-nowrap">{hora}</td>
+                <td className="sticky left-0 bg-white px-3 py-1.5 text-xs text-slate-500 border-b border-slate-50 whitespace-nowrap align-top">{hora}</td>
                 {disponibilidad.sillones.map((sillon) => {
                   const bloque = sillon.bloques[filaIdx];
                   const seleccionado = value?.sillonId === sillon.id && value?.horaInicio === bloque.hora;
                   const puedeElegirLibre = !bloque.ocupado && (soloValidos ? bloque.valido : true);
-
-                  let clase = 'bg-slate-50 text-slate-300';
-                  if (bloque.ocupado) {
-                    clase = 'bg-orange-100 text-orange-700 hover:bg-orange-200';
-                  } else if (puedeElegirLibre) {
-                    clase = seleccionado ? 'bg-blue-600 text-white' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100';
-                  }
-
                   const clickeable = bloque.ocupado ? !!onSeleccionarOcupado : puedeElegirLibre;
 
+                  let clase = 'bg-white text-slate-300';
+                  if (bloque.ocupado) {
+                    clase = 'bg-orange-50 text-orange-700 hover:bg-orange-100';
+                  } else if (puedeElegirLibre) {
+                    clase = seleccionado ? 'bg-blue-600 text-white' : 'bg-white text-emerald-600 hover:bg-emerald-50';
+                  }
+
                   return (
-                    <td key={sillon.id} className="p-0 border-b border-l border-slate-50">
+                    <td key={sillon.id} className="p-0 border-b border-l border-slate-50 align-top">
                       <button
                         type="button"
                         disabled={!clickeable}
@@ -51,10 +50,18 @@ export default function AgendaDiaGrid({ disponibilidad, value, onSeleccionarLibr
                           if (bloque.ocupado) onSeleccionarOcupado?.(sillon, bloque);
                           else onSeleccionarLibre?.(sillon.id, bloque.hora);
                         }}
-                        title={bloque.ciclo ? `${bloque.ciclo.pacienteNombre ?? 'Ocupado'} · ${bloque.ciclo.estadoLabel}` : undefined}
-                        className={`w-8 h-6 flex items-center justify-center ${clase} ${clickeable ? 'cursor-pointer' : 'cursor-default'}`}
+                        className={`w-full min-h-[34px] px-2 py-1 flex flex-col items-start justify-center text-left leading-tight ${clase} ${clickeable ? 'cursor-pointer' : 'cursor-default'}`}
                       >
-                        {bloque.ocupado ? '●' : ''}
+                        {bloque.ocupado ? (
+                          <>
+                            <span className="font-medium text-xs truncate max-w-[104px]">{bloque.ciclo.pacienteNombre ?? 'Ocupado'} · C{bloque.ciclo.numeroCiclo}</span>
+                            <span className="text-[10px] opacity-80">{bloque.ciclo.estadoLabel}</span>
+                          </>
+                        ) : puedeElegirLibre ? (
+                          <span className="text-xs">—</span>
+                        ) : (
+                          <span className="text-xs text-slate-200">—</span>
+                        )}
                       </button>
                     </td>
                   );

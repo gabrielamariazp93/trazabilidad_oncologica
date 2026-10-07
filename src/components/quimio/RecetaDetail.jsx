@@ -150,8 +150,8 @@ export default function RecetaDetail({ receta, user, onVolver, onCambio }) {
                       <tr key={f.id}>
                         <td className="py-1.5 text-slate-700 pr-2">{f.farmaco}</td>
                         <td className="py-1.5 text-slate-600 pr-2">{f.dosis} {f.unidad}</td>
-                        <td className="py-1.5 text-slate-600 pr-2">{f.via}{f.duracionInfusionMin ? ` · ${f.duracionInfusionMin} min` : ''}</td>
-                        <td className="py-1.5 text-slate-400">{f.frecuencia}</td>
+                        <td className="py-1.5 text-slate-600 pr-2">{f.via}{f.duracionInfusionMin ? ` · ${f.duracionInfusionMin} min` : ''}{f.clasificacion ? ` · ${f.clasificacion}` : ''}</td>
+                        <td className="py-1.5 text-slate-400">{f.frecuencia}{f.nSesion ? ` · ${f.nSesion}` : ''}</td>
                       </tr>
                     ))}
                   </tbody>

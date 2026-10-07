@@ -310,6 +310,9 @@ model DetalleRecetaFarmaco {
   // Copiado de EsquemaFarmacoLinea.nSesion al elegir un esquema del catálogo — "D1,D8,D15",
   // etc. Texto de referencia, no se usa para calcular fechas automáticamente.
   nSesion             String?
+  // Solo aplica a categoria="quimioterapia": "LRS" | "DAC" — clasificación de compra/financiamiento
+  // del fármaco citotóxico.
+  clasificacion       String?
   duracionInfusionMin Int?
   orden               Int    @default(0)
 
