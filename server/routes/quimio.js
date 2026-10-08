@@ -1,6 +1,7 @@
 import express from 'express';
 import {
   ACCIONES_CICLO,
+  ESTADO_CICLO_LABELS,
   ESTADO_RECETA_LABELS,
   PASO_BLOQUE_MIN,
   aplicarTransicionCiclo,
@@ -831,31 +832,61 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
     const hasta = req.query.hasta ? new Date(req.query.hasta) : new Date();
     return prisma.cicloQuimio.findMany({
       where: { estado: 'administrado', fechaTerminoReal: { gte: desde, lte: hasta } },
-      include: CICLO_INCLUDE,
+      include: {
+        receta: { include: { paciente: true, farmacos: true } },
+        sillon: true,
+        administradoPor: true,
+      },
     });
   }
 
   router.get('/quimio/estadisticas', async (req, res) => {
     if (!requireAuth(req, res)) return;
     const ciclos = await obtenerCiclosAdministrados(req);
-    const groupBy = req.query.groupBy === 'farmaco' || req.query.groupBy === 'sillon' || req.query.groupBy === 'profesional'
-      ? req.query.groupBy
-      : 'protocolo';
+    const groupBy = ['farmaco', 'sillon', 'profesional'].includes(req.query.groupBy) ? req.query.groupBy : 'protocolo';
 
+    // "farmaco" y la clasificación LRS/DAC cuentan por LÍNEA de fármaco de quimioterapia de la
+    // receta de cada ciclo administrado (un ciclo puede tener varios fármacos) — representa
+    // administraciones reales, no recetas distintas. El resto agrupa 1 fila por ciclo.
     const conteo = new Map();
+    const conteoClasificacion = new Map();
     ciclos.forEach((c) => {
+      const lineasQuimio = (c.receta?.farmacos ?? []).filter((f) => f.categoria === 'quimioterapia');
+      lineasQuimio.forEach((f) => {
+        const clave = f.clasificacion || 'Sin clasificar';
+        conteoClasificacion.set(clave, (conteoClasificacion.get(clave) ?? 0) + 1);
+      });
+
+      if (groupBy === 'farmaco') {
+        lineasQuimio.forEach((f) => conteo.set(f.farmaco, (conteo.get(f.farmaco) ?? 0) + 1));
+        return;
+      }
       let clave;
-      if (groupBy === 'protocolo') clave = c.receta?.protocolo ?? 'Sin protocolo';
-      else if (groupBy === 'sillon') clave = c.sillon?.nombre ?? 'Sin sillón';
+      if (groupBy === 'sillon') clave = c.sillon?.nombre ?? 'Sin sillón';
       else if (groupBy === 'profesional') clave = c.administradoPor?.name ?? 'Sin registrar';
       else clave = c.receta?.protocolo ?? 'Sin protocolo';
       conteo.set(clave, (conteo.get(clave) ?? 0) + 1);
     });
 
+    const conReaccion = ciclos.filter((c) => c.reaccionAdversa).length;
+
+    const [porEstadoCicloRaw, porEstadoRecetaRaw, pacientesEnTratamiento] = await Promise.all([
+      prisma.cicloQuimio.groupBy({ by: ['estado'], _count: { _all: true } }),
+      prisma.recetaQuimio.groupBy({ by: ['estado'], _count: { _all: true } }),
+      prisma.recetaQuimio.findMany({ where: { estado: 'validada' }, select: { pacienteId: true }, distinct: ['pacienteId'] }),
+    ]);
+
     res.json({
       total: ciclos.length,
       groupBy,
       detalle: Array.from(conteo.entries()).map(([clave, cantidad]) => ({ clave, cantidad })).sort((a, b) => b.cantidad - a.cantidad),
+      porClasificacionFarmaco: Array.from(conteoClasificacion.entries()).map(([clave, cantidad]) => ({ clave, cantidad })).sort((a, b) => b.cantidad - a.cantidad),
+      reaccionesAdversas: { total: ciclos.length, conReaccion, porcentaje: ciclos.length ? Math.round((conReaccion / ciclos.length) * 100) : 0 },
+      // Estos dos son una fotografía del estado ACTUAL de todo el pipeline (no filtran por
+      // desde/hasta) — a diferencia de "total" y "detalle", que sí son del período elegido.
+      porEstadoCiclo: porEstadoCicloRaw.map((x) => ({ estado: x.estado, estadoLabel: ESTADO_CICLO_LABELS[x.estado] ?? x.estado, cantidad: x._count._all })),
+      porEstadoReceta: porEstadoRecetaRaw.map((x) => ({ estado: x.estado, estadoLabel: ESTADO_RECETA_LABELS[x.estado] ?? x.estado, cantidad: x._count._all })),
+      pacientesEnTratamiento: pacientesEnTratamiento.length,
     });
   });
 

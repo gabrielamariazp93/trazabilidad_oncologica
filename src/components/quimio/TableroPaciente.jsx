@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Search, CalendarPlus } from 'lucide-react';
-import { buscarPacientes, fetchRecetas, crearCiclo } from '../../lib/api.js';
+import { buscarPacientes, fetchRecetas, crearCiclo, fetchPacientesEspera } from '../../lib/api.js';
 import { formatFecha } from '../../lib/ui.js';
 import SelectorDisponibilidad from './SelectorDisponibilidad.jsx';
 import PropuestaAgendamiento from './PropuestaAgendamiento.jsx';
@@ -13,6 +13,11 @@ const CICLO_ESTADO_STYLES = {
   administrado: 'bg-emerald-100 text-emerald-700',
   suspendido: 'bg-orange-100 text-orange-700',
   cancelado: 'bg-red-100 text-red-700',
+};
+
+const ESTADO_RECETA_STYLES = {
+  borrador: 'bg-slate-100 text-slate-700',
+  validada: 'bg-emerald-100 text-emerald-700',
 };
 
 function duracionSugerida(receta) {
@@ -36,6 +41,21 @@ export default function TableroPaciente({ bootstrap, pacienteInicial, onConsumid
   const [guardando, setGuardando] = useState(false);
   const [exito, setExito] = useState(null);
   const [modoManual, setModoManual] = useState(false);
+
+  const [listaPacientes, setListaPacientes] = useState([]);
+  const [cargandoLista, setCargandoLista] = useState(true);
+
+  const cargarListaPacientes = useCallback(() => {
+    setCargandoLista(true);
+    fetchPacientesEspera()
+      .then((data) => setListaPacientes(data.pacientes))
+      .catch(() => {})
+      .finally(() => setCargandoLista(false));
+  }, []);
+
+  useEffect(() => {
+    cargarListaPacientes();
+  }, [cargarListaPacientes]);
 
   useEffect(() => {
     if (pacienteInicial) {
@@ -123,6 +143,7 @@ export default function TableroPaciente({ bootstrap, pacienteInicial, onConsumid
       setExito(`Sesión agendada: ciclo ${numeroCiclo}, ${seleccion.fecha} ${seleccion.horaInicio}.`);
       setSeleccion(null);
       await cargarRecetas();
+      cargarListaPacientes();
     } catch (err) {
       setError(err.message || 'No se pudo agendar la sesión.');
     } finally {
@@ -132,9 +153,9 @@ export default function TableroPaciente({ bootstrap, pacienteInicial, onConsumid
 
   if (!paciente) {
     return (
-      <div className="max-w-md">
+      <div>
         <h2 className="text-lg font-semibold text-slate-800 mb-3">Tablero de quimioterapia</h2>
-        <div className="relative">
+        <div className="relative max-w-md mb-5">
           <Search className="w-4 h-4 text-slate-400 absolute left-2.5 top-2.5" />
           <input
             value={busqueda}
@@ -142,16 +163,63 @@ export default function TableroPaciente({ bootstrap, pacienteInicial, onConsumid
             placeholder="Buscar paciente por RUT o nombre"
             className="w-full border border-slate-300 rounded-md pl-8 pr-3 py-2 text-sm"
           />
+          {resultados.length > 0 && (
+            <div className="absolute z-10 mt-1 w-full border border-slate-200 rounded-md divide-y divide-slate-100 bg-white shadow-sm">
+              {resultados.map((p) => (
+                <button key={p.id} type="button" onClick={() => setPaciente(p)} className="w-full text-left px-3 py-2 text-sm hover:bg-slate-50">
+                  {p.nombre} — {p.rut}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
-        {resultados.length > 0 && (
-          <div className="mt-1 border border-slate-200 rounded-md divide-y divide-slate-100">
-            {resultados.map((p) => (
-              <button key={p.id} type="button" onClick={() => setPaciente(p)} className="w-full text-left px-3 py-2 text-sm hover:bg-slate-50">
-                {p.nombre} — {p.rut}
-              </button>
-            ))}
-          </div>
-        )}
+
+        <h3 className="text-sm font-semibold text-slate-700 mb-2">Pacientes con tratamiento de quimioterapia</h3>
+        <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wide">
+              <tr>
+                <th className="text-left px-4 py-2.5">Paciente</th>
+                <th className="text-left px-4 py-2.5">Protocolo</th>
+                <th className="text-left px-4 py-2.5">Estado receta</th>
+                <th className="text-left px-4 py-2.5">Progreso</th>
+                <th className="text-left px-4 py-2.5">Próxima sesión</th>
+                <th className="text-left px-4 py-2.5">Espera</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {cargandoLista && (
+                <tr><td colSpan={6} className="px-4 py-6 text-center text-slate-400">Cargando…</td></tr>
+              )}
+              {!cargandoLista && !listaPacientes.length && (
+                <tr><td colSpan={6} className="px-4 py-6 text-center text-slate-400">No hay pacientes con receta de quimioterapia todavía.</td></tr>
+              )}
+              {!cargandoLista && listaPacientes.map((p) => (
+                <tr
+                  key={p.recetaId}
+                  onClick={() => setPaciente({ id: p.pacienteId, nombre: p.pacienteNombre, rut: p.rut })}
+                  className="cursor-pointer hover:bg-slate-50"
+                >
+                  <td className="px-4 py-2.5">
+                    <div className="font-medium text-slate-800">{p.pacienteNombre}</div>
+                    <div className="text-xs text-slate-400">{p.rut}</div>
+                  </td>
+                  <td className="px-4 py-2.5 text-slate-600">{p.protocolo}</td>
+                  <td className="px-4 py-2.5">
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${ESTADO_RECETA_STYLES[p.estado] ?? 'bg-slate-100 text-slate-700'}`}>
+                      {p.estadoLabel}
+                    </span>
+                  </td>
+                  <td className="px-4 py-2.5 text-slate-600">{p.ciclosCompletados}/{p.ciclosTotal} ciclos</td>
+                  <td className="px-4 py-2.5 text-slate-500">
+                    {p.proximaSesion ? `${formatFecha(p.proximaSesion.fecha)} ${p.proximaSesion.horaInicio}` : 'Sin agendar'}
+                  </td>
+                  <td className="px-4 py-2.5 text-slate-500">{p.diasEnEspera} día{p.diasEnEspera === 1 ? '' : 's'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     );
   }
@@ -163,7 +231,7 @@ export default function TableroPaciente({ bootstrap, pacienteInicial, onConsumid
           <h2 className="text-lg font-semibold text-slate-800">{paciente.nombre}</h2>
           <div className="text-sm text-slate-500">RUT {paciente.rut}</div>
         </div>
-        <button type="button" onClick={() => { setPaciente(null); setRecetaId(''); setRecetas([]); }} className="text-sm text-slate-500 hover:text-slate-800">
+        <button type="button" onClick={() => { setPaciente(null); setRecetaId(''); setRecetas([]); cargarListaPacientes(); }} className="text-sm text-slate-500 hover:text-slate-800">
           Cambiar paciente
         </button>
       </div>
@@ -238,7 +306,7 @@ export default function TableroPaciente({ bootstrap, pacienteInicial, onConsumid
             ) : !modoManual ? (
               <PropuestaAgendamiento
                 receta={receta}
-                onAgendado={() => cargarRecetas()}
+                onAgendado={() => { cargarRecetas(); cargarListaPacientes(); }}
                 onCancelar={() => setModoManual(true)}
               />
             ) : (
