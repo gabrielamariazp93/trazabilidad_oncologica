@@ -10,8 +10,8 @@ function todayISO() {
 // sola vez: calcula fecha/hora/sillón según intervaloDias del esquema y la disponibilidad real
 // del calendario (backend), y deja cada fila editable antes de aceptar — así la enfermera no
 // tiene que agendar ciclo por ciclo cuando el esquema tiene varios.
-export default function PropuestaAgendamiento({ receta, onAgendado, onCancelar }) {
-  const [fechaInicio, setFechaInicio] = useState(todayISO());
+export default function PropuestaAgendamiento({ receta, fechaInicioInicial, onAgendado, onCancelar }) {
+  const [fechaInicio, setFechaInicio] = useState(fechaInicioInicial ?? todayISO());
   const [propuestas, setPropuestas] = useState([]);
   const [duracionMin, setDuracionMin] = useState(180);
   const [sillones, setSillones] = useState([]);
