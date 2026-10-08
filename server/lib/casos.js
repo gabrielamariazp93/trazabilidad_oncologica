@@ -287,6 +287,7 @@ export function serializeCaso(caso) {
     hitoLabel: hitoActual?.label ?? caso.hito,
     estado: caso.estado,
     motivoCierre: caso.motivoCierre,
+    motivoCierreLabel: caso.motivoCierre ? (MOTIVOS_CIERRE.find((m) => m.id === caso.motivoCierre)?.label ?? caso.motivoCierre) : null,
     fechaCierre: caso.fechaCierre,
     viaTratamiento: caso.viaTratamiento,
     gestor: caso.gestor ? { id: caso.gestor.id, name: caso.gestor.name, role: caso.gestor.role } : null,

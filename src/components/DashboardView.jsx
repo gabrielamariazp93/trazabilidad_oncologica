@@ -142,9 +142,16 @@ export default function DashboardView({ user, bootstrap, onAbrirCaso }) {
                   </td>
                   <td className="px-4 py-2.5 text-slate-600">{caso.patologiaSospecha}</td>
                   <td className="px-4 py-2.5">
-                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${FASE_STYLES[caso.fase] ?? 'bg-slate-100 text-slate-700'}`}>
-                      {caso.faseLabel}
-                    </span>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${FASE_STYLES[caso.fase] ?? 'bg-slate-100 text-slate-700'}`}>
+                        {caso.faseLabel}
+                      </span>
+                      {caso.estado === 'cerrado' && (
+                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-red-100 text-red-700" title={caso.fechaCierre ? formatFecha(caso.fechaCierre) : undefined}>
+                          Cerrado{caso.motivoCierreLabel ? ` — ${caso.motivoCierreLabel}` : ''}
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-4 py-2.5 text-slate-600">{caso.hitoLabel}</td>
                   <td className="px-4 py-2.5 text-slate-600">{caso.gestor?.name ?? '—'}</td>
