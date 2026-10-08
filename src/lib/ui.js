@@ -13,9 +13,17 @@ export const FASE_STYLES = {
   seguimiento: 'bg-teal-100 text-teal-700',
 };
 
+// Usa getters UTC (no locale-local) a propósito: casi todos los valores que recibe son fechas
+// "sin hora" (fechaProgramada, fechaCierre, fechaValidacion, fechaLimite...) guardadas como
+// medianoche UTC exacta. Formatear con toLocaleDateString() las interpreta en la zona horaria
+// del navegador — en Chile (UTC-3/-4) eso corre el día mostrado hacia atrás (ej. 21 de enero
+// aparecía como 20). formatFechaHora sí usa hora local a propósito, para timestamps reales.
 export function formatFecha(value) {
   if (!value) return '—';
-  return new Date(value).toLocaleDateString('es-CL');
+  const d = new Date(value);
+  const dia = String(d.getUTCDate()).padStart(2, '0');
+  const mes = String(d.getUTCMonth() + 1).padStart(2, '0');
+  return `${dia}-${mes}-${d.getUTCFullYear()}`;
 }
 
 export function formatFechaHora(value) {
