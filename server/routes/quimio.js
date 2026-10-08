@@ -379,6 +379,75 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
     return { ok: true, horaTermino };
   }
 
+  // Duración estimada de una sesión a partir de los fármacos de quimioterapia de la receta
+  // (mismo criterio que usa el frontend en TableroPaciente/AgendarCicloForm).
+  function duracionSugeridaReceta(receta) {
+    const minutosQuimio = (receta.farmacos ?? [])
+      .filter((f) => f.categoria === 'quimioterapia' && f.duracionInfusionMin)
+      .reduce((sum, f) => sum + f.duracionInfusionMin, 0);
+    return minutosQuimio > 0 ? minutosQuimio + 30 : 180;
+  }
+
+  // Propone fecha/hora/sillón para TODOS los ciclos restantes de una receta, respetando el
+  // intervaloDias del esquema y la disponibilidad real del calendario de sillones: para cada
+  // ciclo busca, a partir de la fecha ancla (último ciclo ya agendado + intervalo, o fechaInicio
+  // si no hay ninguno todavía), el primer día hábil con cupo (hasta 30 días de margen), en el
+  // primer sillón (por orden) que tenga un bloque libre de duracionMin. Lleva un registro de
+  // "reservas virtuales" propuestas en esta misma pasada para no proponer dos ciclos encimados
+  // si llegaran a caer el mismo día y sillón.
+  async function calcularPropuestaAgendamiento({ receta, fechaInicio, duracionMin }) {
+    const sillones = await prisma.sillon.findMany({ where: { activo: true }, orderBy: { orden: 'asc' } });
+    const ciclosExistentes = receta.ciclos ?? [];
+    const numeroInicial = ciclosExistentes.length + 1;
+    const propuestas = [];
+    const reservasVirtuales = [];
+
+    let fechaBase = ciclosExistentes.length
+      ? new Date(truncarFechaUTC(ciclosExistentes[ciclosExistentes.length - 1].fechaProgramada).getTime() + receta.intervaloDias * 86400000)
+      : truncarFechaUTC(fechaInicio);
+
+    for (let numeroCiclo = numeroInicial; numeroCiclo <= receta.numeroCiclosTotal; numeroCiclo++) {
+      let encontrado = null;
+      let cursor = new Date(fechaBase);
+      for (let intento = 0; intento < 30 && !encontrado; intento++) {
+        const configDia = await obtenerConfigDia(cursor);
+        if (configDia.habil) {
+          const fechaInicioDia = truncarFechaUTC(cursor);
+          const fechaFinDia = new Date(fechaInicioDia.getTime() + 86400000);
+          const fechaKey = fechaInicioDia.toISOString().slice(0, 10);
+          for (const sillon of sillones) {
+            const ciclosDelDiaDb = await prisma.cicloQuimio.findMany({
+              where: { sillonId: sillon.id, fechaProgramada: { gte: fechaInicioDia, lt: fechaFinDia }, estado: { notIn: ['cancelado'] } },
+            });
+            const virtuales = reservasVirtuales.filter((r) => r.fechaKey === fechaKey && r.sillonId === sillon.id);
+            const libres = calcularBloquesLibres(configDia, [...ciclosDelDiaDb, ...virtuales], duracionMin);
+            if (libres.length) {
+              encontrado = { fecha: new Date(cursor), fechaKey, sillonId: sillon.id, sillonNombre: sillon.nombre, horaInicio: libres[0], horaTermino: sumarMinutos(libres[0], duracionMin) };
+              break;
+            }
+          }
+        }
+        if (!encontrado) cursor = new Date(cursor.getTime() + 86400000);
+      }
+      if (!encontrado) {
+        propuestas.push({ numeroCiclo, error: 'Sin cupo disponible en los próximos 30 días a partir de la fecha estimada.' });
+        fechaBase = new Date(fechaBase.getTime() + receta.intervaloDias * 86400000);
+        continue;
+      }
+      reservasVirtuales.push({ fechaKey: encontrado.fechaKey, sillonId: encontrado.sillonId, horaInicio: encontrado.horaInicio, horaTermino: encontrado.horaTermino });
+      propuestas.push({
+        numeroCiclo,
+        fechaProgramada: encontrado.fechaKey,
+        horaInicio: encontrado.horaInicio,
+        horaTermino: encontrado.horaTermino,
+        sillonId: encontrado.sillonId,
+        sillonNombre: encontrado.sillonNombre,
+      });
+      fechaBase = new Date(encontrado.fecha.getTime() + receta.intervaloDias * 86400000);
+    }
+    return propuestas;
+  }
+
   router.post('/quimio/ciclos', async (req, res) => {
     if (!requireRoles(req, res, AGENDA_ROLES)) return;
     const { recetaId, numeroCiclo, fechaProgramada, horaInicio, sillonId, duracionEstimadaMin } = req.body ?? {};
@@ -544,6 +613,97 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
     const actualizado = await loadCicloOr404(ciclo.id, res);
     if (!actualizado) return;
     res.json({ ciclo: serializeCiclo(actualizado), ciclosActualizados: actualizaciones.length });
+  });
+
+  // Propuesta automática de agendamiento: calcula fecha/hora/sillón para todos los ciclos
+  // restantes de la receta de una vez, según su intervaloDias y la disponibilidad real. Solo
+  // calcula — no crea nada todavía (eso lo hace /agendar-propuesta, una vez el usuario acepta o
+  // edita la propuesta).
+  router.get('/quimio/recetas/:id/propuesta-agendamiento', async (req, res) => {
+    if (!requireRoles(req, res, AGENDA_ROLES)) return;
+    const receta = await loadRecetaOr404(req.params.id, res);
+    if (!receta) return;
+    if (receta.estado !== 'validada') {
+      res.status(400).json({ error: 'Solo se pueden proponer ciclos de una receta validada.' });
+      return;
+    }
+    const restantes = receta.numeroCiclosTotal - (receta.ciclos?.length ?? 0);
+    if (restantes <= 0) {
+      res.json({ propuestas: [], duracionMin: 0 });
+      return;
+    }
+    const fechaInicio = req.query.fechaInicio ? new Date(req.query.fechaInicio) : new Date();
+    const duracionMin = req.query.duracionMin ? Number(req.query.duracionMin) : duracionSugeridaReceta(receta);
+    const propuestas = await calcularPropuestaAgendamiento({ receta, fechaInicio, duracionMin });
+    res.json({ propuestas, duracionMin });
+  });
+
+  // Acepta (con o sin ediciones) la propuesta de agendamiento: valida TODOS los ciclos
+  // propuestos (hábil + colisión, igual que /quimio/ciclos, más una verificación cruzada entre
+  // ellos mismos por si el usuario editó dos filas al mismo sillón/horario) antes de crear
+  // ninguno — todo o nada, mismo criterio que /reprogramar.
+  router.post('/quimio/recetas/:id/agendar-propuesta', async (req, res) => {
+    if (!requireRoles(req, res, AGENDA_ROLES)) return;
+    const receta = await loadRecetaOr404(req.params.id, res);
+    if (!receta) return;
+    if (receta.estado !== 'validada') {
+      res.status(400).json({ error: 'Solo se pueden agendar ciclos de una receta validada.' });
+      return;
+    }
+    const { ciclos, duracionEstimadaMin } = req.body ?? {};
+    if (!Array.isArray(ciclos) || !ciclos.length) {
+      res.status(400).json({ error: 'ciclos es obligatorio y debe tener al menos un elemento.' });
+      return;
+    }
+    const duracionMin = duracionEstimadaMin ? Number(duracionEstimadaMin) : duracionSugeridaReceta(receta);
+
+    const items = ciclos.map((c) => ({ ...c, fecha: new Date(c.fechaProgramada) }));
+    for (let i = 0; i < items.length; i++) {
+      for (let j = i + 1; j < items.length; j++) {
+        const a = items[i];
+        const b = items[j];
+        if (
+          a.sillonId && a.sillonId === b.sillonId
+          && truncarFechaUTC(a.fecha).getTime() === truncarFechaUTC(b.fecha).getTime()
+          && seSuperponen(a.horaInicio, sumarMinutos(a.horaInicio, duracionMin), b.horaInicio, sumarMinutos(b.horaInicio, duracionMin))
+        ) {
+          res.status(400).json({ error: `Los ciclos ${a.numeroCiclo} y ${b.numeroCiclo} quedarían con el mismo sillón y horario superpuesto.` });
+          return;
+        }
+      }
+    }
+
+    const validados = [];
+    for (const item of items) {
+      const validacion = await validarHorario({ fecha: item.fecha, horaInicio: item.horaInicio, duracionMin, sillonId: item.sillonId });
+      if (!validacion.ok) {
+        res.status(400).json({ error: `Ciclo ${item.numeroCiclo}: ${validacion.error}` });
+        return;
+      }
+      validados.push({ ...item, horaTermino: validacion.horaTermino });
+    }
+
+    const creados = await prisma.$transaction(async (tx) => {
+      const resultado = [];
+      for (const v of validados) {
+        const ciclo = await tx.cicloQuimio.create({
+          data: {
+            recetaId: receta.id,
+            numeroCiclo: Number(v.numeroCiclo),
+            fechaProgramada: v.fecha,
+            horaInicio: v.horaInicio,
+            horaTermino: v.horaTermino,
+            sillonId: v.sillonId || null,
+            duracionEstimadaMin: duracionMin,
+          },
+        });
+        await tx.historialCiclo.create({ data: { cicloId: ciclo.id, estado: 'programado', actorUserId: req.authUser.id, comentario: 'Ciclo agendado desde propuesta automática.' } });
+        resultado.push(ciclo);
+      }
+      return resultado;
+    });
+
+    res.status(201).json({ ciclosCreados: creados.length });
   });
 
   // --- Disponibilidad (bloques de 30 min por sillón para un día) ------------------------------

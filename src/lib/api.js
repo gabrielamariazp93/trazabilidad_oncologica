@@ -211,6 +211,14 @@ export async function transicionarCiclo(id, payload) {
   return request(`/quimio/ciclos/${id}/transicion`, { method: 'POST', body: JSON.stringify(payload) });
 }
 
+export async function fetchPropuestaAgendamiento(recetaId, params) {
+  return request(`/quimio/recetas/${recetaId}/propuesta-agendamiento${buildQuery(params)}`);
+}
+
+export async function agendarPropuesta(recetaId, payload) {
+  return request(`/quimio/recetas/${recetaId}/agendar-propuesta`, { method: 'POST', body: JSON.stringify(payload) });
+}
+
 export async function fetchPacientesEspera() {
   return request('/quimio/pacientes-espera');
 }

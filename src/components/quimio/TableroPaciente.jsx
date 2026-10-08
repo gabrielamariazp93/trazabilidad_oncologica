@@ -3,6 +3,7 @@ import { Search, CalendarPlus } from 'lucide-react';
 import { buscarPacientes, fetchRecetas, crearCiclo } from '../../lib/api.js';
 import { formatFecha } from '../../lib/ui.js';
 import SelectorDisponibilidad from './SelectorDisponibilidad.jsx';
+import PropuestaAgendamiento from './PropuestaAgendamiento.jsx';
 
 const CICLO_ESTADO_STYLES = {
   programado: 'bg-slate-100 text-slate-700',
@@ -34,6 +35,7 @@ export default function TableroPaciente({ bootstrap, pacienteInicial, onConsumid
   const [error, setError] = useState(null);
   const [guardando, setGuardando] = useState(false);
   const [exito, setExito] = useState(null);
+  const [modoManual, setModoManual] = useState(false);
 
   useEffect(() => {
     if (pacienteInicial) {
@@ -87,6 +89,14 @@ export default function TableroPaciente({ bootstrap, pacienteInicial, onConsumid
   useEffect(() => {
     setSeleccion(null);
   }, [recetaId, minutosNecesarios]);
+
+  // Al cambiar de receta, vuelve a ofrecer la propuesta automática por defecto (en vez de seguir
+  // en modo manual si es que se había elegido antes para otra receta).
+  useEffect(() => {
+    setModoManual(false);
+  }, [recetaId]);
+
+  const ciclosRestantes = receta ? receta.numeroCiclosTotal - (receta.ciclos?.length ?? 0) : 0;
 
   async function handleAgendar(event) {
     event.preventDefault();
@@ -223,14 +233,29 @@ export default function TableroPaciente({ bootstrap, pacienteInicial, onConsumid
             </h3>
             {!receta ? (
               <div className="text-sm text-slate-400">Selecciona una receta para agendar una sesión.</div>
+            ) : ciclosRestantes <= 0 ? (
+              <div className="text-sm text-slate-400">Ya se agendaron todos los ciclos de esta receta.</div>
+            ) : !modoManual ? (
+              <PropuestaAgendamiento
+                receta={receta}
+                onAgendado={() => cargarRecetas()}
+                onCancelar={() => setModoManual(true)}
+              />
             ) : (
               <form onSubmit={handleAgendar} className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <div>
-                    <label className="block text-xs font-medium text-slate-500 mb-1">N° de ciclo</label>
-                    <input type="number" min="1" value={numeroCiclo} onChange={(e) => setNumeroCiclo(e.target.value)} className="w-24 border border-slate-300 rounded-md px-3 py-1.5 text-sm" />
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-slate-500 mb-1">N° de ciclo</label>
+                      <input type="number" min="1" value={numeroCiclo} onChange={(e) => setNumeroCiclo(e.target.value)} className="w-24 border border-slate-300 rounded-md px-3 py-1.5 text-sm" />
+                    </div>
+                    <div className="text-xs text-slate-400">Duración estimada: {minutosNecesarios} min</div>
                   </div>
-                  <div className="text-xs text-slate-400">Duración estimada: {minutosNecesarios} min</div>
+                  {ciclosRestantes > 1 && (
+                    <button type="button" onClick={() => setModoManual(false)} className="text-xs text-blue-600 hover:text-blue-800">
+                      Usar propuesta automática
+                    </button>
+                  )}
                 </div>
 
                 <SelectorDisponibilidad duracionMin={minutosNecesarios} value={seleccion} onChange={setSeleccion} />
