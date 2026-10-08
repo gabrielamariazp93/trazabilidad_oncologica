@@ -10,7 +10,8 @@ export const ROLE_LABELS = {
   admision: 'Admisión',
   ges: 'GES',
   oncologo: 'Médico Oncólogo',
-  farmacia: 'Farmacia',
+  enfermera_oncologia: 'Enfermera de Oncología',
+  quimico_farmaceutico: 'Químico Farmacéutico',
   enfermera_quimio: 'Enfermera de Quimioterapia',
   lectura: 'Lectura',
 };

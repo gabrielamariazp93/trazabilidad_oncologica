@@ -8,7 +8,8 @@ import EstadisticasQuimio from './EstadisticasQuimio.jsx';
 import TableroPaciente from './TableroPaciente.jsx';
 
 const DEFAULT_TAB_BY_ROLE = {
-  farmacia: 'preparacion',
+  enfermera_oncologia: 'recetas',
+  quimico_farmaceutico: 'preparacion',
   enfermera_quimio: 'tablero',
   oncologo: 'recetas',
 };

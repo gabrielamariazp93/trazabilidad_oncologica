@@ -25,7 +25,8 @@ const USERS = [
   { email: 'admision@hospital.local', name: 'Equipo Admisión', role: 'admision' },
   { email: 'ges@hospital.local', name: 'Camila Soto (Encargada GES)', role: 'ges' },
   { email: 'oncologo@hospital.local', name: 'Dr. Felipe Rojas (Oncólogo)', role: 'oncologo' },
-  { email: 'farmacia@hospital.local', name: 'Daniela Pizarro (Farmacia)', role: 'farmacia' },
+  { email: 'enfermera.oncologia@hospital.local', name: 'Daniela Pizarro (Enfermera de Oncología)', role: 'enfermera_oncologia' },
+  { email: 'quimico.farmaceutico@hospital.local', name: 'Rodrigo Fuentes (Químico Farmacéutico)', role: 'quimico_farmaceutico' },
   { email: 'enfermera.quimio@hospital.local', name: 'Cristina Vera (Enfermera Quimioterapia)', role: 'enfermera_quimio' },
   { email: 'lectura@hospital.local', name: 'Subdirección (solo lectura)', role: 'lectura' },
 ];
@@ -42,6 +43,11 @@ async function avanzar(tx, caso, hitoId, actorUserId, fecha, comentario, plazoCo
 
 async function main() {
   const passwordHash = hashPassword('demo123');
+
+  // El rol 'farmacia' fue retirado (quedó sin función real al separar validación/preparación en
+  // enfermera_oncologia/quimico_farmaceutico) — se borra la cuenta demo antigua. Seguro por
+  // onDelete: SetNull en todas las relaciones de User que referenciaba.
+  await prisma.user.deleteMany({ where: { email: 'farmacia@hospital.local' } });
 
   const usersByRole = {};
   for (const u of USERS) {
@@ -151,7 +157,8 @@ async function main() {
 
   // --- Quimioterapia: esquemas + calendario real + 16 sillones + 1 receta con 3 ciclos ---
   const oncologo = usersByRole.oncologo;
-  const farmacia = usersByRole.farmacia;
+  const enfermeraOncologia = usersByRole.enfermera_oncologia;
+  const quimicoFarmaceutico = usersByRole.quimico_farmaceutico;
   const enfermeraQuimio = usersByRole.enfermera_quimio;
 
   // Catálogo de esquemas (86 protocolos reales, extraídos de la base de trabajo en Excel de la
@@ -228,7 +235,7 @@ async function main() {
       neupogenIndicado: true,
       neupogenDias: 'Días 3 a 7 post ciclo',
       estado: 'validada',
-      farmaciaUserId: farmacia.id,
+      farmaciaUserId: enfermeraOncologia.id,
       fechaValidacion: haceDias(34),
       farmacos: {
         create: [
@@ -254,7 +261,7 @@ async function main() {
       sillonId: sillones[0].id,
       duracionEstimadaMin: 180,
       estado: 'administrado',
-      preparadoPorUserId: farmacia.id,
+      preparadoPorUserId: quimicoFarmaceutico.id,
       fechaPreparacion: haceDias(13),
       administradoPorUserId: enfermeraQuimio.id,
       fechaInicioReal: haceDias(13),
@@ -265,14 +272,14 @@ async function main() {
   await prisma.historialCiclo.createMany({
     data: [
       { cicloId: ciclo1.id, estado: 'programado', fecha: haceDias(20), actorUserId: enfermeraQuimio.id, comentario: 'Ciclo agendado.' },
-      { cicloId: ciclo1.id, estado: 'en_preparacion', fecha: haceDias(13), actorUserId: farmacia.id },
-      { cicloId: ciclo1.id, estado: 'listo_para_administrar', fecha: haceDias(13), actorUserId: farmacia.id },
+      { cicloId: ciclo1.id, estado: 'en_preparacion', fecha: haceDias(13), actorUserId: quimicoFarmaceutico.id },
+      { cicloId: ciclo1.id, estado: 'listo_para_administrar', fecha: haceDias(13), actorUserId: quimicoFarmaceutico.id },
       { cicloId: ciclo1.id, estado: 'en_administracion', fecha: haceDias(13), actorUserId: enfermeraQuimio.id },
       { cicloId: ciclo1.id, estado: 'administrado', fecha: haceDias(13), actorUserId: enfermeraQuimio.id, comentario: 'Tolerancia adecuada, sin reacciones adversas.' },
     ],
   });
 
-  // Ciclo 2: en preparación (hoy por la tarde) — farmacia ya está preparando los fármacos.
+  // Ciclo 2: en preparación (hoy por la tarde) — el químico farmacéutico ya está preparando los fármacos.
   const ciclo2 = await prisma.cicloQuimio.create({
     data: {
       recetaId: receta.id,
@@ -283,13 +290,13 @@ async function main() {
       sillonId: sillones[1].id,
       duracionEstimadaMin: 180,
       estado: 'en_preparacion',
-      preparadoPorUserId: farmacia.id,
+      preparadoPorUserId: quimicoFarmaceutico.id,
     },
   });
   await prisma.historialCiclo.createMany({
     data: [
       { cicloId: ciclo2.id, estado: 'programado', fecha: haceDias(5), actorUserId: enfermeraQuimio.id, comentario: 'Ciclo agendado.' },
-      { cicloId: ciclo2.id, estado: 'en_preparacion', actorUserId: farmacia.id },
+      { cicloId: ciclo2.id, estado: 'en_preparacion', actorUserId: quimicoFarmaceutico.id },
     ],
   });
 

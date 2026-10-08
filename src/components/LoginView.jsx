@@ -9,7 +9,8 @@ const DEMO_ROLES = [
   { id: 'admision', label: 'Admisión' },
   { id: 'ges', label: 'GES' },
   { id: 'oncologo', label: 'Médico Oncólogo' },
-  { id: 'farmacia', label: 'Farmacia' },
+  { id: 'enfermera_oncologia', label: 'Enfermera de Oncología' },
+  { id: 'quimico_farmaceutico', label: 'Químico Farmacéutico' },
   { id: 'enfermera_quimio', label: 'Enfermera de Quimioterapia' },
   { id: 'lectura', label: 'Lectura' },
 ];

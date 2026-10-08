@@ -3,7 +3,7 @@ import { FlaskConical, CheckCircle2, Ban } from 'lucide-react';
 import { fetchCiclos, transicionarCiclo } from '../../lib/api.js';
 import { formatFecha } from '../../lib/ui.js';
 
-const PUEDE_ACTUAR = ['farmacia', 'admin'];
+const PUEDE_ACTUAR = ['quimico_farmaceutico', 'admin'];
 
 export default function ColaPreparacion({ user }) {
   const [ciclos, setCiclos] = useState([]);
@@ -53,7 +53,7 @@ export default function ColaPreparacion({ user }) {
 
   return (
     <div>
-      <h2 className="text-lg font-semibold text-slate-800 mb-4">Cola de preparación — Farmacia</h2>
+      <h2 className="text-lg font-semibold text-slate-800 mb-4">Cola de preparación — Químico Farmacéutico</h2>
       {error && <div className="text-sm text-red-600 mb-3">{error}</div>}
       {cargando && <div className="text-sm text-slate-400">Cargando…</div>}
 

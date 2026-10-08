@@ -162,7 +162,7 @@ export default function TableroPaciente({ bootstrap, pacienteInicial, onConsumid
 
       {!cargandoRecetas && !recetas.length && (
         <div className="bg-white border border-slate-200 rounded-lg p-5 text-sm text-slate-500">
-          Este paciente no tiene recetas de quimioterapia validadas todavía. Pide al médico oncólogo que elabore la receta y a farmacia que la valide — recién ahí aparece acá para agendar sesiones.
+          Este paciente no tiene recetas de quimioterapia validadas todavía. Pide al médico oncólogo que elabore la receta y a la enfermera de oncología que la valide — recién ahí aparece acá para agendar sesiones.
         </div>
       )}
 

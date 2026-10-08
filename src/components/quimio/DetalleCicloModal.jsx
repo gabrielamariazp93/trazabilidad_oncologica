@@ -16,7 +16,7 @@ const ESTADO_STYLES = {
 
 const ESTADOS_SUSPENDIBLES = ['programado', 'en_preparacion', 'listo_para_administrar', 'en_administracion'];
 const ROLES_REPROGRAMAR = ['enfermera_quimio', 'admin'];
-const ROLES_SUSPENDER = ['oncologo', 'farmacia', 'enfermera_quimio', 'admin'];
+const ROLES_SUSPENDER = ['oncologo', 'quimico_farmaceutico', 'enfermera_quimio', 'admin'];
 const ROLES_CANCELAR = ['oncologo', 'enfermera_quimio', 'admin'];
 
 export default function DetalleCicloModal({ cicloId, user, onClose, onCambio }) {

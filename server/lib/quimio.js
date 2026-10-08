@@ -1,5 +1,6 @@
-// Módulo de Quimioterapia: receta -> validación/preparación de farmacia -> agenda de sillón ->
-// administración -> estadística. Independiente de CasoOncologico (comparte solo Paciente).
+// Módulo de Quimioterapia: receta -> validación (enfermera de oncología) -> agenda de sillón ->
+// preparación (químico farmacéutico) -> administración -> estadística. Independiente de
+// CasoOncologico (comparte solo Paciente).
 // Mismo patrón arquitectónico que casos.js: entidad + historial de transiciones de estado.
 
 // El servidor puede correr en cualquier timezone local (ej. America/Santiago, UTC-3) pero las
@@ -190,14 +191,14 @@ export function construirAgendaDia(configDia, ciclosDelSillon, duracionMin) {
 // siempre puede) habilitados para ejecutar la acción — la validación de rol la hace el router
 // leyendo esta misma tabla, así la autorización vive junto a la máquina de estados.
 export const ACCIONES_CICLO = {
-  iniciar_preparacion: { desde: ['programado'], hacia: 'en_preparacion', roles: ['farmacia'] },
-  marcar_listo: { desde: ['en_preparacion'], hacia: 'listo_para_administrar', roles: ['farmacia'] },
+  iniciar_preparacion: { desde: ['programado'], hacia: 'en_preparacion', roles: ['quimico_farmaceutico'] },
+  marcar_listo: { desde: ['en_preparacion'], hacia: 'listo_para_administrar', roles: ['quimico_farmaceutico'] },
   iniciar_administracion: { desde: ['listo_para_administrar'], hacia: 'en_administracion', roles: ['enfermera_quimio'] },
   finalizar_administracion: { desde: ['en_administracion'], hacia: 'administrado', roles: ['enfermera_quimio'] },
   suspender: {
     desde: ['programado', 'en_preparacion', 'listo_para_administrar', 'en_administracion'],
     hacia: 'suspendido',
-    roles: ['oncologo', 'farmacia', 'enfermera_quimio'],
+    roles: ['oncologo', 'quimico_farmaceutico', 'enfermera_quimio'],
     requiereMotivo: true,
   },
   cancelar: { desde: ['programado'], hacia: 'cancelado', roles: ['oncologo', 'enfermera_quimio'] },

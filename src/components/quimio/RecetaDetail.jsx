@@ -27,7 +27,7 @@ export default function RecetaDetail({ receta, user, onVolver, onCambio }) {
   const [error, setError] = useState(null);
   const [guardando, setGuardando] = useState(false);
 
-  const puedeValidar = user.role === 'farmacia' || user.role === 'admin';
+  const puedeValidar = user.role === 'enfermera_oncologia' || user.role === 'admin';
 
   async function handleValidar() {
     setError(null);

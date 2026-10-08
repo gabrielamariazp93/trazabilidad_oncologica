@@ -20,7 +20,7 @@ import {
 } from '../lib/quimio.js';
 
 const RECETA_EDITOR_ROLES = ['oncologo', 'admin'];
-const FARMACIA_ROLES = ['farmacia', 'admin'];
+const VALIDACION_RECETA_ROLES = ['enfermera_oncologia', 'admin'];
 const AGENDA_ROLES = ['enfermera_quimio', 'admin'];
 
 const RECETA_INCLUDE = {
@@ -248,7 +248,7 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
   });
 
   router.post('/quimio/recetas/:id/validar', async (req, res) => {
-    if (!requireRoles(req, res, FARMACIA_ROLES)) return;
+    if (!requireRoles(req, res, VALIDACION_RECETA_ROLES)) return;
     const receta = await loadRecetaOr404(req.params.id, res);
     if (!receta) return;
     if (receta.estado !== 'borrador') {
@@ -275,7 +275,7 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
   });
 
   router.post('/quimio/recetas/:id/rechazar', async (req, res) => {
-    if (!requireRoles(req, res, FARMACIA_ROLES)) return;
+    if (!requireRoles(req, res, VALIDACION_RECETA_ROLES)) return;
     const receta = await loadRecetaOr404(req.params.id, res);
     if (!receta) return;
     if (receta.estado !== 'borrador') {
