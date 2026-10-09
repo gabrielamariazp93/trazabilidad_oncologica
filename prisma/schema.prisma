@@ -276,13 +276,6 @@ model RecetaQuimio {
   pacienteId              String
   medicoUserId            String?
   esquemaId               String?
-  // Código GES del diagnóstico que motiva esta receta (ej. "Cáncer de mama"). Opcional — no
-  // bloquea el flujo de prescripción; su valor se usa para reportar/agrupar en Estadísticas una
-  // vez el ciclo queda administrado.
-  codigoGesId             String?
-  // Código PPV no GES (REM) — mutuamente excluyente en la práctica con codigoGesId (una receta
-  // usa uno u otro, no ambos), igual que en la planilla de origen. No se fuerza a nivel de DB.
-  codigoPpvId             String?
   protocolo               String
   indicacion              String?
   diagnostico             String?
@@ -310,13 +303,41 @@ model RecetaQuimio {
   medico       User?          @relation("RecetaMedico", fields: [medicoUserId], references: [id], onDelete: SetNull)
   farmaceutico User?          @relation("RecetaFarmaceutico", fields: [farmaciaUserId], references: [id], onDelete: SetNull)
   esquema      EsquemaQuimio? @relation(fields: [esquemaId], references: [id], onDelete: SetNull)
-  codigoGes    CodigoGes?       @relation(fields: [codigoGesId], references: [id], onDelete: SetNull)
-  codigoPpv    CodigoPpvNoGes?  @relation(fields: [codigoPpvId], references: [id], onDelete: SetNull)
   farmacos     DetalleRecetaFarmaco[]
   ciclos       CicloQuimio[]
+  codigosGes   RecetaCodigoGes[]
+  codigosPpv   RecetaCodigoPpv[]
 
   @@index([pacienteId])
   @@index([estado])
+}
+
+// Una receta puede tributar MÁS DE UNA línea de producción/REM — ej. el esquema base (AC) más
+// un fármaco agregado aparte (Trastuzumab) son dos códigos distintos, cada uno su propia línea.
+// Por eso codigoGes/codigoPpv de la receta son relaciones N:M (tabla intermedia), no un solo
+// campo — se puede agregar más de uno, igual que se pueden agregar más fármacos a la receta.
+model RecetaCodigoGes {
+  id          String   @id @default(cuid())
+  recetaId    String
+  codigoGesId String
+  createdAt   DateTime @default(now())
+
+  receta    RecetaQuimio @relation(fields: [recetaId], references: [id], onDelete: Cascade)
+  codigoGes CodigoGes    @relation(fields: [codigoGesId], references: [id], onDelete: Cascade)
+
+  @@unique([recetaId, codigoGesId])
+}
+
+model RecetaCodigoPpv {
+  id          String   @id @default(cuid())
+  recetaId    String
+  codigoPpvId String
+  createdAt   DateTime @default(now())
+
+  receta    RecetaQuimio   @relation(fields: [recetaId], references: [id], onDelete: Cascade)
+  codigoPpv CodigoPpvNoGes @relation(fields: [codigoPpvId], references: [id], onDelete: Cascade)
+
+  @@unique([recetaId, codigoPpvId])
 }
 
 // Catálogo de códigos GES (Garantías Explícitas en Salud), importado desde la planilla real
@@ -335,7 +356,7 @@ model CodigoGes {
   periodicidad          String?
   activo                Boolean @default(true)
 
-  recetas RecetaQuimio[]
+  recetas RecetaCodigoGes[]
 
   @@unique([codigo, familia])
   @@index([problemaSalud])
@@ -353,7 +374,7 @@ model CodigoPpvNoGes {
   intervencionSanitaria String?
   activo                Boolean @default(true)
 
-  recetas  RecetaQuimio[]
+  recetas  RecetaCodigoPpv[]
   esquemas EsquemaQuimio[]
 
   @@unique([codigo, glosaTrazadora])

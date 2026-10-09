@@ -74,8 +74,12 @@ export default function RecetaDetail({ receta, user, onVolver, onCambio }) {
             </div>
             <div className="text-sm text-slate-500 mt-1">
               RUT {receta.paciente?.rut} · {receta.protocolo}
-              {receta.codigoGes && <span className="ml-1.5 text-xs font-medium px-1.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700" title={receta.codigoGes.familia}>GES {receta.codigoGes.codigo}</span>}
-              {receta.codigoPpv && <span className="ml-1.5 text-xs font-medium px-1.5 py-0.5 rounded-full bg-slate-200 text-slate-700" title={receta.codigoPpv.glosaTrazadora}>PPV {receta.codigoPpv.codigo}</span>}
+              {receta.codigosGes?.map((c) => (
+                <span key={c.id} className="ml-1.5 text-xs font-medium px-1.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700" title={c.familia}>GES {c.codigo}</span>
+              ))}
+              {receta.codigosPpv?.map((c) => (
+                <span key={c.id} className="ml-1.5 text-xs font-medium px-1.5 py-0.5 rounded-full bg-slate-200 text-slate-700" title={c.glosaTrazadora}>PPV {c.codigo}</span>
+              ))}
             </div>
             {receta.diagnostico && <div className="text-sm text-slate-600 mt-1">{receta.diagnostico}{receta.estadioLabel ? ` · ${receta.estadioLabel}` : ''}{receta.intencionLabel ? ` · ${receta.intencionLabel}` : ''}</div>}
             {receta.indicacion && <div className="text-sm text-slate-600 mt-1">{receta.indicacion}</div>}

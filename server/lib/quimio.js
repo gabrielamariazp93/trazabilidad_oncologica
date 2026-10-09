@@ -327,10 +327,10 @@ export function serializeReceta(receta) {
     medico: receta.medico ? { id: receta.medico.id, name: receta.medico.name } : null,
     esquemaId: receta.esquemaId,
     esquema: receta.esquema ? { id: receta.esquema.id, nombre: receta.esquema.nombre } : null,
-    codigoGesId: receta.codigoGesId,
-    codigoGes: receta.codigoGes ? serializeCodigoGes(receta.codigoGes) : null,
-    codigoPpvId: receta.codigoPpvId,
-    codigoPpv: receta.codigoPpv ? serializeCodigoPpv(receta.codigoPpv) : null,
+    // Una receta puede tributar más de una línea de producción/REM (ej. el esquema base + un
+    // fármaco agregado aparte, cada uno su propio código) — por eso son listas, no un solo valor.
+    codigosGes: receta.codigosGes ? receta.codigosGes.map((r) => serializeCodigoGes(r.codigoGes)) : undefined,
+    codigosPpv: receta.codigosPpv ? receta.codigosPpv.map((r) => serializeCodigoPpv(r.codigoPpv)) : undefined,
     protocolo: receta.protocolo,
     indicacion: receta.indicacion,
     diagnostico: receta.diagnostico,

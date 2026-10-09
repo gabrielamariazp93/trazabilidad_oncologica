@@ -39,8 +39,8 @@ const RECETA_INCLUDE = {
   medico: true,
   farmaceutico: true,
   esquema: true,
-  codigoGes: true,
-  codigoPpv: true,
+  codigosGes: { include: { codigoGes: true } },
+  codigosPpv: { include: { codigoPpv: true } },
   farmacos: { orderBy: { orden: 'asc' } },
   ciclos: { orderBy: { numeroCiclo: 'asc' }, include: { sillon: true } },
 };
@@ -233,7 +233,7 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
   router.post('/quimio/recetas', async (req, res) => {
     if (!requireRoles(req, res, RECETA_EDITOR_ROLES)) return;
     const {
-      pacienteId, esquemaId, codigoGesId, codigoPpvId, protocolo, indicacion, diagnostico, estadio, intencion, riesgoEmetico,
+      pacienteId, esquemaId, codigoGesIds, codigoPpvIds, protocolo, indicacion, diagnostico, estadio, intencion, riesgoEmetico,
       numeroCiclosTotal, intervaloDias, pesoKg, tallaCm, superficieCorporal,
       otrasIndicaciones, neupogenIndicado, neupogenDias, farmacos,
     } = req.body ?? {};
@@ -254,8 +254,6 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
         pacienteId,
         medicoUserId: req.authUser.id,
         esquemaId: esquemaId || null,
-        codigoGesId: codigoGesId || null,
-        codigoPpvId: codigoPpvId || null,
         protocolo,
         indicacion: indicacion ?? null,
         diagnostico: diagnostico ?? null,
@@ -272,6 +270,12 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
         neupogenDias: neupogenDias ?? null,
         farmacos: {
           create: Array.isArray(farmacos) ? farmacos.map(mapFarmacoInput) : [],
+        },
+        codigosGes: {
+          create: Array.isArray(codigoGesIds) ? [...new Set(codigoGesIds)].map((id) => ({ codigoGesId: id })) : [],
+        },
+        codigosPpv: {
+          create: Array.isArray(codigoPpvIds) ? [...new Set(codigoPpvIds)].map((id) => ({ codigoPpvId: id })) : [],
         },
       },
       include: RECETA_INCLUDE,
@@ -296,14 +300,12 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
     }
 
     const {
-      esquemaId, codigoGesId, codigoPpvId, protocolo, indicacion, diagnostico, estadio, intencion, riesgoEmetico,
+      esquemaId, codigoGesIds, codigoPpvIds, protocolo, indicacion, diagnostico, estadio, intencion, riesgoEmetico,
       numeroCiclosTotal, intervaloDias, pesoKg, tallaCm, superficieCorporal,
       otrasIndicaciones, neupogenIndicado, neupogenDias, farmacos,
     } = req.body ?? {};
     const data = {};
     if (esquemaId !== undefined) data.esquemaId = esquemaId || null;
-    if (codigoGesId !== undefined) data.codigoGesId = codigoGesId || null;
-    if (codigoPpvId !== undefined) data.codigoPpvId = codigoPpvId || null;
     if (protocolo !== undefined) data.protocolo = protocolo;
     if (indicacion !== undefined) data.indicacion = indicacion;
     if (diagnostico !== undefined) data.diagnostico = diagnostico;
@@ -329,6 +331,18 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
         await tx.detalleRecetaFarmaco.deleteMany({ where: { recetaId: receta.id } });
         await tx.detalleRecetaFarmaco.createMany({
           data: farmacos.map((f, idx) => ({ recetaId: receta.id, ...mapFarmacoInput(f, idx) })),
+        });
+      }
+      if (Array.isArray(codigoGesIds)) {
+        await tx.recetaCodigoGes.deleteMany({ where: { recetaId: receta.id } });
+        await tx.recetaCodigoGes.createMany({
+          data: [...new Set(codigoGesIds)].map((codigoGesId) => ({ recetaId: receta.id, codigoGesId })),
+        });
+      }
+      if (Array.isArray(codigoPpvIds)) {
+        await tx.recetaCodigoPpv.deleteMany({ where: { recetaId: receta.id } });
+        await tx.recetaCodigoPpv.createMany({
+          data: [...new Set(codigoPpvIds)].map((codigoPpvId) => ({ recetaId: receta.id, codigoPpvId })),
         });
       }
     });
@@ -923,7 +937,14 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
     return prisma.cicloQuimio.findMany({
       where: { estado: 'administrado', fechaTerminoReal: { gte: desde, lte: hasta } },
       include: {
-        receta: { include: { paciente: true, farmacos: true, codigoGes: true, codigoPpv: true } },
+        receta: {
+          include: {
+            paciente: true,
+            farmacos: true,
+            codigosGes: { include: { codigoGes: true } },
+            codigosPpv: { include: { codigoPpv: true } },
+          },
+        },
         sillon: true,
         administradoPor: true,
       },
@@ -951,11 +972,30 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
         lineasQuimio.forEach((f) => conteo.set(f.farmaco, (conteo.get(f.farmaco) ?? 0) + 1));
         return;
       }
+      // "ges" y "ppv" cuentan por CÓDIGO, no por ciclo — una receta puede tributar más de una
+      // línea de producción (ej. esquema base + un fármaco agregado aparte, cada uno su propio
+      // código), así que un solo ciclo administrado puede sumar más de una línea acá.
+      if (groupBy === 'ges') {
+        const codigos = c.receta?.codigosGes ?? [];
+        if (!codigos.length) { conteo.set('Sin código GES', (conteo.get('Sin código GES') ?? 0) + 1); return; }
+        codigos.forEach((r) => {
+          const clave = `${r.codigoGes.codigo} — ${r.codigoGes.familia}`;
+          conteo.set(clave, (conteo.get(clave) ?? 0) + 1);
+        });
+        return;
+      }
+      if (groupBy === 'ppv') {
+        const codigos = c.receta?.codigosPpv ?? [];
+        if (!codigos.length) { conteo.set('Sin código PPV no GES', (conteo.get('Sin código PPV no GES') ?? 0) + 1); return; }
+        codigos.forEach((r) => {
+          const clave = `${r.codigoPpv.codigo} — ${r.codigoPpv.glosaTrazadora}`;
+          conteo.set(clave, (conteo.get(clave) ?? 0) + 1);
+        });
+        return;
+      }
       let clave;
       if (groupBy === 'sillon') clave = c.sillon?.nombre ?? 'Sin sillón';
       else if (groupBy === 'profesional') clave = c.administradoPor?.name ?? 'Sin registrar';
-      else if (groupBy === 'ges') clave = c.receta?.codigoGes ? `${c.receta.codigoGes.codigo} — ${c.receta.codigoGes.familia}` : 'Sin código GES';
-      else if (groupBy === 'ppv') clave = c.receta?.codigoPpv ? `${c.receta.codigoPpv.codigo} — ${c.receta.codigoPpv.glosaTrazadora}` : 'Sin código PPV no GES';
       else clave = c.receta?.protocolo ?? 'Sin protocolo';
       conteo.set(clave, (conteo.get(clave) ?? 0) + 1);
     });
@@ -992,8 +1032,8 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
         JSON.stringify(c.receta?.paciente?.nombre ?? ''),
         c.receta?.paciente?.rut ?? '',
         JSON.stringify(c.receta?.protocolo ?? ''),
-        JSON.stringify(c.receta?.codigoGes ? `${c.receta.codigoGes.codigo} — ${c.receta.codigoGes.familia}` : ''),
-        JSON.stringify(c.receta?.codigoPpv ? `${c.receta.codigoPpv.codigo} — ${c.receta.codigoPpv.glosaTrazadora}` : ''),
+        JSON.stringify((c.receta?.codigosGes ?? []).map((r) => `${r.codigoGes.codigo} — ${r.codigoGes.familia}`).join(' | ')),
+        JSON.stringify((c.receta?.codigosPpv ?? []).map((r) => `${r.codigoPpv.codigo} — ${r.codigoPpv.glosaTrazadora}`).join(' | ')),
         c.numeroCiclo,
         JSON.stringify(c.sillon?.nombre ?? ''),
         c.fechaInicioReal ? new Date(c.fechaInicioReal).toISOString() : '',

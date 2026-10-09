@@ -19,9 +19,11 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
   const [protocolo, setProtocolo] = useState('');
   const [diagnostico, setDiagnostico] = useState('');
   const [estadio, setEstadio] = useState('');
-  const [codigoGesId, setCodigoGesId] = useState('');
+  // Una receta puede tributar más de una línea de producción/REM (ej. esquema base + un fármaco
+  // agregado aparte, cada uno su propio código) — por eso son listas, no un solo valor.
+  const [codigoGesIds, setCodigoGesIds] = useState([]);
   const [codigosGes, setCodigosGes] = useState([]);
-  const [codigoPpvId, setCodigoPpvId] = useState('');
+  const [codigoPpvIds, setCodigoPpvIds] = useState([]);
   const [codigosPpv, setCodigosPpv] = useState([]);
   const [clasifReferencia, setClasifReferencia] = useState({ dac: [], lrs: [] });
   const [indicacion, setIndicacion] = useState('');
@@ -85,10 +87,10 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
     setEsquemaNombre(esquemaBasico.nombre);
     setProtocolo(esquemaBasico.nombre);
     // Si el esquema tiene un código PPV no GES vinculado (coincidencia exacta conocida), se
-    // autocompleta — igual que elegir el código a mano, pero en la otra dirección.
+    // agrega a la lista — igual que agregar el código a mano, pero en la otra dirección. No
+    // reemplaza códigos ya agregados (ej. un Trastuzumab agregado antes del esquema).
     if (esquemaBasico.codigoPpvId) {
-      setCodigoPpvId(esquemaBasico.codigoPpvId);
-      setCodigoGesId('');
+      setCodigoPpvIds((ids) => (ids.includes(esquemaBasico.codigoPpvId) ? ids : [...ids, esquemaBasico.codigoPpvId]));
     }
 
     const { esquema } = await fetchEsquemaQuimio(esquemaBasico.id);
@@ -166,8 +168,8 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
       const data = await crearReceta({
         pacienteId: paciente.id,
         esquemaId,
-        codigoGesId: codigoGesId || null,
-        codigoPpvId: codigoPpvId || null,
+        codigoGesIds,
+        codigoPpvIds,
         protocolo: protocolo.trim(),
         diagnostico: diagnostico.trim() || null,
         estadio: estadio || null,
@@ -361,40 +363,71 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
             </div>
             <div className="col-span-2 grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-medium text-slate-500 mb-1">Código GES (opcional)</label>
+                <label className="block text-xs font-medium text-slate-500 mb-1">Códigos GES (opcional, pueden ser varios)</label>
                 <select
-                  value={codigoGesId}
-                  onChange={(e) => { setCodigoGesId(e.target.value); if (e.target.value) setCodigoPpvId(''); }}
+                  value=""
+                  onChange={(e) => {
+                    const id = e.target.value;
+                    if (id) setCodigoGesIds((ids) => (ids.includes(id) ? ids : [...ids, id]));
+                  }}
                   className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm"
                 >
-                  <option value="">Sin código GES</option>
-                  {codigosGes.map((c) => (
+                  <option value="">+ Agregar código GES…</option>
+                  {codigosGes.filter((c) => !codigoGesIds.includes(c.id)).map((c) => (
                     <option key={c.id} value={c.id}>{c.codigo} — {c.familia}</option>
                   ))}
                 </select>
                 {!codigosGes.length && <div className="text-xs text-slate-400 mt-1">Catálogo vacío por ahora.</div>}
+                {codigoGesIds.length > 0 && (
+                  <div className="mt-1.5 space-y-1">
+                    {codigoGesIds.map((id) => {
+                      const c = codigosGes.find((x) => x.id === id);
+                      return (
+                        <div key={id} className="flex items-center justify-between bg-indigo-50 text-indigo-700 text-xs rounded-md px-2 py-1">
+                          <span>{c ? `${c.codigo} — ${c.familia}` : id}</span>
+                          <button type="button" onClick={() => setCodigoGesIds((ids) => ids.filter((x) => x !== id))} className="text-indigo-400 hover:text-indigo-700">
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-500 mb-1">Código PPV no GES (opcional)</label>
+                <label className="block text-xs font-medium text-slate-500 mb-1">Códigos PPV no GES (opcional, pueden ser varios)</label>
                 <select
-                  value={codigoPpvId}
+                  value=""
                   onChange={(e) => {
                     const id = e.target.value;
-                    setCodigoPpvId(id);
-                    if (id) {
-                      setCodigoGesId('');
-                      const elegido = codigosPpv.find((c) => c.id === id);
-                      if (elegido && !protocolo.trim()) setProtocolo(elegido.glosaTrazadora);
-                    }
+                    if (!id) return;
+                    setCodigoPpvIds((ids) => (ids.includes(id) ? ids : [...ids, id]));
+                    const elegido = codigosPpv.find((c) => c.id === id);
+                    if (elegido && !protocolo.trim()) setProtocolo(elegido.glosaTrazadora);
                   }}
                   className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm"
                 >
-                  <option value="">Sin código PPV no GES</option>
-                  {codigosPpv.map((c) => (
+                  <option value="">+ Agregar código PPV no GES…</option>
+                  {codigosPpv.filter((c) => !codigoPpvIds.includes(c.id)).map((c) => (
                     <option key={c.id} value={c.id}>{c.codigo} — {c.glosaTrazadora}</option>
                   ))}
                 </select>
-                <div className="text-xs text-slate-400 mt-1">Para REM/tributación estadística — usa uno u otro, no ambos.</div>
+                <div className="text-xs text-slate-400 mt-1">Para REM/tributación estadística — cada fármaco o esquema agregado puede sumar su propio código (ej. AC + Trastuzumab = 2 líneas).</div>
+                {codigoPpvIds.length > 0 && (
+                  <div className="mt-1.5 space-y-1">
+                    {codigoPpvIds.map((id) => {
+                      const c = codigosPpv.find((x) => x.id === id);
+                      return (
+                        <div key={id} className="flex items-center justify-between bg-slate-100 text-slate-700 text-xs rounded-md px-2 py-1">
+                          <span>{c ? `${c.codigo} — ${c.glosaTrazadora}` : id}</span>
+                          <button type="button" onClick={() => setCodigoPpvIds((ids) => ids.filter((x) => x !== id))} className="text-slate-400 hover:text-slate-700">
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
             <div>
