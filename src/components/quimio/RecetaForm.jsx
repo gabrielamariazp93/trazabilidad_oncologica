@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { X, Plus, Trash2, FlaskConical } from 'lucide-react';
-import { buscarPacientes, crearPaciente, crearReceta, fetchEsquemasQuimio, fetchEsquemaQuimio, fetchCodigosGes, fetchCodigosPpv, fetchClasificacionReferencia } from '../../lib/api.js';
+import { buscarPacientes, crearPaciente, crearReceta, fetchEsquemasQuimio, fetchEsquemaQuimio, fetchCodigosGes, fetchCodigosPpv, fetchClasificacionReferencia, fetchFarmacosReferencia } from '../../lib/api.js';
 import { calcularSC } from '../../lib/ui.js';
 
 function farmacoVacio(categoria) {
@@ -22,6 +22,84 @@ function baseCodigoPpv(familia) {
   const idx = n.indexOf('(');
   if (idx > 0) n = n.slice(0, idx).trim();
   return n.replace(/\*+$/, '').trim();
+}
+
+// IMPORTANTE: estos dos componentes van a nivel de módulo (no definidos dentro de RecetaForm) a
+// propósito — si se definen dentro del componente, React los trata como un tipo de componente
+// nuevo en cada render (cada tecleo cambia el estado -> re-render -> nueva referencia de función)
+// y destruye/recrea el <input> del DOM en cada letra escrita, perdiendo el foco. Reciben todo por
+// props, nada de closures sobre el estado de RecetaForm.
+function FilaFarmaco({ f, idx, onChange, onQuitar, placeholderUnidad, datalistId }) {
+  return (
+    <div className="grid grid-cols-12 gap-1.5 items-center">
+      <input
+        value={f.farmaco}
+        onChange={(e) => onChange(idx, 'farmaco', e.target.value)}
+        placeholder="Fármaco"
+        list={datalistId}
+        className="col-span-3 border border-slate-300 rounded-md px-2 py-1.5 text-sm"
+      />
+      <input value={f.dosis} onChange={(e) => onChange(idx, 'dosis', e.target.value)} placeholder="Dosis" className="col-span-2 border border-slate-300 rounded-md px-2 py-1.5 text-sm" />
+      <input value={f.unidad} onChange={(e) => onChange(idx, 'unidad', e.target.value)} placeholder={placeholderUnidad} className="col-span-2 border border-slate-300 rounded-md px-2 py-1.5 text-sm" />
+      <select value={f.via} onChange={(e) => onChange(idx, 'via', e.target.value)} className="col-span-1 border border-slate-300 rounded-md px-1 py-1.5 text-sm">
+        <option value="EV">EV</option>
+        <option value="VO">VO</option>
+      </select>
+      <input value={f.frecuencia} onChange={(e) => onChange(idx, 'frecuencia', e.target.value)} placeholder="Frecuencia / condición" className="col-span-3 border border-slate-300 rounded-md px-2 py-1.5 text-sm" />
+      <button type="button" onClick={() => onQuitar(idx)} className="col-span-1 text-slate-400 hover:text-red-500 flex justify-center">
+        <Trash2 className="w-4 h-4" />
+      </button>
+    </div>
+  );
+}
+
+function Seccion({ titulo, ayuda, seccion, mostrarDuracion, datalistId }) {
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-1.5">
+        <div>
+          <label className="text-xs font-medium text-slate-700">{titulo}</label>
+          {ayuda && <span className="text-[11px] text-slate-400 ml-1.5">{ayuda}</span>}
+        </div>
+        <button type="button" onClick={seccion.agregar} className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700">
+          <Plus className="w-3.5 h-3.5" /> Agregar
+        </button>
+      </div>
+      <div className="space-y-1.5">
+        {seccion.lista.map((f, idx) => (
+          <div key={idx}>
+            <FilaFarmaco f={f} idx={idx} onChange={seccion.actualizar} onQuitar={seccion.quitar} placeholderUnidad={mostrarDuracion ? 'mg/m2' : 'mg'} datalistId={datalistId} />
+            {mostrarDuracion && (
+              <div className="flex items-center gap-2 mt-1">
+                <input
+                  type="number"
+                  value={f.duracionInfusionMin}
+                  onChange={(e) => seccion.actualizar(idx, 'duracionInfusionMin', e.target.value)}
+                  placeholder="Duración infusión (min)"
+                  className="w-44 border border-slate-300 rounded-md px-2 py-1 text-xs"
+                />
+                <select
+                  value={f.clasificacion ?? ''}
+                  onChange={(e) => seccion.actualizar(idx, 'clasificacion', e.target.value)}
+                  className="border border-slate-300 rounded-md px-1.5 py-1 text-xs"
+                  title="Clasificación de compra/financiamiento"
+                >
+                  <option value="">LRS / DAC</option>
+                  <option value="LRS">LRS</option>
+                  <option value="DAC">DAC</option>
+                </select>
+                {f.nSesion && (
+                  <span className="text-[11px] text-indigo-600 bg-indigo-50 rounded px-1.5 py-0.5" title="Día(s) del ciclo según el esquema">
+                    {f.nSesion}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCreada }) {
@@ -47,6 +125,7 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
   const [codigosGes, setCodigosGes] = useState([]);
   const [codigosPpv, setCodigosPpv] = useState([]);
   const [clasifReferencia, setClasifReferencia] = useState({ dac: [], lrs: [] });
+  const [farmacosReferencia, setFarmacosReferencia] = useState([]);
   const [indicacion, setIndicacion] = useState('');
   const [intencion, setIntencion] = useState('');
   const [riesgoEmetico, setRiesgoEmetico] = useState('');
@@ -74,6 +153,7 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
     fetchCodigosGes().then((data) => setCodigosGes(data.codigosGes)).catch(() => {});
     fetchCodigosPpv().then((data) => setCodigosPpv(data.codigosPpv)).catch(() => {});
     fetchClasificacionReferencia().then(setClasifReferencia).catch(() => {});
+    fetchFarmacosReferencia().then((data) => setFarmacosReferencia(data.nombres)).catch(() => {});
   }, []);
 
   // Sugiere LRS/DAC según el nombre del fármaco de quimioterapia, comparando contra las listas
@@ -244,73 +324,6 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
     } finally {
       setGuardando(false);
     }
-  }
-
-  function FilaFarmaco({ f, idx, onChange, onQuitar, placeholderUnidad }) {
-    return (
-      <div className="grid grid-cols-12 gap-1.5 items-center">
-        <input value={f.farmaco} onChange={(e) => onChange(idx, 'farmaco', e.target.value)} placeholder="Fármaco" className="col-span-3 border border-slate-300 rounded-md px-2 py-1.5 text-sm" />
-        <input value={f.dosis} onChange={(e) => onChange(idx, 'dosis', e.target.value)} placeholder="Dosis" className="col-span-2 border border-slate-300 rounded-md px-2 py-1.5 text-sm" />
-        <input value={f.unidad} onChange={(e) => onChange(idx, 'unidad', e.target.value)} placeholder={placeholderUnidad} className="col-span-2 border border-slate-300 rounded-md px-2 py-1.5 text-sm" />
-        <select value={f.via} onChange={(e) => onChange(idx, 'via', e.target.value)} className="col-span-1 border border-slate-300 rounded-md px-1 py-1.5 text-sm">
-          <option value="EV">EV</option>
-          <option value="VO">VO</option>
-        </select>
-        <input value={f.frecuencia} onChange={(e) => onChange(idx, 'frecuencia', e.target.value)} placeholder="Frecuencia / condición" className="col-span-3 border border-slate-300 rounded-md px-2 py-1.5 text-sm" />
-        <button type="button" onClick={() => onQuitar(idx)} className="col-span-1 text-slate-400 hover:text-red-500 flex justify-center">
-          <Trash2 className="w-4 h-4" />
-        </button>
-      </div>
-    );
-  }
-
-  function Seccion({ titulo, ayuda, seccion, mostrarDuracion }) {
-    return (
-      <div>
-        <div className="flex items-center justify-between mb-1.5">
-          <div>
-            <label className="text-xs font-medium text-slate-700">{titulo}</label>
-            {ayuda && <span className="text-[11px] text-slate-400 ml-1.5">{ayuda}</span>}
-          </div>
-          <button type="button" onClick={seccion.agregar} className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700">
-            <Plus className="w-3.5 h-3.5" /> Agregar
-          </button>
-        </div>
-        <div className="space-y-1.5">
-          {seccion.lista.map((f, idx) => (
-            <div key={idx}>
-              <FilaFarmaco f={f} idx={idx} onChange={seccion.actualizar} onQuitar={seccion.quitar} placeholderUnidad={mostrarDuracion ? 'mg/m2' : 'mg'} />
-              {mostrarDuracion && (
-                <div className="flex items-center gap-2 mt-1">
-                  <input
-                    type="number"
-                    value={f.duracionInfusionMin}
-                    onChange={(e) => seccion.actualizar(idx, 'duracionInfusionMin', e.target.value)}
-                    placeholder="Duración infusión (min)"
-                    className="w-44 border border-slate-300 rounded-md px-2 py-1 text-xs"
-                  />
-                  <select
-                    value={f.clasificacion ?? ''}
-                    onChange={(e) => seccion.actualizar(idx, 'clasificacion', e.target.value)}
-                    className="border border-slate-300 rounded-md px-1.5 py-1 text-xs"
-                    title="Clasificación de compra/financiamiento"
-                  >
-                    <option value="">LRS / DAC</option>
-                    <option value="LRS">LRS</option>
-                    <option value="DAC">DAC</option>
-                  </select>
-                  {f.nSesion && (
-                    <span className="text-[11px] text-indigo-600 bg-indigo-50 rounded px-1.5 py-0.5" title="Día(s) del ciclo según el esquema">
-                      {f.nSesion}
-                    </span>
-                  )}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    );
   }
 
   return (
@@ -499,9 +512,15 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
             </div>
           </div>
 
+          <datalist id="farmacos-catalogo">
+            {farmacosReferencia.map((nombre) => (
+              <option key={nombre} value={nombre} />
+            ))}
+          </datalist>
+
           <div className="space-y-4 border-t border-slate-100 pt-4">
-            <Seccion titulo="Premedicación" ayuda="ej. Dexametasona 12 h antes" seccion={seccionPremedicacion} />
-            <Seccion titulo="Quimioterapia" ayuda="drogas citotóxicas del esquema" seccion={seccionQuimioterapia} mostrarDuracion />
+            <Seccion titulo="Premedicación" ayuda="ej. Dexametasona 12 h antes" seccion={seccionPremedicacion} datalistId="farmacos-catalogo" />
+            <Seccion titulo="Quimioterapia" ayuda="drogas citotóxicas del esquema" seccion={seccionQuimioterapia} mostrarDuracion datalistId="farmacos-catalogo" />
 
             <div className="bg-slate-50 rounded-md px-3 py-2">
               <div className="text-xs font-medium text-slate-500">Códigos PPV no GES (REM) — según los fármacos agregados arriba</div>
@@ -519,7 +538,7 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
               )}
             </div>
 
-            <Seccion titulo="Rescate / PRN" ayuda="indicaciones si hay vómitos, diarrea, etc." seccion={seccionRescate} />
+            <Seccion titulo="Rescate / PRN" ayuda="indicaciones si hay vómitos, diarrea, etc." seccion={seccionRescate} datalistId="farmacos-catalogo" />
           </div>
 
           <div className="border-t border-slate-100 pt-4 space-y-3">

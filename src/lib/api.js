@@ -155,6 +155,10 @@ export async function fetchClasificacionReferencia() {
   return request('/quimio/clasificacion-referencia');
 }
 
+export async function fetchFarmacosReferencia() {
+  return request('/quimio/farmacos-referencia');
+}
+
 export async function fetchDisponibilidadQuimio(fecha, duracionMin) {
   return request(`/quimio/disponibilidad${buildQuery({ fecha, duracionMin })}`);
 }

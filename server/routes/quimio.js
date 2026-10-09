@@ -175,6 +175,33 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
     res.json(clasificacionReferenciaCache);
   });
 
+  // Catálogo de nombres de fármaco para autocompletar/homologar al escribir en la receta —
+  // combina las drogas reales de los 86 esquemas (tal cual están en la BD) con las listas DAC y
+  // LRS de la planilla. Es solo sugerencia (datalist): el campo sigue siendo texto libre.
+  let farmacosReferenciaCache = null;
+  router.get('/quimio/farmacos-referencia', async (req, res) => {
+    if (!requireAuth(req, res)) return;
+    if (!farmacosReferenciaCache) {
+      const lineas = await prisma.esquemaFarmacoLinea.findMany({ select: { droga: true }, distinct: ['droga'] });
+      let dac = [];
+      let lrs = [];
+      try {
+        dac = JSON.parse(fsReadFileSync('drogas_dac.json'));
+        lrs = JSON.parse(fsReadFileSync('drogas_lrs.json'));
+      } catch { /* catálogo opcional */ }
+
+      const vistos = new Map(); // clave normalizada -> primera forma de escritura encontrada
+      [...lineas.map((l) => l.droga), ...dac, ...lrs].forEach((nombre) => {
+        const limpio = (nombre || '').trim();
+        if (!limpio) return;
+        const clave = limpio.toLowerCase();
+        if (!vistos.has(clave)) vistos.set(clave, limpio);
+      });
+      farmacosReferenciaCache = Array.from(vistos.values()).sort((a, b) => a.localeCompare(b, 'es'));
+    }
+    res.json({ nombres: farmacosReferenciaCache });
+  });
+
   // --- Sillones ------------------------------------------------------------
 
   router.get('/sillones', async (req, res) => {
