@@ -1,5 +1,12 @@
 [
   {
+    "esquema": "AC-15",
+    "base": "AC-15",
+    "codigoPpv": "2908018",
+    "familiaPpv": "AC DÓSIS DENSA (DOXORRUBICINA - CICLOFOSFAMIDA) (CICLO)",
+    "nota": "Agregado a mano (no por el matcher automático): AC-15 tiene intervalo de 15 días entre ciclos = dosis densa, que es justo lo que nombra este código PPV. AC-21 (intervalo 21 días, esquema estándar) queda deliberadamente SIN vincular — no es el mismo régimen y no hay código PPV equivalente para la versión estándar en este catálogo."
+  },
+  {
     "esquema": "FOLFOX 6",
     "base": "FOLFOX",
     "codigoPpv": "2908070",
