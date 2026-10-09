@@ -403,7 +403,15 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
                 <label className="block text-xs font-medium text-slate-500 mb-1">Código PPV no GES (opcional)</label>
                 <select
                   value={codigoPpvId}
-                  onChange={(e) => { setCodigoPpvId(e.target.value); if (e.target.value) setCodigoGesId(''); }}
+                  onChange={(e) => {
+                    const id = e.target.value;
+                    setCodigoPpvId(id);
+                    if (id) {
+                      setCodigoGesId('');
+                      const elegido = codigosPpv.find((c) => c.id === id);
+                      if (elegido && !protocolo.trim()) setProtocolo(elegido.glosaTrazadora);
+                    }
+                  }}
                   className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm"
                 >
                   <option value="">Sin código PPV no GES</option>
