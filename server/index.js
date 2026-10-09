@@ -14,6 +14,7 @@ import {
 import {
   FASE_LABELS,
   FASES,
+  FINANCIAMIENTOS,
   HITOS_POR_FASE,
   MOTIVOS_CIERRE,
   PLAZO_CONFIG_DEFAULT,
@@ -169,6 +170,7 @@ app.get('/api/bootstrap', async (_req, res) => {
     fases: FASES.map((id) => ({ id, label: FASE_LABELS[id], hitos: HITOS_POR_FASE[id] })),
     viasTratamiento: VIAS_TRATAMIENTO,
     motivosCierre: MOTIVOS_CIERRE,
+    financiamientos: FINANCIAMIENTOS,
     tiposDerivacion: TIPOS_DERIVACION,
     tiposPlazo: TIPOS_PLAZO.map((id) => ({ id, label: TIPO_PLAZO_LABELS[id] })),
     quimio: {
@@ -345,9 +347,10 @@ app.patch('/api/casos/:id', async (req, res) => {
   if (!caso) return;
 
   const data = {};
-  const { gestorUserId, viaTratamiento, estado, motivoCierre } = req.body ?? {};
+  const { gestorUserId, viaTratamiento, financiamiento, estado, motivoCierre } = req.body ?? {};
   if (gestorUserId !== undefined) data.gestorUserId = gestorUserId || null;
   if (viaTratamiento !== undefined) data.viaTratamiento = viaTratamiento || null;
+  if (financiamiento !== undefined) data.financiamiento = financiamiento || null;
   if (estado === 'cerrado') {
     data.estado = 'cerrado';
     data.motivoCierre = motivoCierre ?? null;

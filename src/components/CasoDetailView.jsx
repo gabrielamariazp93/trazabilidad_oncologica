@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { ArrowLeft, Users, Stethoscope, PlusCircle, Lock, Unlock, Pill } from 'lucide-react';
+import { ArrowLeft, Users, Stethoscope, PlusCircle, Lock, Unlock, Pill, Landmark } from 'lucide-react';
 import {
   fetchCaso,
   registrarHito,
@@ -99,6 +99,11 @@ export default function CasoDetailView({ casoId, user, bootstrap, onVolver, onHa
     await cargar();
   }
 
+  async function handleFinanciamiento(financiamiento) {
+    await updateCaso(casoId, { financiamiento: financiamiento || null });
+    await cargar();
+  }
+
   async function handleCerrarCaso(event) {
     event.preventDefault();
     if (!motivoCierre) return;
@@ -189,7 +194,7 @@ export default function CasoDetailView({ casoId, user, bootstrap, onVolver, onHa
           </div>
         )}
 
-        <div className="grid sm:grid-cols-2 gap-4 mt-4 pt-4 border-t border-slate-100">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 pt-4 border-t border-slate-100">
           <div>
             <label className="flex items-center gap-1.5 text-xs font-medium text-slate-500 mb-1">
               <Users className="w-3.5 h-3.5" /> Gestor asignado
@@ -215,6 +220,23 @@ export default function CasoDetailView({ casoId, user, bootstrap, onVolver, onHa
                 <option key={v.id} value={v.id}>{v.label}</option>
               ))}
             </select>
+          </div>
+          <div>
+            <label className="flex items-center gap-1.5 text-xs font-medium text-slate-500 mb-1">
+              <Landmark className="w-3.5 h-3.5" /> Financiamiento
+            </label>
+            <select
+              value={caso.financiamiento ?? ''}
+              disabled={!puedeEditar}
+              onChange={(e) => handleFinanciamiento(e.target.value)}
+              className="w-full border border-slate-300 rounded-md px-3 py-1.5 text-sm disabled:bg-slate-50 disabled:text-slate-500"
+            >
+              <option value="">Sin definir</option>
+              {bootstrap.financiamientos.map((f) => (
+                <option key={f.id} value={f.id}>{f.label}</option>
+              ))}
+            </select>
+            <div className="text-[11px] text-slate-400 mt-1">Marcador manual — se identifica antes de llegar a oncología.</div>
           </div>
         </div>
       </div>

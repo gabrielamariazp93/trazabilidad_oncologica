@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { X, Plus, Trash2, FlaskConical } from 'lucide-react';
-import { buscarPacientes, crearPaciente, crearReceta, fetchEsquemasQuimio, fetchEsquemaQuimio } from '../../lib/api.js';
+import { buscarPacientes, crearPaciente, crearReceta, fetchEsquemasQuimio, fetchEsquemaQuimio, fetchCodigosGes } from '../../lib/api.js';
 import { calcularSC } from '../../lib/ui.js';
 
 function farmacoVacio(categoria) {
@@ -19,6 +19,8 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
   const [resultadosEsquema, setResultadosEsquema] = useState([]);
   const [protocolo, setProtocolo] = useState('');
   const [diagnostico, setDiagnostico] = useState('');
+  const [codigoGesId, setCodigoGesId] = useState('');
+  const [codigosGes, setCodigosGes] = useState([]);
   const [indicacion, setIndicacion] = useState('');
   const [intencion, setIntencion] = useState('');
   const [riesgoEmetico, setRiesgoEmetico] = useState('');
@@ -40,6 +42,10 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
   const debounceRef = useRef(null);
 
   const scCalculada = useMemo(() => calcularSC(pesoKg, tallaCm), [pesoKg, tallaCm]);
+
+  useEffect(() => {
+    fetchCodigosGes().then((data) => setCodigosGes(data.codigosGes)).catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -149,6 +155,7 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
       const data = await crearReceta({
         pacienteId: paciente.id,
         esquemaId,
+        codigoGesId: codigoGesId || null,
         protocolo: protocolo.trim(),
         diagnostico: diagnostico.trim() || null,
         indicacion: indicacion.trim() || null,
@@ -339,6 +346,16 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">Diagnóstico</label>
               <input value={diagnostico} onChange={(e) => setDiagnostico(e.target.value)} className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Código GES (opcional)</label>
+              <select value={codigoGesId} onChange={(e) => setCodigoGesId(e.target.value)} className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm">
+                <option value="">Sin código GES</option>
+                {codigosGes.map((c) => (
+                  <option key={c.id} value={c.id}>{c.codigo} — {c.nombre}</option>
+                ))}
+              </select>
+              {!codigosGes.length && <div className="text-xs text-slate-400 mt-1">Catálogo vacío por ahora.</div>}
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">Indicación</label>

@@ -13,6 +13,7 @@ import {
   rolPuedeAccion,
   seSuperponen,
   serializeCiclo,
+  serializeCodigoGes,
   serializeEsquema,
   serializeReceta,
   serializeSillon,
@@ -29,6 +30,7 @@ const RECETA_INCLUDE = {
   medico: true,
   farmaceutico: true,
   esquema: true,
+  codigoGes: true,
   farmacos: { orderBy: { orden: 'asc' } },
   ciclos: { orderBy: { numeroCiclo: 'asc' }, include: { sillon: true } },
 };
@@ -91,6 +93,48 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
     res.json({ esquema: serializeEsquema(esquema) });
   });
 
+  // --- Códigos GES (catálogo) ------------------------------------------------------------
+  // Vacío hasta importar el listado oficial real — mientras tanto el admin puede cargar entradas
+  // una por una. El oncólogo puede asociar uno (opcional) a la receta al prescribir.
+
+  router.get('/quimio/codigos-ges', async (req, res) => {
+    if (!requireAuth(req, res)) return;
+    const q = typeof req.query.q === 'string' ? req.query.q.trim() : '';
+    const where = {
+      activo: true,
+      ...(q ? { OR: [{ nombre: { contains: q, mode: 'insensitive' } }, { codigo: { contains: q, mode: 'insensitive' } }] } : {}),
+    };
+    const codigos = await prisma.codigoGes.findMany({ where, orderBy: { codigo: 'asc' } });
+    res.json({ codigosGes: codigos.map(serializeCodigoGes) });
+  });
+
+  router.post('/quimio/codigos-ges', async (req, res) => {
+    if (!requireRoles(req, res, ['admin'])) return;
+    const codigo = typeof req.body?.codigo === 'string' ? req.body.codigo.trim() : '';
+    const nombre = typeof req.body?.nombre === 'string' ? req.body.nombre.trim() : '';
+    if (!codigo || !nombre) {
+      res.status(400).json({ error: 'codigo y nombre son obligatorios.' });
+      return;
+    }
+    const existente = await prisma.codigoGes.findUnique({ where: { codigo } });
+    if (existente) {
+      res.status(400).json({ error: `Ya existe un código GES "${codigo}".` });
+      return;
+    }
+    const creado = await prisma.codigoGes.create({ data: { codigo, nombre } });
+    res.status(201).json({ codigoGes: serializeCodigoGes(creado) });
+  });
+
+  router.patch('/quimio/codigos-ges/:id', async (req, res) => {
+    if (!requireRoles(req, res, ['admin'])) return;
+    const data = {};
+    if (typeof req.body?.codigo === 'string') data.codigo = req.body.codigo.trim();
+    if (typeof req.body?.nombre === 'string') data.nombre = req.body.nombre.trim();
+    if (typeof req.body?.activo === 'boolean') data.activo = req.body.activo;
+    const actualizado = await prisma.codigoGes.update({ where: { id: req.params.id }, data });
+    res.json({ codigoGes: serializeCodigoGes(actualizado) });
+  });
+
   // --- Sillones ------------------------------------------------------------
 
   router.get('/sillones', async (req, res) => {
@@ -149,7 +193,7 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
   router.post('/quimio/recetas', async (req, res) => {
     if (!requireRoles(req, res, RECETA_EDITOR_ROLES)) return;
     const {
-      pacienteId, esquemaId, protocolo, indicacion, diagnostico, intencion, riesgoEmetico,
+      pacienteId, esquemaId, codigoGesId, protocolo, indicacion, diagnostico, intencion, riesgoEmetico,
       numeroCiclosTotal, intervaloDias, pesoKg, tallaCm, superficieCorporal,
       otrasIndicaciones, neupogenIndicado, neupogenDias, farmacos,
     } = req.body ?? {};
@@ -170,6 +214,7 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
         pacienteId,
         medicoUserId: req.authUser.id,
         esquemaId: esquemaId || null,
+        codigoGesId: codigoGesId || null,
         protocolo,
         indicacion: indicacion ?? null,
         diagnostico: diagnostico ?? null,
@@ -209,12 +254,13 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
     }
 
     const {
-      esquemaId, protocolo, indicacion, diagnostico, intencion, riesgoEmetico,
+      esquemaId, codigoGesId, protocolo, indicacion, diagnostico, intencion, riesgoEmetico,
       numeroCiclosTotal, intervaloDias, pesoKg, tallaCm, superficieCorporal,
       otrasIndicaciones, neupogenIndicado, neupogenDias, farmacos,
     } = req.body ?? {};
     const data = {};
     if (esquemaId !== undefined) data.esquemaId = esquemaId || null;
+    if (codigoGesId !== undefined) data.codigoGesId = codigoGesId || null;
     if (protocolo !== undefined) data.protocolo = protocolo;
     if (indicacion !== undefined) data.indicacion = indicacion;
     if (diagnostico !== undefined) data.diagnostico = diagnostico;
@@ -833,7 +879,7 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
     return prisma.cicloQuimio.findMany({
       where: { estado: 'administrado', fechaTerminoReal: { gte: desde, lte: hasta } },
       include: {
-        receta: { include: { paciente: true, farmacos: true } },
+        receta: { include: { paciente: true, farmacos: true, codigoGes: true } },
         sillon: true,
         administradoPor: true,
       },
@@ -843,7 +889,7 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
   router.get('/quimio/estadisticas', async (req, res) => {
     if (!requireAuth(req, res)) return;
     const ciclos = await obtenerCiclosAdministrados(req);
-    const groupBy = ['farmaco', 'sillon', 'profesional'].includes(req.query.groupBy) ? req.query.groupBy : 'protocolo';
+    const groupBy = ['farmaco', 'sillon', 'profesional', 'ges'].includes(req.query.groupBy) ? req.query.groupBy : 'protocolo';
 
     // "farmaco" y la clasificación LRS/DAC cuentan por LÍNEA de fármaco de quimioterapia de la
     // receta de cada ciclo administrado (un ciclo puede tener varios fármacos) — representa
@@ -864,6 +910,7 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
       let clave;
       if (groupBy === 'sillon') clave = c.sillon?.nombre ?? 'Sin sillón';
       else if (groupBy === 'profesional') clave = c.administradoPor?.name ?? 'Sin registrar';
+      else if (groupBy === 'ges') clave = c.receta?.codigoGes ? `${c.receta.codigoGes.codigo} — ${c.receta.codigoGes.nombre}` : 'Sin código GES';
       else clave = c.receta?.protocolo ?? 'Sin protocolo';
       conteo.set(clave, (conteo.get(clave) ?? 0) + 1);
     });
@@ -895,11 +942,12 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
     const ciclos = await obtenerCiclosAdministrados(req);
 
     const filas = [
-      ['paciente', 'rut', 'protocolo', 'numeroCiclo', 'sillon', 'fechaInicioReal', 'fechaTerminoReal', 'administradoPor'].join(','),
+      ['paciente', 'rut', 'protocolo', 'codigoGes', 'numeroCiclo', 'sillon', 'fechaInicioReal', 'fechaTerminoReal', 'administradoPor'].join(','),
       ...ciclos.map((c) => [
         JSON.stringify(c.receta?.paciente?.nombre ?? ''),
         c.receta?.paciente?.rut ?? '',
         JSON.stringify(c.receta?.protocolo ?? ''),
+        JSON.stringify(c.receta?.codigoGes ? `${c.receta.codigoGes.codigo} — ${c.receta.codigoGes.nombre}` : ''),
         c.numeroCiclo,
         JSON.stringify(c.sillon?.nombre ?? ''),
         c.fechaInicioReal ? new Date(c.fechaInicioReal).toISOString() : '',

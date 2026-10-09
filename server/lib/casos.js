@@ -62,6 +62,14 @@ export const VIAS_TRATAMIENTO = [
   { id: 'ambulatorio', label: 'Ambulatorio' },
 ];
 
+// Marcador manual mientras no existe integración con el sistema que identifica el financiamiento
+// del caso ANTES de llegar a oncología — alguien lo marca a mano acá, no se deriva de nada.
+export const FINANCIAMIENTOS = [
+  { id: 'ges', label: 'GES' },
+  { id: 'lrs', label: 'Ley Ricarte Soto (LRS)' },
+  { id: 'dac', label: 'DAC' },
+];
+
 export const MOTIVOS_CIERRE = [
   { id: 'descartado', label: 'Descartado (GES)' },
   { id: 'alta_oncologica', label: 'Alta oncológica' },
@@ -290,6 +298,8 @@ export function serializeCaso(caso) {
     motivoCierreLabel: caso.motivoCierre ? (MOTIVOS_CIERRE.find((m) => m.id === caso.motivoCierre)?.label ?? caso.motivoCierre) : null,
     fechaCierre: caso.fechaCierre,
     viaTratamiento: caso.viaTratamiento,
+    financiamiento: caso.financiamiento,
+    financiamientoLabel: caso.financiamiento ? (FINANCIAMIENTOS.find((f) => f.id === caso.financiamiento)?.label ?? caso.financiamiento) : null,
     gestor: caso.gestor ? { id: caso.gestor.id, name: caso.gestor.name, role: caso.gestor.role } : null,
     createdAt: caso.createdAt,
     updatedAt: caso.updatedAt,

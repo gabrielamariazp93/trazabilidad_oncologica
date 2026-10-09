@@ -72,7 +72,10 @@ export default function RecetaDetail({ receta, user, onVolver, onCambio }) {
                 {receta.estadoLabel}
               </span>
             </div>
-            <div className="text-sm text-slate-500 mt-1">RUT {receta.paciente?.rut} · {receta.protocolo}</div>
+            <div className="text-sm text-slate-500 mt-1">
+              RUT {receta.paciente?.rut} · {receta.protocolo}
+              {receta.codigoGes && <span className="ml-1.5 text-xs font-medium px-1.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700">{receta.codigoGes.codigo}</span>}
+            </div>
             {receta.diagnostico && <div className="text-sm text-slate-600 mt-1">{receta.diagnostico}{receta.intencionLabel ? ` · ${receta.intencionLabel}` : ''}</div>}
             {receta.indicacion && <div className="text-sm text-slate-600 mt-1">{receta.indicacion}</div>}
             <div className="text-xs text-slate-400 mt-1">

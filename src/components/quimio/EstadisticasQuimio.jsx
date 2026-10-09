@@ -11,6 +11,7 @@ const GROUP_BY_OPCIONES = [
   { id: 'farmaco', label: 'Fármaco' },
   { id: 'sillon', label: 'Sillón' },
   { id: 'profesional', label: 'Profesional que administró' },
+  { id: 'ges', label: 'Código GES' },
 ];
 
 const ESTADO_RECETA_STYLES = {

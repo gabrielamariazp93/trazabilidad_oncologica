@@ -66,6 +66,9 @@ model CasoOncologico {
   fechaCierre       DateTime?
   gestorUserId      String?
   viaTratamiento    String?
+  // Marcador manual (GES/LRS/DAC/ninguno) mientras no existe integración real con el sistema que
+  // identifica el financiamiento del caso ANTES de llegar a oncología. No se deriva de nada acá.
+  financiamiento    String?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
@@ -265,6 +268,10 @@ model RecetaQuimio {
   pacienteId              String
   medicoUserId            String?
   esquemaId               String?
+  // Código GES del diagnóstico que motiva esta receta (ej. "Cáncer de mama"). Opcional — no
+  // bloquea el flujo de prescripción; su valor se usa para reportar/agrupar en Estadísticas una
+  // vez el ciclo queda administrado.
+  codigoGesId             String?
   protocolo               String
   indicacion              String?
   diagnostico             String?
@@ -289,11 +296,24 @@ model RecetaQuimio {
   medico       User?          @relation("RecetaMedico", fields: [medicoUserId], references: [id], onDelete: SetNull)
   farmaceutico User?          @relation("RecetaFarmaceutico", fields: [farmaciaUserId], references: [id], onDelete: SetNull)
   esquema      EsquemaQuimio? @relation(fields: [esquemaId], references: [id], onDelete: SetNull)
+  codigoGes    CodigoGes?     @relation(fields: [codigoGesId], references: [id], onDelete: SetNull)
   farmacos     DetalleRecetaFarmaco[]
   ciclos       CicloQuimio[]
 
   @@index([pacienteId])
   @@index([estado])
+}
+
+// Catálogo de códigos GES (Garantías Explícitas en Salud) — vacío hasta que se importe el
+// listado oficial real; mientras tanto, "codigo" se puede usar también para un identificador
+// interno provisorio si hace falta.
+model CodigoGes {
+  id      String  @id @default(cuid())
+  codigo  String  @unique
+  nombre  String
+  activo  Boolean @default(true)
+
+  recetas RecetaQuimio[]
 }
 
 // categoria: premedicacion (ej. Dexametasona 12h antes) | quimioterapia (las drogas citotóxicas

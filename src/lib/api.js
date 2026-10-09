@@ -143,6 +143,14 @@ export async function fetchEsquemaQuimio(id) {
   return request(`/quimio/esquemas/${id}`);
 }
 
+export async function fetchCodigosGes(q) {
+  return request(`/quimio/codigos-ges${buildQuery({ q })}`);
+}
+
+export async function crearCodigoGes(payload) {
+  return request('/quimio/codigos-ges', { method: 'POST', body: JSON.stringify(payload) });
+}
+
 export async function fetchDisponibilidadQuimio(fecha, duracionMin) {
   return request(`/quimio/disponibilidad${buildQuery({ fecha, duracionMin })}`);
 }

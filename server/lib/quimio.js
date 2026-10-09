@@ -297,6 +297,8 @@ export function serializeReceta(receta) {
     medico: receta.medico ? { id: receta.medico.id, name: receta.medico.name } : null,
     esquemaId: receta.esquemaId,
     esquema: receta.esquema ? { id: receta.esquema.id, nombre: receta.esquema.nombre } : null,
+    codigoGesId: receta.codigoGesId,
+    codigoGes: receta.codigoGes ? { id: receta.codigoGes.id, codigo: receta.codigoGes.codigo, nombre: receta.codigoGes.nombre } : null,
     protocolo: receta.protocolo,
     indicacion: receta.indicacion,
     diagnostico: receta.diagnostico,
@@ -365,6 +367,10 @@ export function serializeCiclo(ciclo) {
 
 export function serializeSillon(sillon) {
   return { id: sillon.id, nombre: sillon.nombre, activo: sillon.activo };
+}
+
+export function serializeCodigoGes(c) {
+  return { id: c.id, codigo: c.codigo, nombre: c.nombre, activo: c.activo };
 }
 
 // Arma la grilla sillón × día (rango [desde, hasta] inclusive) a partir de ciclos reales ya
