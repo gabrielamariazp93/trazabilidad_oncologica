@@ -1,0 +1,92 @@
+[
+  {
+    "esquema": "FOLFOX 6",
+    "base": "FOLFOX",
+    "codigoPpv": "2908070",
+    "familiaPpv": "FOLFOX (5 FLUOROURACILO - LEUCOVORINA - OXALIPLATINO) (CICLO)"
+  },
+  {
+    "esquema": "FOLFOX 4 D1",
+    "base": "FOLFOX",
+    "codigoPpv": "2908070",
+    "familiaPpv": "FOLFOX (5 FLUOROURACILO - LEUCOVORINA - OXALIPLATINO) (CICLO)"
+  },
+  {
+    "esquema": "FOLFOX 4 D2",
+    "base": "FOLFOX",
+    "codigoPpv": "2908070",
+    "familiaPpv": "FOLFOX (5 FLUOROURACILO - LEUCOVORINA - OXALIPLATINO) (CICLO)"
+  },
+  {
+    "esquema": "FOLFIRI",
+    "base": "FOLFIRI",
+    "codigoPpv": "2908066",
+    "familiaPpv": "FOLFIRI (5 FLUOROURACILO - LEUCOVORINA - IRINOTECAN) (CICLO)"
+  },
+  {
+    "esquema": "FOLFIRINOX",
+    "base": "FOLFIRINOX",
+    "codigoPpv": "2908019",
+    "familiaPpv": "FOLFIRINOX (5 FLUOROURACILO - LEUCOVORINA - OXALIPLATINO - IRINOTECAN) (CICLO)"
+  },
+  {
+    "esquema": "FLOT",
+    "base": "FLOT",
+    "codigoPpv": "2908007",
+    "familiaPpv": "FLOT (5 FLUOROURACILO - LEUCOVORINA - OXALIPLATINO - DOCETAXEL) PREOPERATORIO Y POST OPERATORIO (CICLO)"
+  },
+  {
+    "esquema": "BEP",
+    "base": "BEP",
+    "codigoPpv": "2908078",
+    "familiaPpv": "BEP (BLEOMICINA - ETOPÓSIDO - CISPLATINO) (CICLO)"
+  },
+  {
+    "esquema": "PEMBROLIZUMAB",
+    "base": "PEMBROLIZUMAB",
+    "codigoPpv": "2908128",
+    "familiaPpv": "PEMBROLIZUMAB (CICLO) **"
+  },
+  {
+    "esquema": "CETUXIMAB",
+    "base": "CETUXIMAB",
+    "codigoPpv": "2908021",
+    "familiaPpv": "CETUXIMAB (CICLO) **"
+  },
+  {
+    "esquema": "AZACITIDINA SC",
+    "base": "AZACITIDINA",
+    "codigoPpv": "2908054",
+    "familiaPpv": "AZACITIDINA (CICLO) **"
+  },
+  {
+    "esquema": "AZACITIDINA EV 5 DIAS",
+    "base": "AZACITIDINA",
+    "codigoPpv": "2908054",
+    "familiaPpv": "AZACITIDINA (CICLO) **"
+  },
+  {
+    "esquema": "AZACITIDINA EV 7 DIAS",
+    "base": "AZACITIDINA",
+    "codigoPpv": "2908054",
+    "familiaPpv": "AZACITIDINA (CICLO) **"
+  },
+  {
+    "esquema": "DOCETAXEL",
+    "base": "DOCETAXEL",
+    "codigoPpv": "2908077",
+    "familiaPpv": "DOCETAXEL (CICLO)"
+  },
+  {
+    "esquema": "GEMCITABINA",
+    "base": "GEMCITABINA",
+    "codigoPpv": "2908036",
+    "familiaPpv": "GEMCITABINA (CICLO)"
+  },
+  {
+    "esquema": "PEMETREXED/CISPLATINO",
+    "base": "PEMETREXED - CISPLATINO",
+    "codigoPpv": "2908071",
+    "familiaPpv": "PEMETREXED - CISPLATINO (CICLO)"
+  }
+]

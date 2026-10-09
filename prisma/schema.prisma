@@ -212,9 +212,16 @@ model EsquemaQuimio {
   id     String  @id @default(cuid())
   nombre String  @unique
   activo Boolean @default(true)
+  // Código PPV no GES (REM) equivalente, cuando hay una correspondencia exacta y sin ambigüedad
+  // de nombre entre el esquema y un código PPV (prisma/data/_analizar_relacion_esquema_ppv.js) —
+  // deliberadamente no se fuerza para todos los esquemas: varios no tienen una correspondencia
+  // segura (distinta convención de abreviaturas, o el código PPV distingue línea de tratamiento
+  // y el nombre del esquema no alcanza para saber cuál).
+  codigoPpvId String?
 
-  lineas  EsquemaFarmacoLinea[]
-  recetas RecetaQuimio[]
+  lineas    EsquemaFarmacoLinea[]
+  recetas   RecetaQuimio[]
+  codigoPpv CodigoPpvNoGes? @relation(fields: [codigoPpvId], references: [id], onDelete: SetNull)
 }
 
 model EsquemaFarmacoLinea {
@@ -346,7 +353,8 @@ model CodigoPpvNoGes {
   intervencionSanitaria String?
   activo                Boolean @default(true)
 
-  recetas RecetaQuimio[]
+  recetas  RecetaQuimio[]
+  esquemas EsquemaQuimio[]
 
   @@unique([codigo, glosaTrazadora])
 }

@@ -87,7 +87,7 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
     if (!requireAuth(req, res)) return;
     const q = typeof req.query.q === 'string' ? req.query.q.trim() : '';
     const where = { activo: true, ...(q ? { nombre: { contains: q, mode: 'insensitive' } } : {}) };
-    const esquemas = await prisma.esquemaQuimio.findMany({ where, orderBy: { nombre: 'asc' } });
+    const esquemas = await prisma.esquemaQuimio.findMany({ where, orderBy: { nombre: 'asc' }, include: { codigoPpv: true } });
     res.json({ esquemas: esquemas.map(serializeEsquema) });
   });
 
@@ -95,7 +95,7 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
     if (!requireAuth(req, res)) return;
     const esquema = await prisma.esquemaQuimio.findUnique({
       where: { id: req.params.id },
-      include: { lineas: { orderBy: { orden: 'asc' } } },
+      include: { lineas: { orderBy: { orden: 'asc' } }, codigoPpv: true },
     });
     if (!esquema) {
       res.status(404).json({ error: 'Esquema no encontrado.' });

@@ -313,6 +313,8 @@ export function serializeEsquema(esquema) {
     id: esquema.id,
     nombre: esquema.nombre,
     activo: esquema.activo,
+    codigoPpvId: esquema.codigoPpvId,
+    codigoPpv: esquema.codigoPpv ? serializeCodigoPpv(esquema.codigoPpv) : null,
     lineas: esquema.lineas ? esquema.lineas.map(serializeLineaEsquema) : undefined,
   };
 }

@@ -84,6 +84,12 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
     setEsquemaId(esquemaBasico.id);
     setEsquemaNombre(esquemaBasico.nombre);
     setProtocolo(esquemaBasico.nombre);
+    // Si el esquema tiene un código PPV no GES vinculado (coincidencia exacta conocida), se
+    // autocompleta — igual que elegir el código a mano, pero en la otra dirección.
+    if (esquemaBasico.codigoPpvId) {
+      setCodigoPpvId(esquemaBasico.codigoPpvId);
+      setCodigoGesId('');
+    }
 
     const { esquema } = await fetchEsquemaQuimio(esquemaBasico.id);
     if (!esquema.lineas?.length) return;
