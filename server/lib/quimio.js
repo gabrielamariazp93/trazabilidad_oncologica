@@ -65,6 +65,15 @@ export const RIESGO_EMETICO_LABELS = {
   alto: 'Alto',
 };
 
+export const ESTADIOS = ['I', 'II', 'III', 'IV'];
+
+export const ESTADIO_LABELS = {
+  I: 'Etapa I',
+  II: 'Etapa II',
+  III: 'Etapa III',
+  IV: 'Etapa IV',
+};
+
 // Fórmula de Mosteller — la misma que usan la mayoría de los protocolos de quimio para calcular
 // superficie corporal a partir de peso/talla.
 export function calcularSuperficieCorporal(pesoKg, tallaCm) {
@@ -212,7 +221,15 @@ export function rolPuedeAccion(role, accion) {
 // Aplica una transición de estado a un CicloQuimio: valida que el estado actual admita la
 // acción, actualiza los campos correspondientes y deja constancia en HistorialCiclo (misma idea
 // que aplicarHito en casos.js). La validación de rol ya se hizo en el router antes de llamar acá.
-export async function aplicarTransicionCiclo(tx, { ciclo, accion, actorUserId, comentario, fecha, observaciones, reaccionAdversa }) {
+// `detalle`: campos opcionales de la planilla real que se completan en pasos específicos —
+// preparación (lote/caducidad/laboratorio/volúmenes/visados, con "marcar_listo") o acceso
+// vascular (catéter/refluye/perfunde/enfermera que punciona/días puncionado, con
+// "iniciar_administracion"/"finalizar_administracion"). Se guardan tal cual si vienen, sin
+// exigirlos — la planilla real tampoco los completa todos de una vez.
+const CAMPOS_PREPARACION = ['lote', 'fechaCaducidadLote', 'laboratorio', 'volumenDosisMl', 'volumenSueroMl', 'volumenFinalMl', 'volumenResidualMl', 'vistoBuenoFarmaceutico', 'vistoBuenoQuimico'];
+const CAMPOS_ACCESO_VASCULAR = ['cateterTipo', 'instalacionCateter', 'refluye', 'perfunde', 'enfPuncionaUserId', 'diasPuncionado'];
+
+export async function aplicarTransicionCiclo(tx, { ciclo, accion, actorUserId, comentario, fecha, observaciones, reaccionAdversa, detalle }) {
   const definicion = ACCIONES_CICLO[accion];
   if (!definicion) throw new Error(`Acción desconocida: ${accion}`);
   if (!definicion.desde.includes(ciclo.estado)) {
@@ -226,15 +243,26 @@ export async function aplicarTransicionCiclo(tx, { ciclo, accion, actorUserId, c
   const data = { estado: definicion.hacia };
 
   if (accion === 'iniciar_preparacion') data.preparadoPorUserId = actorUserId ?? null;
-  if (accion === 'marcar_listo') data.fechaPreparacion = ahora;
+  if (accion === 'marcar_listo') {
+    data.fechaPreparacion = ahora;
+    for (const campo of CAMPOS_PREPARACION) {
+      if (detalle?.[campo] !== undefined) data[campo] = campo === 'fechaCaducidadLote' && detalle[campo] ? new Date(detalle[campo]) : detalle[campo];
+    }
+  }
   if (accion === 'iniciar_administracion') {
     data.administradoPorUserId = actorUserId ?? null;
     data.fechaInicioReal = ahora;
+    for (const campo of CAMPOS_ACCESO_VASCULAR) {
+      if (detalle?.[campo] !== undefined) data[campo] = detalle[campo];
+    }
   }
   if (accion === 'finalizar_administracion') {
     data.fechaTerminoReal = ahora;
     if (observaciones !== undefined) data.observaciones = observaciones;
     if (reaccionAdversa !== undefined) data.reaccionAdversa = !!reaccionAdversa;
+    for (const campo of CAMPOS_ACCESO_VASCULAR) {
+      if (detalle?.[campo] !== undefined) data[campo] = detalle[campo];
+    }
   }
   if (accion === 'suspender') data.motivoSuspension = comentario;
 
@@ -304,6 +332,8 @@ export function serializeReceta(receta) {
     protocolo: receta.protocolo,
     indicacion: receta.indicacion,
     diagnostico: receta.diagnostico,
+    estadio: receta.estadio,
+    estadioLabel: receta.estadio ? (ESTADIO_LABELS[receta.estadio] ?? receta.estadio) : null,
     intencion: receta.intencion,
     intencionLabel: receta.intencion ? (INTENCION_LABELS[receta.intencion] ?? receta.intencion) : null,
     riesgoEmetico: receta.riesgoEmetico,
@@ -352,6 +382,23 @@ export function serializeCiclo(ciclo) {
     reaccionAdversa: ciclo.reaccionAdversa,
     observaciones: ciclo.observaciones,
     motivoSuspension: ciclo.motivoSuspension,
+    // Preparación (Químico Farmacéutico): trazabilidad de lote + volúmenes + doble visado.
+    lote: ciclo.lote,
+    fechaCaducidadLote: ciclo.fechaCaducidadLote,
+    laboratorio: ciclo.laboratorio,
+    volumenDosisMl: ciclo.volumenDosisMl,
+    volumenSueroMl: ciclo.volumenSueroMl,
+    volumenFinalMl: ciclo.volumenFinalMl,
+    volumenResidualMl: ciclo.volumenResidualMl,
+    vistoBuenoFarmaceutico: ciclo.vistoBuenoFarmaceutico,
+    vistoBuenoQuimico: ciclo.vistoBuenoQuimico,
+    // Acceso vascular (administración).
+    cateterTipo: ciclo.cateterTipo,
+    instalacionCateter: ciclo.instalacionCateter,
+    refluye: ciclo.refluye,
+    perfunde: ciclo.perfunde,
+    enfPunciona: ciclo.enfPunciona ? { id: ciclo.enfPunciona.id, name: ciclo.enfPunciona.name } : null,
+    diasPuncionado: ciclo.diasPuncionado,
     createdAt: ciclo.createdAt,
     updatedAt: ciclo.updatedAt,
     historial: ciclo.historial

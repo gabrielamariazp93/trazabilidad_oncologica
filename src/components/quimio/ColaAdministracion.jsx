@@ -13,6 +13,8 @@ export default function ColaAdministracion({ user }) {
   const [cicloFinalizando, setCicloFinalizando] = useState(null);
   const [observaciones, setObservaciones] = useState('');
   const [reaccionAdversa, setReaccionAdversa] = useState(false);
+  const [cicloIniciando, setCicloIniciando] = useState(null);
+  const [accesoVascular, setAccesoVascular] = useState({ cateterTipo: '', instalacionCateter: '', refluye: false, perfunde: false, diasPuncionado: '' });
 
   const cargar = useCallback(async () => {
     setCargando(true);
@@ -57,6 +59,23 @@ export default function ColaAdministracion({ user }) {
     if (motivo && motivo.trim()) ejecutar(ciclo, 'suspender', { comentario: motivo.trim() });
   }
 
+  function abrirFormIniciar(ciclo) {
+    setCicloIniciando(ciclo.id);
+    setAccesoVascular({ cateterTipo: '', instalacionCateter: '', refluye: false, perfunde: false, diasPuncionado: '' });
+  }
+
+  function confirmarIniciar(ciclo) {
+    const detalle = {
+      cateterTipo: accesoVascular.cateterTipo.trim() || undefined,
+      instalacionCateter: accesoVascular.instalacionCateter.trim() || undefined,
+      refluye: accesoVascular.refluye,
+      perfunde: accesoVascular.perfunde,
+      diasPuncionado: accesoVascular.diasPuncionado ? Number(accesoVascular.diasPuncionado) : undefined,
+    };
+    ejecutar(ciclo, 'iniciar_administracion', { detalle });
+    setCicloIniciando(null);
+  }
+
   return (
     <div>
       <h2 className="text-lg font-semibold text-slate-800 mb-4">Cola de administración — Enfermería</h2>
@@ -81,13 +100,13 @@ export default function ColaAdministracion({ user }) {
                   {ciclo.estadoLabel}
                 </span>
               </div>
-              {puedeActuar && (
+              {puedeActuar && cicloIniciando !== ciclo.id && (
                 <div className="flex items-center gap-2">
                   {ciclo.estado === 'listo_para_administrar' && (
                     <button
                       type="button"
                       disabled={procesando === ciclo.id}
-                      onClick={() => ejecutar(ciclo, 'iniciar_administracion')}
+                      onClick={() => abrirFormIniciar(ciclo)}
                       className="flex items-center gap-1.5 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-md px-3 py-1.5"
                     >
                       <Syringe className="w-4 h-4" /> Iniciar administración
@@ -113,6 +132,38 @@ export default function ColaAdministracion({ user }) {
                 </div>
               )}
             </div>
+
+            {cicloIniciando === ciclo.id && (
+              <div className="border-t border-slate-100 mt-3 pt-3">
+                <div className="text-xs font-medium text-slate-500 mb-2">Acceso vascular (opcional)</div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <input value={accesoVascular.cateterTipo} onChange={(e) => setAccesoVascular((a) => ({ ...a, cateterTipo: e.target.value }))} placeholder="Tipo de catéter" className="border border-slate-300 rounded-md px-2 py-1.5 text-sm" />
+                  <input value={accesoVascular.instalacionCateter} onChange={(e) => setAccesoVascular((a) => ({ ...a, instalacionCateter: e.target.value }))} placeholder="Instalación" className="border border-slate-300 rounded-md px-2 py-1.5 text-sm" />
+                  <input type="number" value={accesoVascular.diasPuncionado} onChange={(e) => setAccesoVascular((a) => ({ ...a, diasPuncionado: e.target.value }))} placeholder="Días puncionado" className="border border-slate-300 rounded-md px-2 py-1.5 text-sm" />
+                </div>
+                <div className="flex items-center gap-4 mt-2">
+                  <label className="flex items-center gap-1.5 text-sm text-slate-600">
+                    <input type="checkbox" checked={accesoVascular.refluye} onChange={(e) => setAccesoVascular((a) => ({ ...a, refluye: e.target.checked }))} />
+                    Refluye
+                  </label>
+                  <label className="flex items-center gap-1.5 text-sm text-slate-600">
+                    <input type="checkbox" checked={accesoVascular.perfunde} onChange={(e) => setAccesoVascular((a) => ({ ...a, perfunde: e.target.checked }))} />
+                    Perfunde
+                  </label>
+                </div>
+                <div className="flex justify-end gap-2 mt-3">
+                  <button type="button" onClick={() => setCicloIniciando(null)} className="text-sm text-slate-500 px-3 py-1.5">Cancelar</button>
+                  <button
+                    type="button"
+                    disabled={procesando === ciclo.id}
+                    onClick={() => confirmarIniciar(ciclo)}
+                    className="flex items-center gap-1.5 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-md px-3 py-1.5"
+                  >
+                    <Syringe className="w-4 h-4" /> Confirmar inicio
+                  </button>
+                </div>
+              </div>
+            )}
 
             {cicloFinalizando === ciclo.id && (
               <div className="border-t border-slate-100 mt-3 pt-3 space-y-2">

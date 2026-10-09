@@ -25,6 +25,7 @@ model User {
   recetasComoFarmaceutico RecetaQuimio[]  @relation("RecetaFarmaceutico")
   ciclosPreparados        CicloQuimio[]   @relation("CicloPreparadoPor")
   ciclosAdministrados     CicloQuimio[]   @relation("CicloAdministradoPor")
+  ciclosPuncionados       CicloQuimio[]   @relation("CicloEnfPunciona")
   historialCiclos         HistorialCiclo[] @relation("HistorialCicloActor")
 }
 
@@ -278,6 +279,9 @@ model RecetaQuimio {
   protocolo               String
   indicacion              String?
   diagnostico             String?
+  // Etapa del cáncer (I/II/III/IV) — afecta directamente qué código GES corresponde (ej. "CA
+  // MAMA Etapa I_II" vs "Etapa III" vs "Etapa IV" son códigos GES distintos).
+  estadio                 String?
   intencion               String?
   riesgoEmetico           String?
   numeroCiclosTotal       Int
@@ -396,13 +400,37 @@ model CicloQuimio {
   reaccionAdversa       Boolean   @default(false)
   observaciones         String?
   motivoSuspension      String?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
+
+  // --- Preparación (Químico Farmacéutico) — de la planilla real "Planilla Quimicos
+  // farmaceuticos": trazabilidad de lote + volúmenes de reconstitución + doble visado. Se
+  // completan al marcar el ciclo listo para administrar.
+  lote                   String?
+  fechaCaducidadLote     DateTime?
+  laboratorio            String?
+  volumenDosisMl         Float?
+  volumenSueroMl         Float?
+  volumenFinalMl         Float?
+  volumenResidualMl      Float?
+  vistoBuenoFarmaceutico Boolean   @default(false)
+  vistoBuenoQuimico      Boolean   @default(false)
+
+  // --- Acceso vascular (administración) — de "Estadística quimioterapia": estado del catéter/
+  // punción. Se completan al administrar.
+  cateterTipo        String?
+  instalacionCateter String?
+  refluye            Boolean?
+  perfunde           Boolean?
+  enfPuncionaUserId  String?
+  diasPuncionado     Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   receta          RecetaQuimio     @relation(fields: [recetaId], references: [id], onDelete: Cascade)
   sillon          Sillon?          @relation(fields: [sillonId], references: [id], onDelete: SetNull)
   preparadoPor    User?            @relation("CicloPreparadoPor", fields: [preparadoPorUserId], references: [id], onDelete: SetNull)
   administradoPor User?            @relation("CicloAdministradoPor", fields: [administradoPorUserId], references: [id], onDelete: SetNull)
+  enfPunciona     User?            @relation("CicloEnfPunciona", fields: [enfPuncionaUserId], references: [id], onDelete: SetNull)
   historial       HistorialCiclo[]
   notificaciones  Notificacion[]
 

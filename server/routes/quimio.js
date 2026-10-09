@@ -50,6 +50,7 @@ const CICLO_INCLUDE = {
   sillon: true,
   preparadoPor: true,
   administradoPor: true,
+  enfPunciona: true,
   historial: { orderBy: { fecha: 'asc' }, include: { actor: true } },
 };
 
@@ -232,7 +233,7 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
   router.post('/quimio/recetas', async (req, res) => {
     if (!requireRoles(req, res, RECETA_EDITOR_ROLES)) return;
     const {
-      pacienteId, esquemaId, codigoGesId, codigoPpvId, protocolo, indicacion, diagnostico, intencion, riesgoEmetico,
+      pacienteId, esquemaId, codigoGesId, codigoPpvId, protocolo, indicacion, diagnostico, estadio, intencion, riesgoEmetico,
       numeroCiclosTotal, intervaloDias, pesoKg, tallaCm, superficieCorporal,
       otrasIndicaciones, neupogenIndicado, neupogenDias, farmacos,
     } = req.body ?? {};
@@ -258,6 +259,7 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
         protocolo,
         indicacion: indicacion ?? null,
         diagnostico: diagnostico ?? null,
+        estadio: estadio ?? null,
         intencion: intencion ?? null,
         riesgoEmetico: riesgoEmetico ?? null,
         numeroCiclosTotal: Number(numeroCiclosTotal),
@@ -294,7 +296,7 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
     }
 
     const {
-      esquemaId, codigoGesId, codigoPpvId, protocolo, indicacion, diagnostico, intencion, riesgoEmetico,
+      esquemaId, codigoGesId, codigoPpvId, protocolo, indicacion, diagnostico, estadio, intencion, riesgoEmetico,
       numeroCiclosTotal, intervaloDias, pesoKg, tallaCm, superficieCorporal,
       otrasIndicaciones, neupogenIndicado, neupogenDias, farmacos,
     } = req.body ?? {};
@@ -305,6 +307,7 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
     if (protocolo !== undefined) data.protocolo = protocolo;
     if (indicacion !== undefined) data.indicacion = indicacion;
     if (diagnostico !== undefined) data.diagnostico = diagnostico;
+    if (estadio !== undefined) data.estadio = estadio;
     if (intencion !== undefined) data.intencion = intencion;
     if (riesgoEmetico !== undefined) data.riesgoEmetico = riesgoEmetico;
     if (numeroCiclosTotal !== undefined) data.numeroCiclosTotal = Number(numeroCiclosTotal);
@@ -867,7 +870,7 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
 
   router.post('/quimio/ciclos/:id/transicion', async (req, res) => {
     if (!requireAuth(req, res)) return;
-    const { accion, comentario, fecha, observaciones, reaccionAdversa } = req.body ?? {};
+    const { accion, comentario, fecha, observaciones, reaccionAdversa, detalle } = req.body ?? {};
     if (!accion || !ACCIONES_CICLO[accion]) {
       res.status(400).json({ error: `accion inválida. Opciones: ${Object.keys(ACCIONES_CICLO).join(', ')}.` });
       return;
@@ -882,7 +885,7 @@ export function createQuimioRouter({ prisma, requireAuth, requireRoles }) {
 
     try {
       await prisma.$transaction(async (tx) => {
-        await aplicarTransicionCiclo(tx, { ciclo, accion, actorUserId: req.authUser.id, comentario, fecha, observaciones, reaccionAdversa });
+        await aplicarTransicionCiclo(tx, { ciclo, accion, actorUserId: req.authUser.id, comentario, fecha, observaciones, reaccionAdversa, detalle });
       });
     } catch (error) {
       res.status(400).json({ error: error.message });

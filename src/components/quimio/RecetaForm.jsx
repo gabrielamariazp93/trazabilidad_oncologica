@@ -19,6 +19,7 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
   const [resultadosEsquema, setResultadosEsquema] = useState([]);
   const [protocolo, setProtocolo] = useState('');
   const [diagnostico, setDiagnostico] = useState('');
+  const [estadio, setEstadio] = useState('');
   const [codigoGesId, setCodigoGesId] = useState('');
   const [codigosGes, setCodigosGes] = useState([]);
   const [codigoPpvId, setCodigoPpvId] = useState('');
@@ -184,6 +185,7 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
         codigoPpvId: codigoPpvId || null,
         protocolo: protocolo.trim(),
         diagnostico: diagnostico.trim() || null,
+        estadio: estadio || null,
         indicacion: indicacion.trim() || null,
         intencion: intencion || null,
         riesgoEmetico: riesgoEmetico || null,
@@ -372,6 +374,15 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">Diagnóstico</label>
               <input value={diagnostico} onChange={(e) => setDiagnostico(e.target.value)} className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Estadío</label>
+              <select value={estadio} onChange={(e) => setEstadio(e.target.value)} className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm">
+                <option value="">Sin especificar</option>
+                {bootstrap.quimio.estadios.map((o) => (
+                  <option key={o.id} value={o.id}>{o.label}</option>
+                ))}
+              </select>
             </div>
             <div className="col-span-2 grid grid-cols-2 gap-3">
               <div>

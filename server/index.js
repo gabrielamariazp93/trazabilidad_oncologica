@@ -34,6 +34,8 @@ import {
   ACCIONES_CICLO,
   CATEGORIA_FARMACO_LABELS,
   CATEGORIAS_FARMACO,
+  ESTADIO_LABELS,
+  ESTADIOS,
   ESTADO_CICLO_LABELS,
   ESTADO_RECETA_LABELS,
   ESTADOS_RECETA,
@@ -180,6 +182,7 @@ app.get('/api/bootstrap', async (_req, res) => {
       categoriasFarmaco: CATEGORIAS_FARMACO.map((id) => ({ id, label: CATEGORIA_FARMACO_LABELS[id] })),
       intenciones: INTENCIONES.map((id) => ({ id, label: INTENCION_LABELS[id] })),
       riesgosEmeticos: RIESGOS_EMETICOS.map((id) => ({ id, label: RIESGO_EMETICO_LABELS[id] })),
+      estadios: ESTADIOS.map((id) => ({ id, label: ESTADIO_LABELS[id] })),
     },
   });
 });

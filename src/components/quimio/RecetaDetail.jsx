@@ -77,7 +77,7 @@ export default function RecetaDetail({ receta, user, onVolver, onCambio }) {
               {receta.codigoGes && <span className="ml-1.5 text-xs font-medium px-1.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700" title={receta.codigoGes.familia}>GES {receta.codigoGes.codigo}</span>}
               {receta.codigoPpv && <span className="ml-1.5 text-xs font-medium px-1.5 py-0.5 rounded-full bg-slate-200 text-slate-700" title={receta.codigoPpv.glosaTrazadora}>PPV {receta.codigoPpv.codigo}</span>}
             </div>
-            {receta.diagnostico && <div className="text-sm text-slate-600 mt-1">{receta.diagnostico}{receta.intencionLabel ? ` · ${receta.intencionLabel}` : ''}</div>}
+            {receta.diagnostico && <div className="text-sm text-slate-600 mt-1">{receta.diagnostico}{receta.estadioLabel ? ` · ${receta.estadioLabel}` : ''}{receta.intencionLabel ? ` · ${receta.intencionLabel}` : ''}</div>}
             {receta.indicacion && <div className="text-sm text-slate-600 mt-1">{receta.indicacion}</div>}
             <div className="text-xs text-slate-400 mt-1">
               {receta.numeroCiclosTotal} ciclos · cada {receta.intervaloDias} días
