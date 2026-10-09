@@ -7,6 +7,23 @@ function farmacoVacio(categoria) {
   return { categoria, farmaco: '', dosis: '', unidad: categoria === 'quimioterapia' ? 'mg/m2' : 'mg', via: 'EV', frecuencia: '', clasificacion: '', duracionInfusionMin: '' };
 }
 
+function quitarTildes(s) {
+  return (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
+
+function normNombre(s) {
+  return quitarTildes(s).toUpperCase().trim().replace(/\s+/g, ' ');
+}
+
+// "FOLFOX (5 FLUOROURACILO...) (CICLO)" -> "FOLFOX" — mismo criterio que
+// prisma/data/_analizar_relacion_esquema_ppv.js, para comparar contra el nombre de un fármaco.
+function baseCodigoPpv(familia) {
+  let n = normNombre(familia);
+  const idx = n.indexOf('(');
+  if (idx > 0) n = n.slice(0, idx).trim();
+  return n.replace(/\*+$/, '').trim();
+}
+
 export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCreada }) {
   const [rutBusqueda, setRutBusqueda] = useState(pacienteInicial ? `${pacienteInicial.nombre} (${pacienteInicial.rut})` : '');
   const [resultados, setResultados] = useState([]);
@@ -16,14 +33,18 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
   const [esquemaId, setEsquemaId] = useState(null);
   const [esquemaNombre, setEsquemaNombre] = useState('');
   const [esquemas, setEsquemas] = useState([]);
+  // Nombres de las drogas que trajo el esquema elegido (para no proponer de nuevo un código PPV
+  // individual de una droga que ya está cubierta por el código del esquema completo) y el código
+  // PPV del esquema mismo, si tiene uno vinculado.
+  const [esquemaDrogasBase, setEsquemaDrogasBase] = useState([]);
+  const [esquemaCodigoPpvId, setEsquemaCodigoPpvId] = useState(null);
   const [protocolo, setProtocolo] = useState('');
   const [diagnostico, setDiagnostico] = useState('');
   const [estadio, setEstadio] = useState('');
-  // Una receta puede tributar más de una línea de producción/REM (ej. esquema base + un fármaco
-  // agregado aparte, cada uno su propio código) — por eso son listas, no un solo valor.
+  // Código(s) GES: elección manual, pueden ser varios (una receta puede tributar más de una
+  // línea de producción/REM).
   const [codigoGesIds, setCodigoGesIds] = useState([]);
   const [codigosGes, setCodigosGes] = useState([]);
-  const [codigoPpvIds, setCodigoPpvIds] = useState([]);
   const [codigosPpv, setCodigosPpv] = useState([]);
   const [clasifReferencia, setClasifReferencia] = useState({ dac: [], lrs: [] });
   const [indicacion, setIndicacion] = useState('');
@@ -86,15 +107,15 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
     setEsquemaId(esquemaBasico.id);
     setEsquemaNombre(esquemaBasico.nombre);
     setProtocolo(esquemaBasico.nombre);
-    // Si el esquema tiene un código PPV no GES vinculado (coincidencia exacta conocida), se
-    // agrega a la lista — igual que agregar el código a mano, pero en la otra dirección. No
-    // reemplaza códigos ya agregados (ej. un Trastuzumab agregado antes del esquema).
-    if (esquemaBasico.codigoPpvId) {
-      setCodigoPpvIds((ids) => (ids.includes(esquemaBasico.codigoPpvId) ? ids : [...ids, esquemaBasico.codigoPpvId]));
-    }
+    // El código PPV del esquema (si tiene uno vinculado) cuenta como su propia línea — las
+    // drogas que trae el esquema no vuelven a buscarse individualmente para no duplicar esa
+    // línea (ver derivedCodigosPpv más abajo).
+    setEsquemaCodigoPpvId(esquemaBasico.codigoPpvId ?? null);
 
     const { esquema } = await fetchEsquemaQuimio(esquemaBasico.id);
-    if (!esquema.lineas?.length) return;
+    if (!esquema.lineas?.length) { setEsquemaDrogasBase([]); return; }
+
+    setEsquemaDrogasBase(esquema.lineas.map((l) => l.droga));
 
     const primeraNumerica = esquema.lineas.find((l) => /^\d+$/.test(String(l.nCicloCalculado)));
     if (primeraNumerica) setNumeroCiclosTotal(Number(primeraNumerica.nCicloCalculado));
@@ -118,7 +139,38 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
   function quitarEsquema() {
     setEsquemaId(null);
     setEsquemaNombre('');
+    setEsquemaDrogasBase([]);
+    setEsquemaCodigoPpvId(null);
   }
+
+  // Códigos PPV no GES derivados de lo que hay en Quimioterapia en este momento: el código del
+  // esquema (si corresponde) cuenta como una línea, y cada fármaco agregado que NO sea parte de
+  // las drogas base del esquema se busca individualmente contra el catálogo — si agrega otro
+  // fármaco con coincidencia, se suma una línea más. Solo coincidencias exactas y sin ambigüedad
+  // (mismo criterio que la relación esquema-PPV), para no arriesgar un código incorrecto.
+  const codigosPpvDerivados = useMemo(() => {
+    const resultado = [];
+    const vistos = new Set();
+    if (esquemaCodigoPpvId) {
+      const c = codigosPpv.find((x) => x.id === esquemaCodigoPpvId);
+      if (c) { resultado.push(c); vistos.add(c.id); }
+    }
+    const baseEsquemaSet = new Set(esquemaDrogasBase.map(normNombre));
+    const yaBuscados = new Set();
+    quimioterapia.forEach((f) => {
+      const nombre = f.farmaco?.trim();
+      if (!nombre) return;
+      const norm = normNombre(nombre);
+      if (baseEsquemaSet.has(norm) || yaBuscados.has(norm)) return;
+      yaBuscados.add(norm);
+      const candidatos = codigosPpv.filter((c) => baseCodigoPpv(c.familia || c.glosaTrazadora) === norm);
+      if (candidatos.length === 1 && !vistos.has(candidatos[0].id)) {
+        resultado.push(candidatos[0]);
+        vistos.add(candidatos[0].id);
+      }
+    });
+    return resultado;
+  }, [esquemaCodigoPpvId, esquemaDrogasBase, quimioterapia, codigosPpv]);
 
   function makeSetters(lista, setLista, categoria) {
     return {
@@ -169,7 +221,7 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
         pacienteId: paciente.id,
         esquemaId,
         codigoGesIds,
-        codigoPpvIds,
+        codigoPpvIds: codigosPpvDerivados.map((c) => c.id),
         protocolo: protocolo.trim(),
         diagnostico: diagnostico.trim() || null,
         estadio: estadio || null,
@@ -343,6 +395,39 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
             )}
           </div>
 
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">Códigos GES (opcional, pueden ser varios)</label>
+            <select
+              value=""
+              onChange={(e) => {
+                const id = e.target.value;
+                if (id) setCodigoGesIds((ids) => (ids.includes(id) ? ids : [...ids, id]));
+              }}
+              className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm"
+            >
+              <option value="">+ Agregar código GES…</option>
+              {codigosGes.filter((c) => !codigoGesIds.includes(c.id)).map((c) => (
+                <option key={c.id} value={c.id}>{c.codigo} — {c.familia}</option>
+              ))}
+            </select>
+            {!codigosGes.length && <div className="text-xs text-slate-400 mt-1">Catálogo vacío por ahora.</div>}
+            {codigoGesIds.length > 0 && (
+              <div className="mt-1.5 flex flex-wrap gap-1.5">
+                {codigoGesIds.map((id) => {
+                  const c = codigosGes.find((x) => x.id === id);
+                  return (
+                    <span key={id} className="flex items-center gap-1 bg-indigo-50 text-indigo-700 text-xs rounded-full px-2 py-1">
+                      {c ? `${c.codigo} — ${c.familia}` : id}
+                      <button type="button" onClick={() => setCodigoGesIds((ids) => ids.filter((x) => x !== id))} className="text-indigo-400 hover:text-indigo-700">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div className="col-span-2">
               <label className="block text-xs font-medium text-slate-500 mb-1">Protocolo / esquema</label>
@@ -360,75 +445,6 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
                   <option key={o.id} value={o.id}>{o.label}</option>
                 ))}
               </select>
-            </div>
-            <div className="col-span-2 grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-slate-500 mb-1">Códigos GES (opcional, pueden ser varios)</label>
-                <select
-                  value=""
-                  onChange={(e) => {
-                    const id = e.target.value;
-                    if (id) setCodigoGesIds((ids) => (ids.includes(id) ? ids : [...ids, id]));
-                  }}
-                  className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm"
-                >
-                  <option value="">+ Agregar código GES…</option>
-                  {codigosGes.filter((c) => !codigoGesIds.includes(c.id)).map((c) => (
-                    <option key={c.id} value={c.id}>{c.codigo} — {c.familia}</option>
-                  ))}
-                </select>
-                {!codigosGes.length && <div className="text-xs text-slate-400 mt-1">Catálogo vacío por ahora.</div>}
-                {codigoGesIds.length > 0 && (
-                  <div className="mt-1.5 space-y-1">
-                    {codigoGesIds.map((id) => {
-                      const c = codigosGes.find((x) => x.id === id);
-                      return (
-                        <div key={id} className="flex items-center justify-between bg-indigo-50 text-indigo-700 text-xs rounded-md px-2 py-1">
-                          <span>{c ? `${c.codigo} — ${c.familia}` : id}</span>
-                          <button type="button" onClick={() => setCodigoGesIds((ids) => ids.filter((x) => x !== id))} className="text-indigo-400 hover:text-indigo-700">
-                            <X className="w-3 h-3" />
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-slate-500 mb-1">Códigos PPV no GES (opcional, pueden ser varios)</label>
-                <select
-                  value=""
-                  onChange={(e) => {
-                    const id = e.target.value;
-                    if (!id) return;
-                    setCodigoPpvIds((ids) => (ids.includes(id) ? ids : [...ids, id]));
-                    const elegido = codigosPpv.find((c) => c.id === id);
-                    if (elegido && !protocolo.trim()) setProtocolo(elegido.glosaTrazadora);
-                  }}
-                  className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm"
-                >
-                  <option value="">+ Agregar código PPV no GES…</option>
-                  {codigosPpv.filter((c) => !codigoPpvIds.includes(c.id)).map((c) => (
-                    <option key={c.id} value={c.id}>{c.codigo} — {c.glosaTrazadora}</option>
-                  ))}
-                </select>
-                <div className="text-xs text-slate-400 mt-1">Para REM/tributación estadística — cada fármaco o esquema agregado puede sumar su propio código (ej. AC + Trastuzumab = 2 líneas).</div>
-                {codigoPpvIds.length > 0 && (
-                  <div className="mt-1.5 space-y-1">
-                    {codigoPpvIds.map((id) => {
-                      const c = codigosPpv.find((x) => x.id === id);
-                      return (
-                        <div key={id} className="flex items-center justify-between bg-slate-100 text-slate-700 text-xs rounded-md px-2 py-1">
-                          <span>{c ? `${c.codigo} — ${c.glosaTrazadora}` : id}</span>
-                          <button type="button" onClick={() => setCodigoPpvIds((ids) => ids.filter((x) => x !== id))} className="text-slate-400 hover:text-slate-700">
-                            <X className="w-3 h-3" />
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">Indicación</label>
@@ -486,6 +502,23 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
           <div className="space-y-4 border-t border-slate-100 pt-4">
             <Seccion titulo="Premedicación" ayuda="ej. Dexametasona 12 h antes" seccion={seccionPremedicacion} />
             <Seccion titulo="Quimioterapia" ayuda="drogas citotóxicas del esquema" seccion={seccionQuimioterapia} mostrarDuracion />
+
+            <div className="bg-slate-50 rounded-md px-3 py-2">
+              <div className="text-xs font-medium text-slate-500">Códigos PPV no GES (REM) — según los fármacos agregados arriba</div>
+              {!codigosPpvDerivados.length && (
+                <div className="text-xs text-slate-400 mt-1">Ninguno todavía. Se agregan solos a medida que el esquema o los fármacos de Quimioterapia coinciden con el catálogo.</div>
+              )}
+              {codigosPpvDerivados.length > 0 && (
+                <div className="mt-1.5 flex flex-wrap gap-1.5">
+                  {codigosPpvDerivados.map((c) => (
+                    <span key={c.id} className="bg-white border border-slate-200 text-slate-700 text-xs rounded-full px-2 py-1">
+                      {c.codigo} — {c.glosaTrazadora}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <Seccion titulo="Rescate / PRN" ayuda="indicaciones si hay vómitos, diarrea, etc." seccion={seccionRescate} />
           </div>
 
