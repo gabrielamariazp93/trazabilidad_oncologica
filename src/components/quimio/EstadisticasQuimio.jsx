@@ -12,6 +12,7 @@ const GROUP_BY_OPCIONES = [
   { id: 'sillon', label: 'Sillón' },
   { id: 'profesional', label: 'Profesional que administró' },
   { id: 'ges', label: 'Código GES' },
+  { id: 'ppv', label: 'Código PPV no GES' },
 ];
 
 const ESTADO_RECETA_STYLES = {

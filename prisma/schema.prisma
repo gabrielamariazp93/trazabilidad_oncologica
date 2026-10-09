@@ -272,6 +272,9 @@ model RecetaQuimio {
   // bloquea el flujo de prescripción; su valor se usa para reportar/agrupar en Estadísticas una
   // vez el ciclo queda administrado.
   codigoGesId             String?
+  // Código PPV no GES (REM) — mutuamente excluyente en la práctica con codigoGesId (una receta
+  // usa uno u otro, no ambos), igual que en la planilla de origen. No se fuerza a nivel de DB.
+  codigoPpvId             String?
   protocolo               String
   indicacion              String?
   diagnostico             String?
@@ -296,7 +299,8 @@ model RecetaQuimio {
   medico       User?          @relation("RecetaMedico", fields: [medicoUserId], references: [id], onDelete: SetNull)
   farmaceutico User?          @relation("RecetaFarmaceutico", fields: [farmaciaUserId], references: [id], onDelete: SetNull)
   esquema      EsquemaQuimio? @relation(fields: [esquemaId], references: [id], onDelete: SetNull)
-  codigoGes    CodigoGes?     @relation(fields: [codigoGesId], references: [id], onDelete: SetNull)
+  codigoGes    CodigoGes?       @relation(fields: [codigoGesId], references: [id], onDelete: SetNull)
+  codigoPpv    CodigoPpvNoGes?  @relation(fields: [codigoPpvId], references: [id], onDelete: SetNull)
   farmacos     DetalleRecetaFarmaco[]
   ciclos       CicloQuimio[]
 
@@ -304,16 +308,43 @@ model RecetaQuimio {
   @@index([estado])
 }
 
-// Catálogo de códigos GES (Garantías Explícitas en Salud) — vacío hasta que se importe el
-// listado oficial real; mientras tanto, "codigo" se puede usar también para un identificador
-// interno provisorio si hace falta.
+// Catálogo de códigos GES (Garantías Explícitas en Salud), importado desde la planilla real
+// "Base de codigos quimioterapia" (hoja "codificación actualizada GES"). "codigo" (la Trazadora)
+// NO es único por sí solo en los datos reales — un mismo código puede cubrir dos tratamientos
+// distintos (ej. "0101110" sirve tanto para leucemia crónica como aguda) — por eso la unicidad
+// es a nivel de fila completa (codigo + familia), no de "codigo" solo.
 model CodigoGes {
-  id      String  @id @default(cuid())
-  codigo  String  @unique
-  nombre  String
-  activo  Boolean @default(true)
+  id                    String  @id @default(cuid())
+  codigo                String
+  problemaSalud         String?
+  intervencionSanitaria String?
+  familia               String
+  glosaTrazadora        String?
+  frecuencia            String?
+  periodicidad          String?
+  activo                Boolean @default(true)
 
   recetas RecetaQuimio[]
+
+  @@unique([codigo, familia])
+  @@index([problemaSalud])
+}
+
+// Catálogo paralelo al de códigos GES, para tratamientos que NO califican GES pero igual se
+// codifican para REM/tributación estadística (hoja "PPV no GES" de la misma planilla). Una
+// receta usa como máximo uno de los dos (codigoGes O codigoPpv), igual que en la planilla de
+// origen de la usuaria ("Ingreso a QMT": columnas GES/CODIGO GES vs PPV NO GES/CODIGO CANASTA).
+model CodigoPpvNoGes {
+  id                    String  @id @default(cuid())
+  codigo                String
+  familia               String?
+  glosaTrazadora        String
+  intervencionSanitaria String?
+  activo                Boolean @default(true)
+
+  recetas RecetaQuimio[]
+
+  @@unique([codigo, glosaTrazadora])
 }
 
 // categoria: premedicacion (ej. Dexametasona 12h antes) | quimioterapia (las drogas citotóxicas

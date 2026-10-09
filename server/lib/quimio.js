@@ -298,7 +298,9 @@ export function serializeReceta(receta) {
     esquemaId: receta.esquemaId,
     esquema: receta.esquema ? { id: receta.esquema.id, nombre: receta.esquema.nombre } : null,
     codigoGesId: receta.codigoGesId,
-    codigoGes: receta.codigoGes ? { id: receta.codigoGes.id, codigo: receta.codigoGes.codigo, nombre: receta.codigoGes.nombre } : null,
+    codigoGes: receta.codigoGes ? serializeCodigoGes(receta.codigoGes) : null,
+    codigoPpvId: receta.codigoPpvId,
+    codigoPpv: receta.codigoPpv ? serializeCodigoPpv(receta.codigoPpv) : null,
     protocolo: receta.protocolo,
     indicacion: receta.indicacion,
     diagnostico: receta.diagnostico,
@@ -370,7 +372,28 @@ export function serializeSillon(sillon) {
 }
 
 export function serializeCodigoGes(c) {
-  return { id: c.id, codigo: c.codigo, nombre: c.nombre, activo: c.activo };
+  return {
+    id: c.id,
+    codigo: c.codigo,
+    problemaSalud: c.problemaSalud,
+    intervencionSanitaria: c.intervencionSanitaria,
+    familia: c.familia,
+    glosaTrazadora: c.glosaTrazadora,
+    frecuencia: c.frecuencia,
+    periodicidad: c.periodicidad,
+    activo: c.activo,
+  };
+}
+
+export function serializeCodigoPpv(c) {
+  return {
+    id: c.id,
+    codigo: c.codigo,
+    familia: c.familia,
+    glosaTrazadora: c.glosaTrazadora,
+    intervencionSanitaria: c.intervencionSanitaria,
+    activo: c.activo,
+  };
 }
 
 // Arma la grilla sillón × día (rango [desde, hasta] inclusive) a partir de ciclos reales ya

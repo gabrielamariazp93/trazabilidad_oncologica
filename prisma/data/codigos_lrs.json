@@ -1,0 +1,191 @@
+[
+  {
+    "enfermedad": "Mucopolisacaridosis Tipo I",
+    "examenConfirmacion": "Medición de actividad enzimática en fibroblastos o leucocitos",
+    "garantiaConfirmacion": "20 días desde la recepción del formulario electrónico de sospecha fundada y recepción de la muestra por parte del establecimiento confirmador",
+    "droga": "Laronidasa",
+    "garantiaInicioTratamiento": "60 días desde la confirmación diagnóstica"
+  },
+  {
+    "enfermedad": "Mucopolisacaridosis Tipo II",
+    "examenConfirmacion": "Medición de actividad enzimática en fibroblastos o leucocitos",
+    "garantiaConfirmacion": "20 días desde la recepción del formulario electrónico de sospecha fundada y recepción de la muestra por parte del establecimiento confirmador",
+    "droga": "Idursulfasa",
+    "garantiaInicioTratamiento": "60 días desde la confirmación diagnóstica"
+  },
+  {
+    "enfermedad": "Mucopolisacaridosis Tipo VI",
+    "examenConfirmacion": "Medición de actividad enzimática en fibroblastos o leucocitos",
+    "garantiaConfirmacion": "20 días desde la recepción del formulario electrónico de sospecha fundada y recepción de la muestra por parte del establecimiento confirmador",
+    "droga": "Galsulfasa",
+    "garantiaInicioTratamiento": "60 días desde la confirmación diagnóstica"
+  },
+  {
+    "enfermedad": "Tirosinemia Tipo 1",
+    "examenConfirmacion": "Succinilacetona por Espectrometría de Masas en Tandem",
+    "garantiaConfirmacion": "4 días hábiles desde la recepción del formulario electrónico sospecha fundada y recepción de la muestra (para continuidad de tratamiento)",
+    "droga": "Nitisinona",
+    "garantiaInicioTratamiento": "48 horas desde la sospecha"
+  },
+  {
+    "enfermedad": "Artritis Reumatoide en Adultos refractaria a tratamiento habitual",
+    "examenConfirmacion": "Examen/es de confirmación no garantizado",
+    "garantiaConfirmacion": "Confirmación por comité de expertos clínicos, según criterios de inclusión definidos en el protocolo",
+    "droga": "Etanercept Abatacept Adalimumab Rituximab Golimumab Tocilizumab Tofacitinib",
+    "garantiaInicioTratamiento": "60 días desde la indicación de aprobación del Comité de expertos clínicos y notificación del medico tratante"
+  },
+  {
+    "enfermedad": "Esclerosis Múltiple Refractaria a Tratamiento Habitual",
+    "examenConfirmacion": "Examen/es de confirmación no garantizado",
+    "garantiaConfirmacion": "Confirmación por comité de expertos clínicos, según criterios de inclusión definidos en el protocolo",
+    "droga": "Fingolimod Natalizumab Alemtuzumab Cladribina Ocrelizumab",
+    "garantiaInicioTratamiento": "60 días desde la indicación de aprobación del Comité de expertos clínicos y notificación del medico tratante"
+  },
+  {
+    "enfermedad": "Enfermedad de Gaucher",
+    "examenConfirmacion": "Medición de actividad enzimática en leucocitos",
+    "garantiaConfirmacion": "20 días desde la recepción del formulario electrónico de sospecha fundada y recepción de la muestra por parte del establecimiento confirmador",
+    "droga": "Taliglucerasa o Imiglucerasa",
+    "garantiaInicioTratamiento": "60 días desde la confirmación diagnóstica"
+  },
+  {
+    "enfermedad": "Enfermedad de Fabry",
+    "examenConfirmacion": "Medición de actividad enzimática en leucocitos (hombres) y estudio molecular(mujeres)",
+    "garantiaConfirmacion": "30 días desde la recepción del formulario electrónico de sospecha fundada y recepción de la muestra por parte del establecimiento confirmador",
+    "droga": "Agalsidasa",
+    "garantiaInicioTratamiento": "60 días desde la confirmación diagnóstica"
+  },
+  {
+    "enfermedad": "Hipertensión Arterial Pulmonar Grupo I",
+    "examenConfirmacion": "Cateterismo cardíaco",
+    "garantiaConfirmacion": "40 días hábiles desde la recepción del formulario electrónico de sospecha fundada por parte del establecimiento confirmador",
+    "droga": "Ambrisentan o Bosentan y/o Iloprost Inhalatorio",
+    "garantiaInicioTratamiento": "15 días desde la confirmación diagnóstica; 72 hrs en caso se estar hospitalizado en UCI"
+  },
+  {
+    "enfermedad": "Profilaxis virus respiratorio sincicial para prematuros",
+    "examenConfirmacion": "Sin examen de confirmación",
+    "garantiaConfirmacion": "Sin examen de confirmación",
+    "droga": "Palivizumab",
+    "garantiaInicioTratamiento": "Niños dados de alta en el periodo de mayor carga viral (mayo - septiembre), recibirán la 1era dosis a las 72 hrs del alta (durante el periodo de mayor circulación viral). Niños dados de alta entre enero y abril, recibirán de manera ambulatoria el mismo año de alta la dosis correspondiente, iniciando la primera dosis en mayo. Niños dados de alta entre octubre y diciembre recibirán la dosis correspondiente al año siguiente del alta, iniciando la primera dosis en mayo. (Mayo: inicio de mayor circulación carga viral). En los 3 casos deberán contar con la confirmación de tratamiento por parte del Comité de expertos clínicos y notificación del médico tratante."
+  },
+  {
+    "enfermedad": "Cáncer de Mamas HER2+",
+    "examenConfirmacion": "Sin examen de confirmación",
+    "garantiaConfirmacion": "Sin examen de confirmación",
+    "droga": "Tratuzumab",
+    "garantiaInicioTratamiento": "20 días desde la indicación de aprobación del Comité de expertos clínicos y notificación del medico tratante"
+  },
+  {
+    "enfermedad": "Enfermedad de Crohn grave",
+    "examenConfirmacion": "Sin examen de confirmación",
+    "garantiaConfirmacion": "Sin examen de confirmación",
+    "droga": "Infliximab o Adalimumab",
+    "garantiaInicioTratamiento": "• 7 días desde la indicación en pacientes con Enf. Crohn Grave hospitalizados y tendrá derecho a continuación en un plazo no mayor a 10 días desde la validación de su indicación por parte del Comité de Expertos Clínicos. • 30 días desde la confirmación de su indicación por parte del Comité de Expertos Clínicos en pacientes con Enf. Crohn grave No hospitalizado y pacientes con Fístulas Perianales complejas."
+  },
+  {
+    "enfermedad": "Nutrición Enteral Domiciliaria total o parcial para personas cuya condición de salud imposibilita la alimentación por vía oral",
+    "examenConfirmacion": "Sin examen de confirmación",
+    "garantiaConfirmacion": "Sin examen de confirmación",
+    "droga": "Fórmulas de alimentación enterales (poliméricas, oligoméricas, elementales o especiales) + Dispositivos médicos necesarios para administración",
+    "garantiaInicioTratamiento": "30 días desde la validación de su indicación por parte del Comité de Expertos Clínicos."
+  },
+  {
+    "enfermedad": "Diabetes tipo 1 inestable severa",
+    "examenConfirmacion": "Monitoreo Continuo de Glicemia",
+    "garantiaConfirmacion": "Sin plazos, se realiza previo a la solicitud de Bomba de insulina en el Centro de Referencia aprobado por el Minsal.",
+    "droga": "Bomba de Insulina con sensor de Glicemia + insumos",
+    "garantiaInicioTratamiento": "60 días desde la validación de su indicación por parte del Comité de Expertos Clínicos."
+  },
+  {
+    "enfermedad": "Angioedema Hereditario",
+    "examenConfirmacion": "Sin examen de confirmación",
+    "garantiaConfirmacion": "No hay",
+    "droga": "Inhibidor de C1 Esterasa",
+    "garantiaInicioTratamiento": "• Inmediato ante episodio agudo que afecte cara, cuello o abdomen en Servicio de Urgencia de la red de Prestadores Aprobados • 90 minutos ante episodio agudo que afecten partes distintas de cara, cuello o abdomen en Servicio de Urgencia de la red de Prestadores Aprobados • 2 horas máximo previo cirugía mayor, de cabeza, cuello u oral, siempre y cuando el Prestador Aprobado haya realizado la solicitud con 10 días de anticipación previo a la cirugía"
+  },
+  {
+    "enfermedad": "Hipoacusia sensorioneural bilateral severa o profunda postlocutiva",
+    "examenConfirmacion": "Sin examen de confirmación",
+    "garantiaConfirmacion": "No hay",
+    "droga": "• Implante Coclear Unilateral + Recambios de accesorios según vida útil • Reemplazo de procesador del habla cada 5 años.",
+    "garantiaInicioTratamiento": "• 90 días desde la validación de aprobación por parte del Comité de Expertos Clínicos aprobados en personas desde los 4 años. • 15 días desde la validación de aprobación por parte del Comité de Expertos Clínicos en personas desde los 4 años en pacientes con hipoacusia post meningitis o hipoacusia autoinmune bilateral."
+  },
+  {
+    "enfermedad": "Tumores neuroendocrinos",
+    "examenConfirmacion": "Sin examen de confirmación",
+    "garantiaConfirmacion": "No hay",
+    "droga": "Sunitinib o Everolimus",
+    "garantiaInicioTratamiento": "15 días desde la indicación de aprobación por parte del Comité de Expertos Clínicos en personas de 18 años y más."
+  },
+  {
+    "enfermedad": "Distonía generalizada",
+    "examenConfirmacion": "Sin examen de confirmación",
+    "garantiaConfirmacion": "No hay",
+    "droga": "• Dispositivo de Estimulación Cerebral Profunda (DECP): Generador de pulsos implantables, extensión y electrodos • Generador de pulsos implantables de reemplazo para DECP",
+    "garantiaInicioTratamiento": "• 30 días desde la validación de aprobación por parte del Comité de Expertos Clínicos para la entrega del DECP en el Centro de Referencia aprobado. • 150 días antes de que se cumpla 9 años desde implantación DCEP o última cirugía de reemplazo del generador de pulsos implantable, para la entrega del Generador de pulsos implantables de reemplazo en el Centro de Referencia aprobado"
+  },
+  {
+    "enfermedad": "Epidermólisis Bullosa (EB) distrófica y Juntural",
+    "examenConfirmacion": "Examen/es de confirmación no garantizado",
+    "garantiaConfirmacion": "Confirmación por comité de expertos clínicos, según criterios de inclusión definidos en el protocolo",
+    "droga": "Dispositivos de uso médico para curaciones",
+    "garantiaInicioTratamiento": "24 hrs. en recién nacidos con sospecha diagnóstica de EB. 48 hrs. una vez validada la solicitud por parte del Comité de Expertos Clínicos del Prestador Aprobado en personas con diagnóstico confirmado de EB infectados, hospitalizados o con indicación de cirugía. 30 días una vez validada la solicitud por parte del Comité de Expertos Clínicos del Prestador Aprobado en personas con diagnóstico confirmado de EB."
+  },
+  {
+    "enfermedad": "Esclerosis Lateral Amiotrófica (ELA)",
+    "examenConfirmacion": "Examen/es de confirmación no garantizado",
+    "garantiaConfirmacion": "Confirmación por comité de expertos clínicos, según criterios de inclusión definidos en el protocolo",
+    "droga": "Ayudas Técnicas para el desempeño de las actividades de la vida diaria, para el tratamiento rehabilitador y para el soporte vital",
+    "garantiaInicioTratamiento": "30 días desde la validación de la indicación por parte del Comité de Expertos Clínicos del Prestador Aprobado"
+  },
+  {
+    "enfermedad": "Tumores del estroma gastrointestinal no resecables o metastásicos",
+    "examenConfirmacion": "Examen Inmunohistoquímica de proteína c-kit/ CD117 y tomografía computada",
+    "garantiaConfirmacion": "30 días desde la recepción del formulario de sospecha fundada",
+    "droga": "Imatinib Sunitinib",
+    "garantiaInicioTratamiento": "20 días desde la validación de la indicación por parte del Comité de Expertos Clínicos del Prestador Aprobado"
+  },
+  {
+    "enfermedad": "Inmunodeficiencias primarias",
+    "examenConfirmacion": "Examen/es de confirmación no garantizado",
+    "garantiaConfirmacion": "Confirmación por comité de expertos clínicos, según criterios de inclusión definidos en el protocolo",
+    "droga": "Inmunoglobulina G (endovenosa o subcutánea)",
+    "garantiaInicioTratamiento": "14 días desde la validación de la indicación por parte del Comité de Expertos Clínicos del Prestador Aprobado"
+  },
+  {
+    "enfermedad": "Artritis Psoriásica Moderada a Grave Refractaria a Tratamiento Habitual",
+    "examenConfirmacion": "Examen/es de confirmación no garantizado",
+    "garantiaConfirmacion": "Confirmación por comité de expertos clínicos, según criterios de inclusión definidos en el protocolo",
+    "droga": "Golimumab Etanercept Adalimumab Secukinumab",
+    "garantiaInicioTratamiento": "60 días desde la validación de la indicación por parte del Comité de Expertos Clínicos del Prestador Aprobado"
+  },
+  {
+    "enfermedad": "Colitis Ulcerosa (CU) moderada",
+    "examenConfirmacion": "Examen/es de confirmación no garantizado",
+    "garantiaConfirmacion": "Confirmación por comité de expertos clínicos, según criterios de inclusión definidos en el protocolo",
+    "droga": "Golimumab Adalimumab Infliximab",
+    "garantiaInicioTratamiento": "3 días desde la validación de su indicación por parte del Comité de Expertos Clínicos del Prestador Aprobado (adultos y niños hospitalizados con crisis cortico refractaria). 30 días desde la validación de su indicación por parte del Comité de Expertos Clínicos del Prestador Aprobado (adultos y niños con CU moderada inmunorefractaria)."
+  },
+  {
+    "enfermedad": "Mielofibrosis",
+    "examenConfirmacion": "Examen/es de confirmación no garantizado",
+    "garantiaConfirmacion": "Confirmación por comité de expertos clínicos, según criterios de inclusión definidos en el protocolo",
+    "droga": "Ruxolitinib",
+    "garantiaInicioTratamiento": "60 días desde la validación de la indicación por parte del Comité de Expertos Clínicos del Prestador Aprobado"
+  },
+  {
+    "enfermedad": "Lupus Eritematoso Sistémico",
+    "examenConfirmacion": "Examen/es de confirmación no garantizado",
+    "garantiaConfirmacion": "Confirmación por comité de expertos clínicos, según criterios de inclusión definidos en el protocolo",
+    "droga": "Belimumab",
+    "garantiaInicioTratamiento": "60 días desde la validación de la indicación por parte del Comité de Expertos Clínicos del Prestador Aprobado"
+  },
+  {
+    "enfermedad": "Enfermedad de Huntington",
+    "examenConfirmacion": "Test de Repetición de CAG del exón 1 del Gen HTT",
+    "garantiaConfirmacion": "30 días desde la recepción del formulario de sospecha fundada y la muestra de sangre venosa",
+    "droga": "Tetrabenazina",
+    "garantiaInicioTratamiento": "60 días desde la validación de la indicación por parte del Comité de Expertos Clínicos del Prestador Aprobado"
+  }
+]

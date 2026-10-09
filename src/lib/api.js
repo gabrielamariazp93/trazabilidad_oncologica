@@ -147,8 +147,12 @@ export async function fetchCodigosGes(q) {
   return request(`/quimio/codigos-ges${buildQuery({ q })}`);
 }
 
-export async function crearCodigoGes(payload) {
-  return request('/quimio/codigos-ges', { method: 'POST', body: JSON.stringify(payload) });
+export async function fetchCodigosPpv(q) {
+  return request(`/quimio/codigos-ppv-no-ges${buildQuery({ q })}`);
+}
+
+export async function fetchClasificacionReferencia() {
+  return request('/quimio/clasificacion-referencia');
 }
 
 export async function fetchDisponibilidadQuimio(fecha, duracionMin) {

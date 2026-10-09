@@ -1,0 +1,1182 @@
+[
+  {
+    "codigo": "2505909",
+    "familia": "NEUTROPENIA FEBRIL NIVEL RIESGO BAJO ATENCION SECUNDARIA",
+    "glosaTrazadora": "NEUTROPENIA FEBRIL NIVEL RIESGO BAJO ATENCION SECUNDARIA",
+    "frecuenciaCantidad": 12,
+    "frecuenciaUnidad": "Año",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 109920
+  },
+  {
+    "codigo": "2505910",
+    "familia": "NEUTROPENIA FEBRIL NIVEL RIESGO ALTO ATENCION SECUNDARIA",
+    "glosaTrazadora": "NEUTROPENIA FEBRIL NIVEL RIESGO ALTO ATENCION SECUNDARIA",
+    "frecuenciaCantidad": 6,
+    "frecuenciaUnidad": "Año",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 877330
+  },
+  {
+    "codigo": "2505911",
+    "familia": "NEUTROPENIA FEBRIL NIVEL RIESGO MUY ALTO ATENCION SECUNDARIA",
+    "glosaTrazadora": "NEUTROPENIA FEBRIL NIVEL RIESGO MUY ALTO ATENCION SECUNDARIA",
+    "frecuenciaCantidad": 3,
+    "frecuenciaUnidad": "Año",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 4237800
+  },
+  {
+    "codigo": "2505942",
+    "familia": "INSTALACIÓN CATÉTER VENOSO CENTRAL DE INSERCIÓN PERIFÉRICA PARA TRATAMIENTO DE QUIMIOTERAPIA (INCLUYE CATÉTER CON RESERVORIO)",
+    "glosaTrazadora": "INSTALACIÓN DE RESERVORIO SUBCUTÁNEO (CATÉTER DE QUIMIOTERAPIA)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Año",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 436740
+  },
+  {
+    "codigo": "2505943",
+    "familia": "INSTALACIÓN CATÉTER VENOSO CENTRAL DE INSERCIÓN PERIFÉRICA PARA TRATAMIENTO DE QUIMIOTERAPIA (INCLUYE CATÉTER PICC)",
+    "glosaTrazadora": "INSTALACIÓN CATÉTER VENOSO CENTRAL DE INSERCIÓN PERIFÉRICA PARA TRATAMIENTO DE QUIMIOTERAPIA (INCLUYE CATÉTER PICC)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Año",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 303250
+  },
+  {
+    "codigo": "2908001",
+    "familia": "RITUXIMAB - BENDAMUSTINA (CICLO) **",
+    "glosaTrazadora": "RITUXIMAB - BENDAMUSTINA (CICLO) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 316800
+  },
+  {
+    "codigo": "2908005",
+    "familia": "VTD PACE (CICLO)",
+    "glosaTrazadora": "VTD PACE (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 229480
+  },
+  {
+    "codigo": "2908006",
+    "familia": "TIP (PACLITAXEL- IFOSFAMIDA - CISPLATINO) (CICLO)",
+    "glosaTrazadora": "TIP (PACLITAXEL- IFOSFAMIDA - CISPLATINO) (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 240290
+  },
+  {
+    "codigo": "2908007",
+    "familia": "FLOT (5 FLUOROURACILO - LEUCOVORINA - OXALIPLATINO - DOCETAXEL) PREOPERATORIO Y POST OPERATORIO (CICLO)",
+    "glosaTrazadora": "FLOT (5 FLUOROURACILO - LEUCOVORINA - OXALIPLATINO - DOCETAXEL) PREOPERATORIO Y POST OPERATORIO (CICLO)",
+    "frecuenciaCantidad": 2,
+    "frecuenciaUnidad": "Año",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 607850
+  },
+  {
+    "codigo": "2908010",
+    "familia": "VEIP (VINBLASTINA - IFOSFAMIDA - CISPLATINO - MESNA) (CICLO)",
+    "glosaTrazadora": "VEIP (VINBLASTINA - IFOSFAMIDA - CISPLATINO - MESNA) (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 353730
+  },
+  {
+    "codigo": "2908011",
+    "familia": "VIP (ETOPÓSIDO - CISPLATINO - IFOSFAMIDA - MESNA) (CICLO)",
+    "glosaTrazadora": "VIP (ETOPÓSIDO - CISPLATINO - IFOSFAMIDA - MESNA) (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 408050
+  },
+  {
+    "codigo": "2908012",
+    "familia": "TPF (5 FLUOROURACILO - CISPLATINO - DOCETAXEL) (CICLO)",
+    "glosaTrazadora": "TPF (5 FLUOROURACILO - CISPLATINO - DOCETAXEL) (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 206610
+  },
+  {
+    "codigo": "2908014",
+    "familia": "IE (IFOSFAMIDA - ETOPÓSIDO - MESNA) (CICLO)",
+    "glosaTrazadora": "IE (IFOSFAMIDA - ETOPÓSIDO - MESNA) (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 336970
+  },
+  {
+    "codigo": "2908015",
+    "familia": "DOXORRUBICINA - IFOSFAMIDA - MESNA (CICLO)",
+    "glosaTrazadora": "DOXORRUBICINA - IFOSFAMIDA - MESNA (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 292400
+  },
+  {
+    "codigo": "2908017",
+    "familia": "DOXORRUBICINA - CISPLATINO - METROTEXATO (CICLO)",
+    "glosaTrazadora": "DOXORRUBICINA - CISPLATINO - METROTEXATO (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 237650
+  },
+  {
+    "codigo": "2908018",
+    "familia": "AC DÓSIS DENSA (DOXORRUBICINA - CICLOFOSFAMIDA) (CICLO)",
+    "glosaTrazadora": "AC DÓSIS DENSA (DOXORRUBICINA - CICLOFOSFAMIDA) (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 68090
+  },
+  {
+    "codigo": "2908019",
+    "familia": "FOLFIRINOX (5 FLUOROURACILO - LEUCOVORINA - OXALIPLATINO - IRINOTECAN) (CICLO)",
+    "glosaTrazadora": "FOLFIRINOX (5 FLUOROURACILO - LEUCOVORINA - OXALIPLATINO - IRINOTECAN) (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 173280
+  },
+  {
+    "codigo": "2908004",
+    "familia": "VTD (TALIDOMIDA - DEXAMETASONA - BORTEZOMIB) (CICLO)",
+    "glosaTrazadora": "VTD (TALIDOMIDA - DEXAMETASONA - BORTEZOMIB) (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 68050
+  },
+  {
+    "codigo": "2908008",
+    "familia": "LENALIDOMIDA (CICLO) **",
+    "glosaTrazadora": "LENALIDOMIDA (CICLO) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 31610
+  },
+  {
+    "codigo": "2908009",
+    "familia": "VRD (LENALIDOMIDA - DEXAMETASONA - BORTEZOMIB) (CICLO) **",
+    "glosaTrazadora": "VRD (LENALIDOMIDA - DEXAMETASONA - BORTEZOMIB) (CICLO) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 52870
+  },
+  {
+    "codigo": "2908016",
+    "familia": "VAC (DOXORRUBICINA O ACTINOMICINA D - VINCRISTINA - CICLOFOSFAMIDA) (CICLO)",
+    "glosaTrazadora": "VAC (DOXORRUBICINA O ACTINOMICINA D - VINCRISTINA - CICLOFOSFAMIDA) (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 118480
+  },
+  {
+    "codigo": "2908114",
+    "familia": "MIDOSTAURINA (CICLO) **",
+    "glosaTrazadora": "MIDOSTAURINA (CICLO) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 23226010
+  },
+  {
+    "codigo": "2908021",
+    "familia": "CETUXIMAB (CICLO) **",
+    "glosaTrazadora": "CETUXIMAB (CICLO) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Año",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 2549590
+  },
+  {
+    "codigo": "2908022",
+    "familia": "PANITUMUMAB (CICLO) **",
+    "glosaTrazadora": "PANITUMUMAB (CICLO) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 2184230
+  },
+  {
+    "codigo": "2908023",
+    "familia": "BEVACIZUMAB (CICLO) **",
+    "glosaTrazadora": "BEVACIZUMAB (CICLO) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 2162990
+  },
+  {
+    "codigo": "2908025",
+    "familia": "TDM1  (CICLO) **",
+    "glosaTrazadora": "TDM1  (CICLO) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 2325770
+  },
+  {
+    "codigo": "2908026",
+    "familia": "EVEROLIMUS (CICLO) **",
+    "glosaTrazadora": "EVEROLIMUS (CICLO) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 1086960
+  },
+  {
+    "codigo": "2908027",
+    "familia": "PROCARBAZINA (CICLO)",
+    "glosaTrazadora": "PROCARBAZINA (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 1685330
+  },
+  {
+    "codigo": "2908028",
+    "familia": "FULVESTRANT (CICLO) **",
+    "glosaTrazadora": "FULVESTRANT (CICLO) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 64330
+  },
+  {
+    "codigo": "2908030",
+    "familia": "OCTEOTRIDE LAR (CICLO)",
+    "glosaTrazadora": "OCTEOTRIDE LAR (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 1179090
+  },
+  {
+    "codigo": "2908031",
+    "familia": "CYBORD (CICLOFOSFAMIDA - DEXAMETASONA - BORTEZOMIB) (CICLO)",
+    "glosaTrazadora": "CYBORD (CICLOFOSFAMIDA - DEXAMETASONA - BORTEZOMIB) (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 116290
+  },
+  {
+    "codigo": "2908032",
+    "familia": "LANREOTIDE (CICLO)",
+    "glosaTrazadora": "LANREOTIDE (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 993250
+  },
+  {
+    "codigo": "2908033",
+    "familia": "VINORELBINA (CICLO)",
+    "glosaTrazadora": "VINORELBINA (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 2034900
+  },
+  {
+    "codigo": "2908034",
+    "familia": "PEMETREXED (CICLO)",
+    "glosaTrazadora": "PEMETREXED (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 117810
+  },
+  {
+    "codigo": "2908035",
+    "familia": "LOMUSTINA (CICLO)",
+    "glosaTrazadora": "LOMUSTINA (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 68070
+  },
+  {
+    "codigo": "2908036",
+    "familia": "GEMCITABINA (CICLO)",
+    "glosaTrazadora": "GEMCITABINA (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 90560
+  },
+  {
+    "codigo": "2908037",
+    "familia": "GCD (GEMCITABINA - CISPLATINO - DEXAMETASONA) (CICLO)",
+    "glosaTrazadora": "GCD (GEMCITABINA - CISPLATINO - DEXAMETASONA) (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 105170
+  },
+  {
+    "codigo": "2908038",
+    "familia": "CAPECITABINA (CICLO)",
+    "glosaTrazadora": "CAPECITABINA (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 68970
+  },
+  {
+    "codigo": "2908039",
+    "familia": "MPT (MELFALAN - PREDNISONA - TALIDOMIDA) (CICLO)",
+    "glosaTrazadora": "MPT (MELFALAN - PREDNISONA - TALIDOMIDA) (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 93530
+  },
+  {
+    "codigo": "2908040",
+    "familia": "CTD (CICLOFOSFAMIDA - DEXAMETASONA - TALIDOMIDA) (MENSUAL)",
+    "glosaTrazadora": "CTD (CICLOFOSFAMIDA - DEXAMETASONA - TALIDOMIDA) (MENSUAL)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 105850
+  },
+  {
+    "codigo": "2908042",
+    "familia": "CARBOPLATINO (CICLO)",
+    "glosaTrazadora": "CARBOPLATINO (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 40940
+  },
+  {
+    "codigo": "2908045",
+    "familia": "ETOPÓSIDO (CICLO)",
+    "glosaTrazadora": "ETOPÓSIDO (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 118660
+  },
+  {
+    "codigo": "2908047",
+    "familia": "CICLOFOSFAMIDA (CICLO)",
+    "glosaTrazadora": "CICLOFOSFAMIDA (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 33560
+  },
+  {
+    "codigo": "2908086",
+    "familia": "5 FLUOROURACILO (POR UNA VEZ)",
+    "glosaTrazadora": "5 FLUOROURACILO (POR UNA VEZ)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 112200
+  },
+  {
+    "codigo": "2908088",
+    "familia": "5 FLUOROURACILO - MITOMICINA C (CICLO)",
+    "glosaTrazadora": "5 FLUOROURACILO - MITOMICINA C (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 362270
+  },
+  {
+    "codigo": "2908090",
+    "familia": "5 FLUOROURACILO - CISPLATINO (CICLO)",
+    "glosaTrazadora": "5 FLUOROURACILO - CISPLATINO (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 162880
+  },
+  {
+    "codigo": "2908091",
+    "familia": "CISPLATINO SEMANAL",
+    "glosaTrazadora": "CISPLATINO SEMANAL",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 25340
+  },
+  {
+    "codigo": "2908092",
+    "familia": "ETOPÓSIDO - CISPLATINO (CICLO)",
+    "glosaTrazadora": "ETOPÓSIDO - CISPLATINO (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 182010
+  },
+  {
+    "codigo": "2908093",
+    "familia": "CISPLATINO (CICLO)",
+    "glosaTrazadora": "CISPLATINO (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 50680
+  },
+  {
+    "codigo": "2908050",
+    "familia": "AVELUMAB (CICLO) **",
+    "glosaTrazadora": "AVELUMAB (CICLO) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 7026450
+  },
+  {
+    "codigo": "2908051",
+    "familia": "PEMETREXED / CARBOPLATINO - PEMBROLIZUMAB (CICLO) **",
+    "glosaTrazadora": "PEMETREXED / CARBOPLATINO - PEMBROLIZUMAB (CICLO) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 4362310
+  },
+  {
+    "codigo": "2908053",
+    "familia": "RITUXIMAB - CICLOFOSFAMIDA - DOXORRUBICINA - VINCRISTINA - PREDNISONA (CICLO) **",
+    "glosaTrazadora": "RITUXIMAB - CICLOFOSFAMIDA - DOXORRUBICINA - VINCRISTINA - PREDNISONA (CICLO) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 251130
+  },
+  {
+    "codigo": "2908055",
+    "familia": "PACLITAXEL - CARBOPLATINO - PERTUZUMAB -TRASTUZUMAB (CICLO)* **",
+    "glosaTrazadora": "PACLITAXEL - CARBOPLATINO - PERTUZUMAB -TRASTUZUMAB (CICLO)* **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 5547990
+  },
+  {
+    "codigo": "2908061",
+    "familia": "PACLITAXEL (CICLO)",
+    "glosaTrazadora": "PACLITAXEL (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 59690
+  },
+  {
+    "codigo": "2908054",
+    "familia": "AZACITIDINA (CICLO) **",
+    "glosaTrazadora": "AZACITIDINA (CICLO) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 225820
+  },
+  {
+    "codigo": "2908056",
+    "familia": "RITUXIMAB - CLORAMBUCILO (CICLO) **",
+    "glosaTrazadora": "RITUXIMAB - CLORAMBUCILO (CICLO) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 157720
+  },
+  {
+    "codigo": "2908058",
+    "familia": "RITUXIMAB (CICLO) **",
+    "glosaTrazadora": "RITUXIMAB (CICLO) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 146870
+  },
+  {
+    "codigo": "2908059",
+    "familia": "RITUXIMAB - CICLOFOSFAMIDA - DEXAMETASONA (CICLO) **",
+    "glosaTrazadora": "RITUXIMAB - CICLOFOSFAMIDA - DEXAMETASONA (CICLO) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 217550
+  },
+  {
+    "codigo": "2908060",
+    "familia": "TEMOZOLOMIDA (CICLO)",
+    "glosaTrazadora": "TEMOZOLOMIDA (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 583750
+  },
+  {
+    "codigo": "2908062",
+    "familia": "DOXORRUBICINA LIPOSOMAL (CICLO)",
+    "glosaTrazadora": "DOXORRUBICINA LIPOSOMAL (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 484630
+  },
+  {
+    "codigo": "2908063",
+    "familia": "GEMCITABINA - DOCETAXEL (CICLO)",
+    "glosaTrazadora": "GEMCITABINA - DOCETAXEL (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 150430
+  },
+  {
+    "codigo": "2908064",
+    "familia": "CAP (CISPLATINO - DOXORRUBICINA - CICLOFOSFAMIDA) (CICLO)",
+    "glosaTrazadora": "CAP (CISPLATINO - DOXORRUBICINA - CICLOFOSFAMIDA) (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 65140
+  },
+  {
+    "codigo": "2908065",
+    "familia": "PACLITAXEL - CARBOPLATINO (CICLO)",
+    "glosaTrazadora": "PACLITAXEL - CARBOPLATINO (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 80160
+  },
+  {
+    "codigo": "2908066",
+    "familia": "FOLFIRI (5 FLUOROURACILO - LEUCOVORINA - IRINOTECAN) (CICLO)",
+    "glosaTrazadora": "FOLFIRI (5 FLUOROURACILO - LEUCOVORINA - IRINOTECAN) (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 87960
+  },
+  {
+    "codigo": "2908067",
+    "familia": "PEMETREXED - CARBOPLATINO (CICLO)",
+    "glosaTrazadora": "PEMETREXED - CARBOPLATINO (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 179220
+  },
+  {
+    "codigo": "2908068",
+    "familia": "PACLITAXEL - CISPLATINO (CICLO)",
+    "glosaTrazadora": "PACLITAXEL - CISPLATINO (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 57910
+  },
+  {
+    "codigo": "2908070",
+    "familia": "FOLFOX (5 FLUOROURACILO - LEUCOVORINA - OXALIPLATINO) (CICLO)",
+    "glosaTrazadora": "FOLFOX (5 FLUOROURACILO - LEUCOVORINA - OXALIPLATINO) (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 130490
+  },
+  {
+    "codigo": "2908071",
+    "familia": "PEMETREXED - CISPLATINO (CICLO)",
+    "glosaTrazadora": "PEMETREXED - CISPLATINO (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 155830
+  },
+  {
+    "codigo": "2908072",
+    "familia": "GEMCITABINA - CARBOPLATINO (CICLO)",
+    "glosaTrazadora": "GEMCITABINA - CARBOPLATINO (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 151970
+  },
+  {
+    "codigo": "2908073",
+    "familia": "5 FLUOROURACILO - LEUCOVORINA (CICLO)",
+    "glosaTrazadora": "5 FLUOROURACILO - LEUCOVORINA (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 101270
+  },
+  {
+    "codigo": "2908074",
+    "familia": "DOCETAXEL - CARBOPLATINO (CICLO)",
+    "glosaTrazadora": "DOCETAXEL - CARBOPLATINO (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 151470
+  },
+  {
+    "codigo": "2908075",
+    "familia": "EMA (ETOPÓSIDO - METOTREXATO - ACTINOMICINA D - LEUCOVORINA) / CO (CICLOFOSFAMIDA - VINCRISTINA) (CICLO)",
+    "glosaTrazadora": "EMA (ETOPÓSIDO - METOTREXATO - ACTINOMICINA D - LEUCOVORINA) / CO (CICLOFOSFAMIDA - VINCRISTINA) (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 436190
+  },
+  {
+    "codigo": "2908076",
+    "familia": "GEMCITABINA - CISPLATINO (CICLO)",
+    "glosaTrazadora": "GEMCITABINA - CISPLATINO (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 98380
+  },
+  {
+    "codigo": "2908077",
+    "familia": "DOCETAXEL (CICLO)",
+    "glosaTrazadora": "DOCETAXEL (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 135090
+  },
+  {
+    "codigo": "2908078",
+    "familia": "BEP (BLEOMICINA - ETOPÓSIDO - CISPLATINO) (CICLO)",
+    "glosaTrazadora": "BEP (BLEOMICINA - ETOPÓSIDO - CISPLATINO) (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 303340
+  },
+  {
+    "codigo": "2908079",
+    "familia": "ETOPÓSIDO - CARBOPLATINO (CICLO)",
+    "glosaTrazadora": "ETOPÓSIDO - CARBOPLATINO (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 100960
+  },
+  {
+    "codigo": "2908082",
+    "familia": "IFOSFAMIDA - MESNA (CICLO)",
+    "glosaTrazadora": "IFOSFAMIDA - MESNA (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 148910
+  },
+  {
+    "codigo": "2908084",
+    "familia": "DOXORRUBICINA (CICLO)",
+    "glosaTrazadora": "DOXORRUBICINA (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 34530
+  },
+  {
+    "codigo": "2908097",
+    "familia": "ALECTINIB (MENSUAL) **",
+    "glosaTrazadora": "ALECTINIB (MENSUAL) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 3235850
+  },
+  {
+    "codigo": "2908098",
+    "familia": "OSIMERTINIB (MENSUAL) **",
+    "glosaTrazadora": "OSIMERTINIB (MENSUAL) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 4723550
+  },
+  {
+    "codigo": "2908101",
+    "familia": "SORAFENIB (MENSUAL) **",
+    "glosaTrazadora": "SORAFENIB (MENSUAL) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 2004810
+  },
+  {
+    "codigo": "2908100",
+    "familia": "AFATINIB (MENSUAL)",
+    "glosaTrazadora": "AFATINIB (MENSUAL)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 1898110
+  },
+  {
+    "codigo": "2908102",
+    "familia": "CRIZOTINIB (MENSUAL)",
+    "glosaTrazadora": "CRIZOTINIB (MENSUAL)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 2916980
+  },
+  {
+    "codigo": "2908103",
+    "familia": "SUNITINIB (CICLO)",
+    "glosaTrazadora": "SUNITINIB (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 256200
+  },
+  {
+    "codigo": "2908113",
+    "familia": "PONATINIB (MENSUAL) **",
+    "glosaTrazadora": "PONATINIB (MENSUAL) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 5808180
+  },
+  {
+    "codigo": "2908104",
+    "familia": "ERLOTINIB (MENSUAL)",
+    "glosaTrazadora": "ERLOTINIB (MENSUAL)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 41980
+  },
+  {
+    "codigo": "2908105",
+    "familia": "GEFITINIB (MENSUAL)",
+    "glosaTrazadora": "GEFITINIB (MENSUAL)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 222650
+  },
+  {
+    "codigo": "2908106",
+    "familia": "PAZOPANIB (MENSUAL)",
+    "glosaTrazadora": "PAZOPANIB (MENSUAL)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 1209180
+  },
+  {
+    "codigo": "2908107",
+    "familia": "DASATINIB (MENSUAL) **",
+    "glosaTrazadora": "DASATINIB (MENSUAL) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 608100
+  },
+  {
+    "codigo": "2908094",
+    "familia": "ENZALUTAMIDA(MENSUAL) **",
+    "glosaTrazadora": "ENZALUTAMIDA(MENSUAL) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 487950
+  },
+  {
+    "codigo": "2908095",
+    "familia": "ABIRATERONA  (MENSUAL) **",
+    "glosaTrazadora": "ABIRATERONA  (MENSUAL) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 72250
+  },
+  {
+    "codigo": "2908096",
+    "familia": "LEUPROLIDE (CICLO)",
+    "glosaTrazadora": "LEUPROLIDE (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 46770
+  },
+  {
+    "codigo": "2908115",
+    "familia": "H-ATG  (LINFOGLOBULINA) (POR UNA VEZ) **",
+    "glosaTrazadora": "H-ATG  (LINFOGLOBULINA) (POR UNA VEZ) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Año",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 53689170
+  },
+  {
+    "codigo": "2908116",
+    "familia": "R-ATG (TIMOGLOBULINA) (POR UNA VEZ) **",
+    "glosaTrazadora": "R-ATG (TIMOGLOBULINA) (POR UNA VEZ) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Año",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 16178300
+  },
+  {
+    "codigo": "2908117",
+    "familia": "RITUXIMAB (COMPLEMENTO) **",
+    "glosaTrazadora": "RITUXIMAB (COMPLEMENTO) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 293740
+  },
+  {
+    "codigo": "2908118",
+    "familia": " ICE (IFOSFAMIDA + MESNA - ETOPÓSIDO - CARBOPLATINO:AUC)  (CICLO)",
+    "glosaTrazadora": " ICE (IFOSFAMIDA + MESNA - ETOPÓSIDO - CARBOPLATINO:AUC)  (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 337840
+  },
+  {
+    "codigo": "2908119",
+    "familia": "ESHAP (ETOPÓSIDO - CISPLATINO - CITARABINA) (CICLO)",
+    "glosaTrazadora": "ESHAP (ETOPÓSIDO - CISPLATINO - CITARABINA) (CICLO)",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 152710
+  },
+  {
+    "codigo": "2908120",
+    "familia": "LENALIDOMIDA + DEXAMETASONA (CICLO) **",
+    "glosaTrazadora": "LENALIDOMIDA + DEXAMETASONA (CICLO) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 38390
+  },
+  {
+    "codigo": "2908121",
+    "familia": "PERTUZUMAB - TRASTUZUMAB -DOCETAXEL (PRIMERA DOSIS) (POR UNA VEZ)* **",
+    "glosaTrazadora": "PERTUZUMAB - TRASTUZUMAB -DOCETAXEL (PRIMERA DOSIS) (POR UNA VEZ)* **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Año",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 4377110
+  },
+  {
+    "codigo": "2908122",
+    "familia": "PERTUZUMAB - TRASTUZUMAB -DOCETAXEL (DOSIS DE MANTENCIÓN) (CICLO)* **",
+    "glosaTrazadora": "PERTUZUMAB - TRASTUZUMAB -DOCETAXEL (DOSIS DE MANTENCIÓN) (CICLO)* **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 2233580
+  },
+  {
+    "codigo": "2908123",
+    "familia": "PERTUZUMAB - TRASTUZUMAB - PACLITAXEL (CICLO)* **",
+    "glosaTrazadora": "PERTUZUMAB - TRASTUZUMAB - PACLITAXEL (CICLO)* **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 5526380
+  },
+  {
+    "codigo": "2908124",
+    "familia": "PALBOCICLIB + FULVESTRANT (CICLO) **",
+    "glosaTrazadora": "PALBOCICLIB + FULVESTRANT (CICLO) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 246790
+  },
+  {
+    "codigo": "2908125",
+    "familia": "PEMBROLIZUMAB - CISPLATINO -  5 FLUOROURACILO (CICLO) **",
+    "glosaTrazadora": "PEMBROLIZUMAB - CISPLATINO -  5 FLUOROURACILO (CICLO) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 4351800
+  },
+  {
+    "codigo": "2908126",
+    "familia": "LORLATINIB (MENSUAL) **",
+    "glosaTrazadora": "LORLATINIB (MENSUAL) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 3688520
+  },
+  {
+    "codigo": "2908127",
+    "familia": "BLINATUMOMAB (POR UNA VEZ) **",
+    "glosaTrazadora": "BLINATUMOMAB (POR UNA VEZ) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Año",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 78168720
+  },
+  {
+    "codigo": "2908128",
+    "familia": "PEMBROLIZUMAB (CICLO) **",
+    "glosaTrazadora": "PEMBROLIZUMAB (CICLO) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 4224020
+  },
+  {
+    "codigo": "2908129",
+    "familia": "RIBOCICLIB (CICLO) **",
+    "glosaTrazadora": "RIBOCICLIB (CICLO) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 2309300
+  },
+  {
+    "codigo": "2908130",
+    "familia": "LENVATINIB (CICLO) **",
+    "glosaTrazadora": "LENVATINIB (CICLO) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 2676430
+  },
+  {
+    "codigo": "2908132",
+    "familia": "NIVOLUMAB (SEGUNDA LINEA DE TRATAMIENTO) **",
+    "glosaTrazadora": "NIVOLUMAB (SEGUNDA LINEA DE TRATAMIENTO) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 2102650
+  },
+  {
+    "codigo": "2908133",
+    "familia": "NIVOLUMAB (DESPUES DE  TRATAMIENTO PREVIO) **",
+    "glosaTrazadora": "NIVOLUMAB (DESPUES DE  TRATAMIENTO PREVIO) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 2102650
+  },
+  {
+    "codigo": "2908134",
+    "familia": "NIVOLUMAB (TRATAMIENTO ADYUVANTE) **",
+    "glosaTrazadora": "NIVOLUMAB (TRATAMIENTO ADYUVANTE) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 2102650
+  },
+  {
+    "codigo": "2908135",
+    "familia": "NIVOLUMAB (PRIMERA LINEA TRATAMIENTO PALIATIVO) **",
+    "glosaTrazadora": "NIVOLUMAB (PRIMERA LINEA TRATAMIENTO PALIATIVO) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 2102650
+  },
+  {
+    "codigo": "2908136",
+    "familia": "ABEMACICLIB (CICLO) **",
+    "glosaTrazadora": "ABEMACICLIB (CICLO) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 2450150
+  },
+  {
+    "codigo": "2908137",
+    "familia": "ATEZOLIZUMAB (CICLO) **",
+    "glosaTrazadora": "ATEZOLIZUMAB (CICLO) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 2502520
+  },
+  {
+    "codigo": "2908142",
+    "familia": "PERTUZUMAB (PRIMERA DOSIS) (POR UNA VEZ) **",
+    "glosaTrazadora": "PERTUZUMAB (PRIMERA DOSIS) (POR UNA VEZ) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 3323160
+  },
+  {
+    "codigo": "2908143",
+    "familia": "PERTUZUMAB (DOSIS DE MANTENCIÓN) (CICLO) **",
+    "glosaTrazadora": "PERTUZUMAB (DOSIS DE MANTENCIÓN) (CICLO) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 1661580
+  },
+  {
+    "codigo": "2908141",
+    "familia": "PREPARACION DE MEDICAMENTO ONCOLOGICO",
+    "glosaTrazadora": "PREPARACIÓN DE MEDICAMENTO ONCOLÓGICO",
+    "frecuenciaCantidad": null,
+    "frecuenciaUnidad": null,
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 26610
+  },
+  {
+    "codigo": "2908138",
+    "familia": "BRIGATINIB (CICLO) **",
+    "glosaTrazadora": "BRIGATINIB (CICLO) **",
+    "frecuenciaCantidad": 1,
+    "frecuenciaUnidad": "Mes",
+    "duplicidadDiaria": "1 Dia",
+    "intervencionSanitaria": "TRATAMIENTO",
+    "arancel2026": 3074060
+  }
+]

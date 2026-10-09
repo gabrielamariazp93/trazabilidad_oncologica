@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { X, Plus, Trash2, FlaskConical } from 'lucide-react';
-import { buscarPacientes, crearPaciente, crearReceta, fetchEsquemasQuimio, fetchEsquemaQuimio, fetchCodigosGes } from '../../lib/api.js';
+import { buscarPacientes, crearPaciente, crearReceta, fetchEsquemasQuimio, fetchEsquemaQuimio, fetchCodigosGes, fetchCodigosPpv, fetchClasificacionReferencia } from '../../lib/api.js';
 import { calcularSC } from '../../lib/ui.js';
 
 function farmacoVacio(categoria) {
@@ -21,6 +21,9 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
   const [diagnostico, setDiagnostico] = useState('');
   const [codigoGesId, setCodigoGesId] = useState('');
   const [codigosGes, setCodigosGes] = useState([]);
+  const [codigoPpvId, setCodigoPpvId] = useState('');
+  const [codigosPpv, setCodigosPpv] = useState([]);
+  const [clasifReferencia, setClasifReferencia] = useState({ dac: [], lrs: [] });
   const [indicacion, setIndicacion] = useState('');
   const [intencion, setIntencion] = useState('');
   const [riesgoEmetico, setRiesgoEmetico] = useState('');
@@ -45,7 +48,19 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
 
   useEffect(() => {
     fetchCodigosGes().then((data) => setCodigosGes(data.codigosGes)).catch(() => {});
+    fetchCodigosPpv().then((data) => setCodigosPpv(data.codigosPpv)).catch(() => {});
+    fetchClasificacionReferencia().then(setClasifReferencia).catch(() => {});
   }, []);
+
+  // Sugiere LRS/DAC según el nombre del fármaco de quimioterapia, comparando contra las listas
+  // reales importadas de la planilla (sin forzar — el usuario siempre puede cambiarlo a mano).
+  function sugerirClasificacion(nombreFarmaco) {
+    if (!nombreFarmaco) return '';
+    const n = nombreFarmaco.trim().toLowerCase();
+    if (clasifReferencia.dac?.some((d) => n.includes(d.toLowerCase()) || d.toLowerCase().includes(n))) return 'DAC';
+    if (clasifReferencia.lrs?.some((d) => n.includes(d.toLowerCase()) || d.toLowerCase().includes(n))) return 'LRS';
+    return '';
+  }
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -120,7 +135,17 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
   function makeSetters(lista, setLista, categoria) {
     return {
       lista,
-      actualizar: (idx, campo, valor) => setLista((l) => l.map((f, i) => (i === idx ? { ...f, [campo]: valor } : f))),
+      actualizar: (idx, campo, valor) => setLista((l) => l.map((f, i) => {
+        if (i !== idx) return f;
+        const actualizada = { ...f, [campo]: valor };
+        // Sugiere LRS/DAC al escribir el nombre, solo si todavía no se eligió una clasificación
+        // a mano — nunca pisa una elección manual existente.
+        if (campo === 'farmaco' && categoria === 'quimioterapia' && !f.clasificacion) {
+          const sugerida = sugerirClasificacion(valor);
+          if (sugerida) actualizada.clasificacion = sugerida;
+        }
+        return actualizada;
+      })),
       agregar: () => setLista((l) => [...l, farmacoVacio(categoria)]),
       quitar: (idx) => setLista((l) => l.filter((_, i) => i !== idx)),
     };
@@ -156,6 +181,7 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
         pacienteId: paciente.id,
         esquemaId,
         codigoGesId: codigoGesId || null,
+        codigoPpvId: codigoPpvId || null,
         protocolo: protocolo.trim(),
         diagnostico: diagnostico.trim() || null,
         indicacion: indicacion.trim() || null,
@@ -347,15 +373,35 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
               <label className="block text-xs font-medium text-slate-500 mb-1">Diagnóstico</label>
               <input value={diagnostico} onChange={(e) => setDiagnostico(e.target.value)} className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm" />
             </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">Código GES (opcional)</label>
-              <select value={codigoGesId} onChange={(e) => setCodigoGesId(e.target.value)} className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm">
-                <option value="">Sin código GES</option>
-                {codigosGes.map((c) => (
-                  <option key={c.id} value={c.id}>{c.codigo} — {c.nombre}</option>
-                ))}
-              </select>
-              {!codigosGes.length && <div className="text-xs text-slate-400 mt-1">Catálogo vacío por ahora.</div>}
+            <div className="col-span-2 grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1">Código GES (opcional)</label>
+                <select
+                  value={codigoGesId}
+                  onChange={(e) => { setCodigoGesId(e.target.value); if (e.target.value) setCodigoPpvId(''); }}
+                  className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm"
+                >
+                  <option value="">Sin código GES</option>
+                  {codigosGes.map((c) => (
+                    <option key={c.id} value={c.id}>{c.codigo} — {c.familia}</option>
+                  ))}
+                </select>
+                {!codigosGes.length && <div className="text-xs text-slate-400 mt-1">Catálogo vacío por ahora.</div>}
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1">Código PPV no GES (opcional)</label>
+                <select
+                  value={codigoPpvId}
+                  onChange={(e) => { setCodigoPpvId(e.target.value); if (e.target.value) setCodigoGesId(''); }}
+                  className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm"
+                >
+                  <option value="">Sin código PPV no GES</option>
+                  {codigosPpv.map((c) => (
+                    <option key={c.id} value={c.id}>{c.codigo} — {c.glosaTrazadora}</option>
+                  ))}
+                </select>
+                <div className="text-xs text-slate-400 mt-1">Para REM/tributación estadística — usa uno u otro, no ambos.</div>
+              </div>
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">Indicación</label>
