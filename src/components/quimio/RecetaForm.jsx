@@ -15,8 +15,7 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
 
   const [esquemaId, setEsquemaId] = useState(null);
   const [esquemaNombre, setEsquemaNombre] = useState('');
-  const [busquedaEsquema, setBusquedaEsquema] = useState('');
-  const [resultadosEsquema, setResultadosEsquema] = useState([]);
+  const [esquemas, setEsquemas] = useState([]);
   const [protocolo, setProtocolo] = useState('');
   const [diagnostico, setDiagnostico] = useState('');
   const [estadio, setEstadio] = useState('');
@@ -48,6 +47,7 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
   const scCalculada = useMemo(() => calcularSC(pesoKg, tallaCm), [pesoKg, tallaCm]);
 
   useEffect(() => {
+    fetchEsquemasQuimio().then((data) => setEsquemas(data.esquemas)).catch(() => {});
     fetchCodigosGes().then((data) => setCodigosGes(data.codigosGes)).catch(() => {});
     fetchCodigosPpv().then((data) => setCodigosPpv(data.codigosPpv)).catch(() => {});
     fetchClasificacionReferencia().then(setClasifReferencia).catch(() => {});
@@ -80,29 +80,9 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
     return () => clearTimeout(debounceRef.current);
   }, [rutBusqueda, pacienteSeleccionado]);
 
-  const debounceEsquemaRef = useRef(null);
-  useEffect(() => {
-    if (debounceEsquemaRef.current) clearTimeout(debounceEsquemaRef.current);
-    if (!busquedaEsquema.trim() || esquemaId) {
-      setResultadosEsquema([]);
-      return;
-    }
-    debounceEsquemaRef.current = setTimeout(async () => {
-      try {
-        const data = await fetchEsquemasQuimio(busquedaEsquema.trim());
-        setResultadosEsquema(data.esquemas);
-      } catch {
-        setResultadosEsquema([]);
-      }
-    }, 250);
-    return () => clearTimeout(debounceEsquemaRef.current);
-  }, [busquedaEsquema, esquemaId]);
-
   async function seleccionarEsquema(esquemaBasico) {
     setEsquemaId(esquemaBasico.id);
     setEsquemaNombre(esquemaBasico.nombre);
-    setBusquedaEsquema(esquemaBasico.nombre);
-    setResultadosEsquema([]);
     setProtocolo(esquemaBasico.nombre);
 
     const { esquema } = await fetchEsquemaQuimio(esquemaBasico.id);
@@ -130,7 +110,6 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
   function quitarEsquema() {
     setEsquemaId(null);
     setEsquemaNombre('');
-    setBusquedaEsquema('');
   }
 
   function makeSetters(lista, setLista, categoria) {
@@ -329,33 +308,23 @@ export default function RecetaForm({ bootstrap, pacienteInicial, onClose, onCrea
 
           <div>
             <label className="flex items-center gap-1.5 text-xs font-medium text-slate-500 mb-1">
-              <FlaskConical className="w-3.5 h-3.5" /> Buscar esquema del catálogo
+              <FlaskConical className="w-3.5 h-3.5" /> Esquema del catálogo
             </label>
-            <div className="relative">
-              <input
-                value={busquedaEsquema}
-                onChange={(e) => {
-                  setBusquedaEsquema(e.target.value);
-                  if (esquemaId) quitarEsquema();
-                }}
-                placeholder="Ej. AC-21, FOLFOX 6, TAXOL-CRB…"
-                className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm"
-              />
-              {esquemaId && (
-                <button type="button" onClick={quitarEsquema} className="absolute right-2 top-2 text-slate-400 hover:text-slate-600">
-                  <X className="w-4 h-4" />
-                </button>
-              )}
-            </div>
-            {resultadosEsquema.length > 0 && (
-              <div className="mt-1 border border-slate-200 rounded-md divide-y divide-slate-100 max-h-40 overflow-y-auto">
-                {resultadosEsquema.map((e) => (
-                  <button type="button" key={e.id} onClick={() => seleccionarEsquema(e)} className="w-full text-left px-3 py-1.5 text-sm hover:bg-slate-50">
-                    {e.nombre}
-                  </button>
-                ))}
-              </div>
-            )}
+            <select
+              value={esquemaId ?? ''}
+              onChange={(e) => {
+                const id = e.target.value;
+                if (!id) { quitarEsquema(); return; }
+                const elegido = esquemas.find((es) => es.id === id);
+                if (elegido) seleccionarEsquema(elegido);
+              }}
+              className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm"
+            >
+              <option value="">Sin esquema (protocolo libre)</option>
+              {esquemas.map((e) => (
+                <option key={e.id} value={e.id}>{e.nombre}</option>
+              ))}
+            </select>
             {esquemaId && (
               <div className="text-xs text-emerald-600 mt-1">
                 Esquema "{esquemaNombre}" cargado — fármacos y ciclos precargados abajo, puedes seguir editando.
